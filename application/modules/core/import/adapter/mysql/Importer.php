@@ -19,8 +19,24 @@
  */
 
 class Core_Import_Adapter_Mysql_Importer
-	implements Core_Import_Importer
+	implements Core_Import_Importer	
 {
+	
+	private function _getReplacements() 
+	{
+		$replacements = array();
+		$config  = Tomato_Config::getConfig();
+		
+		foreach ($config->import->replacements as $replacement) {
+			if (strpos($replacement->value, 'config://') === false) {
+				$replacements[$replacement->key] = $replacement->value;
+			} else {
+				$replacements[$replacement->key] = $config->getOption(substr($replacement->value,8));
+			}			
+		}		
+		return count($replacements) == 0 ? null : $replacements;
+	}
+	
 	public function import($file)
 	{
 		$config  = Tomato_Config::getConfig();
@@ -42,7 +58,8 @@ class Core_Import_Adapter_Mysql_Importer
 							mysql_real_escape_string($server['charset'])));
 		
 		$prefix  = Tomato_Db_Connection::factory()->getDbPrefix();
-		$queries = Core_Import_Adapter_MysqlParser::parse($file, $prefix);
+		$replacements = $this->_getReplacements();
+		$queries = Core_Import_Adapter_MysqlParser::parse($file, $prefix, $replacements);
 		if ($queries) {
 			foreach ($queries as $query) {
 				mysql_query($query, $conn);
@@ -53,7 +70,7 @@ class Core_Import_Adapter_Mysql_Importer
 			 	 * 		$conn->beginTransaction();
 			 	 * 		$conn->query($query);
 			 	 * 		$conn->commit();
-			 	 * 	} cactch (Exception $ex) {
+			 	 * 	} catch (Exception $ex) {
 			 	 * 		$conn->rollBack()	
 			 	 * 	}
 			 	 * </code>
