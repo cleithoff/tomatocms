@@ -42,11 +42,10 @@ class Core_Models_Dao_Pdo_Mysql_Page extends Tomato_Model_Dao
 	{
 		$pages = $this->getOrdered();
 		foreach ($pages as $index => $page) {
-			$this->_conn->update($this->_prefix . 'core_page', 
-								array(
-									'ordering' => $index,
-									'page_id'  => $page->page_id,
-								));
+			$this->_conn->update($this->_prefix . 'core_page',
+					array('ordering' => $page->ordering + 1),
+					array('page_id = ?'  => $page->page_id)
+			);
 		}
 		return $index;
 	}
