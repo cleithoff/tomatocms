@@ -39,7 +39,7 @@ class Core_Import_Adapter_MysqlParser
 	 * @param string $file File name
 	 * @return array Array of queries
 	 */
-	public static function parse($file, $prefix = null)
+	public static function parse($file, $prefix = null, $replacement = null)
 	{
 		if (!file_exists($file)) {
 			return null;
@@ -110,8 +110,11 @@ class Core_Import_Adapter_MysqlParser
       		
 			if (preg_match("/;$/", trim($query)) && !$inParents) {
 				if ($prefix) {
-					$query = self::_addPrefix($query, $prefix);
+					$query = self::_addPrefix($query, $prefix);					
 				}
+				if ($replacement) {
+					$query = self::_replace($query, $replacement);
+				}				
 				$queries[] = $query;
 				
 				/**
@@ -145,5 +148,14 @@ class Core_Import_Adapter_MysqlParser
 			$sql = preg_replace($search, $replace, $sql);
 		}
 		return $sql;
+	}
+	
+	private static function _replace($sql, $replacement = null) {
+		if ($replacement) {
+			foreach ($replacement as $search => $replace) {
+				$sql = str_replace($search, $replace, $sql);
+			}			
+		}
+		return $sql;		
 	}	
 }
