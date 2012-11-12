@@ -112,8 +112,8 @@ class Core_Import_Adapter_MysqlParser
 				if ($prefix) {
 					$query = self::_addPrefix($query, $prefix);					
 				}
-				if ($replacements) {
-					$query = self::_replace($query, $replacements);
+				if ($replacement) {
+					$query = self::_replace($query, $replacement);
 				}				
 				$queries[] = $query;
 				
@@ -150,9 +150,11 @@ class Core_Import_Adapter_MysqlParser
 		return $sql;
 	}
 	
-	private static function _replace($sql, $replacements) {
-		foreach ($replacements as $search => $replace) {
-			$sql = preg_replace($search, $replace, $sql);
+	private static function _replace($sql, $replacement = null) {
+		if ($replacement) {
+			foreach ($replacement as $search => $replace) {
+				$sql = str_replace($search, $replace, $sql);
+			}			
 		}
 		return $sql;		
 	}	

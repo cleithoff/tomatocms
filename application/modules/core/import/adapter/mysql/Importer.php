@@ -31,7 +31,15 @@ class Core_Import_Adapter_Mysql_Importer
 			if (strpos($replacement->value, 'config://') === false) {
 				$replacements[$replacement->key] = $replacement->value;
 			} else {
-				$replacements[$replacement->key] = $config->getOption(substr($replacement->value,8));
+				$path = substr($replacement->value,9);
+				$path = explode('.', $path);
+				$key = $path[0];
+				$value = $config->$key;
+				for($i = 1;$i < count($path);$i++) {
+					$key = $path[$i];
+					$value = $value->$key;
+				}
+				$replacements[$replacement->key] = $value;
 			}			
 		}		
 		return count($replacements) == 0 ? null : $replacements;
@@ -58,8 +66,8 @@ class Core_Import_Adapter_Mysql_Importer
 							mysql_real_escape_string($server['charset'])));
 		
 		$prefix  = Tomato_Db_Connection::factory()->getDbPrefix();
-		$replacements = $this->_getReplacements();
-		$queries = Core_Import_Adapter_MysqlParser::parse($file, $prefix, $replacements);
+		$replacement = $this->_getReplacements();
+		$queries = Core_Import_Adapter_MysqlParser::parse($file, $prefix, $replacement);
 		if ($queries) {
 			foreach ($queries as $query) {
 				mysql_query($query, $conn);

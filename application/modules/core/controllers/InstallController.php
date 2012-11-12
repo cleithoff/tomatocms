@@ -670,6 +670,7 @@ class Core_InstallController extends Zend_Controller_Action
 						$importer = Core_Import_ImporterFactory::getInstance();
 						if ($importer != null && $file != null) {
 							$importer->import(TOMATO_ROOT_DIR . $file);
+							$importer->import(TOMATO_ROOT_DIR . str_replace('.sql', '_customize.sql', $file));
 						}
 					}
 				} catch (Exception $ex) {
