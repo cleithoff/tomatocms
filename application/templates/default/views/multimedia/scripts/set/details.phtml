@@ -1,0 +1,50 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version		$Id: details.phtml 5125 2010-08-30 04:05:28Z huuphuoc $
+ * @since		2.0.2
+ */
+?>
+<?php
+$this->headTitle($this->set->title);
+?>
+
+<div class="t_multimedia_set_details">
+	<h2><?php echo $this->set->title; ?></h2>
+	
+	<div><?php echo $this->set->description; ?></div>
+	
+	<?php if ($this->files) : ?>
+	<?php foreach ($this->files as $index => $file) : ?>
+		<?php if ($index % 3 == 0) : ?><ul class="clearfix"><?php endif; ?>
+		
+		<li>
+			<a href="<?php echo $this->url(array('file_id' => $file->file_id, 'set_id' => $this->set->set_id), 'multimedia_file_details_inset'); ?>">
+				<img src="<?php echo $file->image_small; ?>" />
+			</a>
+			<h3><?php echo $file->title; ?></h3>
+			<cite><?php echo $file->created_date; ?></cite>
+			<div><?php echo $file->description; ?></div>
+		</li>
+		
+		<?php if ($index % 3 == 2 || $index == count($this->files) - 1) : ?></ul><?php endif; ?>
+	<?php endforeach; ?>
+	<?php endif; ?>
+	
+	<div class="paginator">
+		<?php echo $this->paginator()->slide($this->paginator, $this->paginatorOptions); ?>
+	</div>
+</div>

@@ -1,0 +1,101 @@
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: default-rtl.css 5283 2010-09-02 09:36:56Z huuphuoc $
+ * @since		2.0.3
+ */
+
+@import "default.css";
+ 
+/** 
+ * Support RTL style
+ */
+html, body { direction: rtl; }
+
+.left { float: right; }
+.right { float: left; }
+
+/* ========== Modules ======================================================= */
+
+.t_news_category .image { float: right; margin-right: 0px; margin-left: 10px; }
+.t_news_category li img { border: 1px solid #CCC; margin-right: 0px; margin-left: 10px; }
+
+/* ========== Core Widgets ================================================== */
+
+/**
+ * core/login
+ */
+.t_core_login label, .t_core_login input { float: right; }
+
+/* ========== Menu Widgets ================================================== */
+
+/** menu */
+.t_menu_menu { position: absolute; top: -55px; left: 0px; }
+
+/**
+ * multimedia/filesets
+ */
+.t_multimedia_filesets li img { float: right; margin-left: 5px; margin-right: 0px; }
+
+/**
+ * multimedia/latestsets
+ */
+.t_multimedia_latestsets li img { float: right; margin-left: 5px; margin-right: 0px; }
+
+/**
+ * multimeida/player
+ */
+.t_multimeida_player .t_multimeida_player_list table { direction: rtl; }
+
+/* ========== News Widgets ================================================== */
+
+/** categories */
+.t_news_categories h2 a { padding-right: 0px; padding-left: 20px; }
+.t_news_categories ul li { background: url(images/square.jpg) right 8px no-repeat; padding-left: 0; padding-right: 15px; line-height: 22px; }
+.t_news_categories .rss { position: absolute; top: 8px; left: 0; right: auto; width: 16px; padding-left: 0; }
+
+/** hotest */
+.t_news_hotest li { background: url(images/square.jpg) right 8px no-repeat; padding-left: 0px; padding-right: 10px; }
+
+/** mostviewed */
+.t_news_mostviewed li { background: url(images/square.jpg) right 8px no-repeat; padding-left: 0px; padding-right: 10px; }
+
+/** newer */
+.t_news_newer li { background: url(images/square.jpg) right 8px no-repeat; padding-left: 0px; padding-right: 10px; }
+
+/** newest */
+.t_news_newest .image { float: right; margin-right: 0px; margin-left: 5px; }
+
+/** older */
+.t_news_older li { background: url(images/square.jpg) right 8px no-repeat; padding-left: 0px; padding-right: 10px; }
+
+/** siblingcategory */
+.t_news_siblingcategory li { background: url(images/square.jpg) right 8px no-repeat; padding-left: 0px; padding-right: 10px; }
+
+/* ========== Tag Widgets =================================================== */
+
+/** tagcloud */
+.t_tag_tagcloud .Zend_Tag_Cloud li { float: right; }
+
+/* ========== Utility Widgets =============================================== */
+
+/** countdown */
+.t_utility_countdown .countdown_section { float: right; }
+
+/** flickr */
+.t_utility_flickr li { float: right; margin-left: 0px; margin-right: 10px; margin-bottom: 10px; }
+
+/** socialshare */
+.t_utility_socialshare li.share { float: right; margin-right: 0px; margin-left: 20px; }

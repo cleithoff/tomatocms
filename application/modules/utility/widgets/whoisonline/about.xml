@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version		$Id: about.xml 5395 2010-09-12 17:03:03Z huuphuoc $
+ * @since		2.0.9
+ */
+-->
+<!DOCTYPE widget SYSTEM "http://schemas.tomatocms.com/dtd/widget_about.dtd">
+<widget>
+	<name>WhoIsOnline</name>
+	<title>Who is online</title>
+	<module>utility</module>
+	<description>Show how many users are online. It also shows the username if the user is registered user</description>
+	<thumbnail></thumbnail>
+	<author>TomatoCMS Core Team</author>
+	<email>core@tomatocms.com</email>
+	<version>2.0.9</version>
+	<license>free</license>
+	<params></params>
+	<resources></resources>
+	<install>
+		<db adapter="mysql|pdo_mysql">
+			<query><![CDATA[DROP TABLE IF EXISTS `###utility_whoisonline_visit`;]]></query>
+			<query><![CDATA[CREATE TABLE `###utility_whoisonline_visit` (
+				  `visit_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+				  `ip` varchar(20) NOT NULL,
+				  `access_time` datetime NULL DEFAULT NULL,
+				  `country` varchar(100) DEFAULT NULL,
+				  `country_code` varchar(2) DEFAULT NULL,
+				  `user_id` int(10) unsigned DEFAULT NULL,
+				  `user_name` varchar(100) DEFAULT NULL,
+				  PRIMARY KEY (`visit_id`)
+				) ENGINE=InnoDB DEFAULT CHARSET=utf8;]]>
+			</query>
+		</db>
+	</install>
+	<uninstall>
+		<db adapter="mysql|pdo_mysql">
+			<query><![CDATA[DROP TABLE IF EXISTS `###utility_whoisonline_visit`;]]></query>
+		</db>
+	</uninstall>
+</widget>

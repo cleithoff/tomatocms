@@ -1,0 +1,42 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: config.phtml 5363 2010-09-09 15:12:39Z huuphuoc $
+ * @since		2.0.8
+ */
+?>
+<div>
+	<div class="t_a_bottom"><?php echo $this->translator()->widget('config_select_set'); ?></div>
+	<div class="t_a_bottom">
+		<select name="set_id" class="t_widget_input">
+			<?php foreach ($this->sets as $set) : ?>
+			<option value="<?php echo $set->set_id; ?>"><?php echo $set->title; ?></option>
+			<?php endforeach; ?>
+		</select>
+	</div>
+	<div class="t_a_bottom">
+		<input type="checkbox" class="t_widget_input_global" name="global_set_id" /> <?php echo $this->translator()->widget('config_set_from_request'); ?>
+	</div>
+	
+	<hr />
+	
+	<div class="t_a_bottom"><?php echo $this->translator()->widget('config_num_photos'); ?></div>
+	<div class="t_a_bottom">
+		<input type="text" class="t_widget_input" name="limit" style="width: 50px" />
+	</div>
+	
+	<hr />
+</div>

@@ -1,0 +1,213 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: list.phtml 4185 2010-08-01 16:31:02Z huuphuoc $
+ * @since		2.0.0
+ */
+?>
+<?php 
+$this->headTitle($this->translator('user_list_page_title'));
+
+$this->headLink()
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.core.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.resizable.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.dialog.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.theme.css');
+
+$this->headScript()
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.core.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.draggable.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.resizable.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.dialog.js');
+?>
+
+<div class="grid_12 t_a_ui_breadcrumb">
+	<span><?php echo $this->translator('user_list_breadcrumb'); ?></span>
+</div>
+
+<div class="grid_12 t_a_bottom">
+	<div class="grid_9 alpha"><?php echo $this->translator('user_list_filter_desc'); ?></div>
+	
+	<div class="grid_3 omega">
+		<div class="t_a_right">	
+			<a href="<?php echo $this->url(array(), 'core_user_add'); ?>" class="t_a_ui_button_link"><span><?php echo $this->translator('user_add_breadcrumb'); ?></span></a>
+		</div>
+	</div>
+</div>
+
+<!-- Filter form -->
+<div class="grid_12 t_a_bottom">
+	<div class="prefix_1 suffix_1" id="filerContainer">
+		<div class="clearfix t_a_bottom">
+			<div class="grid_5 alpha">
+				<label><?php echo $this->translator('user_list_user_name'); ?>:</label>
+				<input type="text" style="width: 180px" name="username" />
+			</div>
+			
+			<div class="grid_5 omega">
+				<label><?php echo $this->translator('user_list_email'); ?>:</label>
+				<input type="text" style="width: 180px" name="email" />
+			</div>
+		</div>
+		
+		<hr />
+		
+		<div class="clearfix t_a_bottom">
+			<div class="grid_5 alpha">
+				<label><?php echo $this->translator('user_list_role'); ?>:</label>
+				<select name="role" style="width: 180px">
+					<option value="">---</option>
+					<?php foreach ($this->roles as $role) : ?>
+					<option value="<?php echo $role->role_id; ?>"><?php echo $role->description; ?></option>
+					<?php endforeach; ?>
+				</select>
+			</div>
+			
+			<div class="grid_5 omega">
+				<label><?php echo $this->translator('user_list_status'); ?>:</label>
+				<select name="status" style="width: 180px">
+					<option value="">---</option>
+					<option value="1"><?php echo $this->translator('user_list_status_activated'); ?></option>
+					<option value="0"><?php echo $this->translator('user_list_status_not_activated'); ?></option>
+				</select>
+			</div>
+		</div>
+		
+		<hr />
+		
+		<div class="clearfix t_a_bottom">
+			<label>&nbsp;</label>
+			<button type="button" id="filterButton"><span><?php echo $this->translator('user_list_filter_button'); ?></span></button>
+		</div>
+	</div>
+</div>
+
+<!-- List of users -->
+<?php if (count($this->users) == 0) : ?>
+<div class="grid_12 t_a_bottom"><?php echo $this->translator('user_list_not_found'); ?></div>
+<?php else : ?>
+<div class="grid_12 t_a_bottom"><?php echo $this->translator('user_list_guide'); ?></div>
+
+<div class="grid_12 t_a_ui_data_list_header">
+	<div class="grid_8 alpha">
+		<div><?php echo $this->translator('user_list_user_name'); ?></div>
+	</div>
+	
+	<div class="grid_3"><?php echo $this->translator('user_list_email'); ?></div>
+	
+	<div class="grid_1 omega"><?php echo $this->translator('user_list_user_id'); ?></div>
+</div>
+
+<div class="grid_12 t_a_bottom">
+	<div id="users">
+		<?php foreach ($this->users as $user) : ?>
+		<div class="clearfix t_a_ui_data_list_content">
+			<div class="grid_8 alpha">
+				<div><?php echo $user->user_name; ?></div>
+				
+				<div class="t_a_top t_a_ui_helper_action">
+					<a href="<?php echo $this->url(array('user_id' => $user->user_id), 'core_user_edit'); ?>"><?php echo $this->translator('user_list_action_edit'); ?></a> |
+					 
+					<a href="<?php echo $this->url(array('user_id' => $user->user_id), 'core_rule_set_user'); ?>"><?php echo $this->translator('user_list_action_rule'); ?></a>
+					
+					<?php if ($user->user_name != $this->currentUser) : ?>
+					| <a class="activateAction" rel="<?php echo $user->user_id; ?>_<?php echo (int)$user->is_active; ?>_<?php echo $user->user_name; ?>" href="javascript: void(0);"><?php if ($user->is_active) : ?><?php echo $this->translator('user_list_action_deactivate'); ?><?php else : ?><?php echo $this->translator('user_list_action_activate'); ?><?php endif; ?></a>
+					<?php endif; ?>
+				</div>
+			</div>
+			
+			<div class="grid_3"><?php echo $user->email; ?></div>
+			
+			<div class="grid_1 omega"><?php echo $user->user_id; ?></div>
+		</div>
+		<?php endforeach; ?>
+		
+		<div class="t_a_bottom t_a_ui_paginator">
+			<?php echo $this->paginator()->slide($this->paginator, $this->paginatorOptions); ?>
+		</div>
+	</div>
+</div>
+<?php endif; ?>
+
+<div id="messageDialog"></div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+	$('#filterButton').click(function() {
+		var query = {
+			username: $('#filerContainer').find('input[name="username"]:first').attr('value'),
+			email: $('#filerContainer').find('input[name="email"]:first').attr('value'),
+			role: $('#filerContainer').find('select[name="role"]:first').attr('value'),
+			status: $('#filerContainer').find('select[name="status"]:first').attr('value')
+		};
+		filterUsers(1, query);
+	});
+
+	<?php if ($this->allow('delete')) : ?>
+	$('a.activateAction').click(function() {
+		activateUser(this);
+	});
+	<?php endif; ?>
+});
+
+function filterUsers(page, query) {
+	query.pageIndex = page;
+	$('#users').html('').addClass('t_a_ui_helper_loading');
+	$.ajaxq('core_user', {
+		url: '<?php echo $this->url(array(), 'core_user_list'); ?>',
+		type: 'POST',
+		data: { query: $.toJSON(query) },
+		success: function(response) {
+			$('#users').html(response).removeClass('t_a_ui_helper_loading').fadeIn('normal');
+		}
+	});
+};
+
+<?php if ($this->allow('delete')) : ?>
+function activateUser(linkObj) {
+	var self = linkObj;
+	var arr = $(self).attr('rel').split('_');
+	$(self).html('').addClass('t_a_ui_helper_loading');
+	$.ajaxq('core_user', {
+		url: '<?php echo $this->url(array(), 'core_user_activate'); ?>',
+		type: 'POST',
+		data: { id: arr[0], status: arr[1] },
+		success: function(response) {
+			$(self).attr('rel', arr[0] + '_' + response + '_' + arr[2]);
+			if (response == 1) {
+				$(self).html("<?php echo $this->translator('user_list_action_deactivate'); ?>");
+			} else {
+				$(self).html("<?php echo $this->translator('user_list_action_activate'); ?>");
+			}
+			$(self).removeClass('t_a_ui_helper_loading').fadeIn('normal');
+
+			$('#messageDialog').html((response == 1) ? sprintf('<?php echo addslashes($this->translator('user_list_activate_success')); ?>', arr[2]) : sprintf('<?php echo addslashes($this->translator('user_list_deactivate_success')); ?>', arr[2]))
+				.dialog({
+					title: '<?php echo addslashes($this->translator('common_dialog_message')); ?>',
+					dialogClass: 't_a_ui_dialog',
+					modal: true,
+			    	show: { effect: 'fade' },
+					open: function(event, ui) {
+						setTimeout(function() {
+							$('#' + event.target.id).dialog('option', 'hide', 'fade').dialog('destroy');
+						}, 3000);
+					}
+				});
+		}
+	});
+};
+<?php endif; ?>
+</script>

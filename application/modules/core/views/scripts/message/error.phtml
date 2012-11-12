@@ -1,0 +1,44 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: error.phtml 4156 2010-07-31 08:23:44Z huuphuoc $
+ * @since		2.0.3
+ */
+?>
+<?php 
+$this->headTitle($this->translator('message_error_page_title'));
+?>
+
+<h2><?php echo $this->translator('message_error_head'); ?></h2>
+<hr />
+
+<div class="t_a_bottom"><?php echo $this->translator('message_error_guide'); ?>: <?php echo $this->message; ?></div>
+
+<div class="t_a_bottom">
+	<button onclick="javascript: history.go(-1);"><span><?php echo $this->translator('message_error_back_button'); ?></span></button>
+	
+	<?php if ($this->debug) : ?>
+	<button onclick="javascript: $('#error').toggle();"><span><?php echo $this->translator('message_error_details_button'); ?></span></button>
+	<?php endif; ?>
+		
+	<div class="clearfix"></div>
+</div>
+
+<?php if ($this->debug) : ?>
+<div id="error" class="t_a_bottom" style="display: none">
+	<?php Zend_Debug::dump($this->error->exception); ?>
+</div>
+<?php endif; ?>

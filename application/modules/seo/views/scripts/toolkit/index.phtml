@@ -1,0 +1,218 @@
+<?php
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: index.phtml 4192 2010-08-01 16:33:45Z huuphuoc $
+ * @since		2.0.7
+ */
+?>
+<?php
+$this->headTitle($this->translator('toolkit_index_page_title'));
+
+$this->headLink()
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.core.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.tabs.css');
+
+$this->headScript()
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.core.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.tabs.js');
+?>
+
+<div class="grid_12 t_a_ui_breadcrumb">
+	<span><?php echo $this->translator('breadcump'); ?></span>
+	<span><?php echo $this->translator('toolkit_index_breadcrumb'); ?></span>
+</div>
+
+<div class="grid_12 t_a_bottom"><?php echo $this->translator('toolkit_index_guide'); ?></div>
+
+<div class="grid_12 t_a_bottom">
+	<div class="prefix_1 suffix_1">
+		<div class="t_a_bottom">
+			<label><?php echo $this->translator('toolkit_index_url'); ?>:</label>
+			<input type="text" id="url" style="width: 400px" value="<?php echo $this->url; ?>" />
+		</div>
+		
+		<div class="t_a_bottom">
+			<label>&nbsp;</label>
+			<button type="button" id="analyzer"><span><?php echo $this->translator('toolkit_index_analyzer_button'); ?></span></button>
+		</div>
+	</div>
+</div>
+
+<div class="grid_12 t_a_bottom"><hr /></div>
+
+<!-- Loading -->
+<div id="loading" class="grid_12 t_a_bottom" style="display: none">&nbsp;</div>
+
+<div class="grid_12">
+	<div class="grid_9 alpha">
+		<!-- Page indexed -->
+		<div id="PageIndexed" class="t_a_bottom" style="display: none">
+			<div class="t_a_ui_helper_head t_a_bottom">
+				<h3><?php echo $this->translator('toolkit_index_page_indexed'); ?></h3>
+			</div>
+		
+			<div class="t_a_ui_tabs">
+				<div id="pageIndexedTabs">
+					<ul>
+						<li><a href="#googlePageIndexed"><span><?php echo $this->translator('toolkit_index_google'); ?></span><span id="googlePageIndexedTotal"></span></a></li>
+						<li><a href="#yahooPageIndexed"><span><?php echo $this->translator('toolkit_index_yahoo'); ?></span><span id="yahooPageIndexedTotal"></span></a></li>
+						<li><a href="#bingPageIndexed"><span><?php echo $this->translator('toolkit_index_bing'); ?></span><span id="bingPageIndexedTotal"></span></a></li>
+					</ul>
+					
+					<!-- Google page indexed -->
+					<div id="googlePageIndexed" class="t_a_top"></div>
+					
+					<!-- Yahoo page indexed -->
+					<div id="yahooPageIndexed" class="t_a_top"></div>
+					
+					<!-- Bing page indexed -->
+					<div id="bingPageIndexed" class="t_a_top"></div>
+				</div>
+			</div>
+		</div>
+		
+		<!-- Back links -->
+		<div id="BackLinks" style="display: none">
+			<div class="t_a_ui_helper_head t_a_bottom">
+				<h3><?php echo $this->translator('toolkit_index_back_links'); ?></h3>
+			</div>
+		
+			<div class="t_a_ui_tabs">
+				<div id="backLinksTabs">
+					<ul>
+						<li><a href="#googleBackLinks"><span><?php echo $this->translator('toolkit_index_google'); ?></span><span id="googleBackLinksTotal"></span></a></li>
+						<li><a href="#yahooBackLinks"><span><?php echo $this->translator('toolkit_index_yahoo'); ?></span><span id="yahooBackLinksTotal"></span></a></li>
+						<li><a href="#bingBackLinks"><span><?php echo $this->translator('toolkit_index_bing'); ?></span><span id="bingBackLinksTotal"></span></a></li>
+					</ul>
+					
+					<!-- Google back links -->
+					<div id="googleBackLinks" class="t_a_top"></div>
+					
+					<!-- Yahoo back links -->
+					<div id="yahooBackLinks" class="t_a_top"></div>
+					
+					<!-- Bing back links -->
+					<div id="bingBackLinks" class="t_a_top"></div>
+				</div>
+			</div>
+		</div>	
+	</div>
+	
+	<div class="grid_3 omega">
+		<!-- Rank -->
+		<div id="rank" style="display: none">
+			<div class="t_a_ui_helper_line">
+				<h3><?php echo $this->translator('toolkit_index_rank'); ?></h3>
+			</div>
+			<div class="t_a_ui_helper_box">
+				<div id="googleRank"></div>
+				<hr />
+				<div id="alexaRank"></div>
+			</div>
+		</div>	
+	</div>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+	/**
+	 * Create tabs
+	 */
+	$('#pageIndexedTabs').tabs();
+	$('#backLinksTabs').tabs();
+
+	/**
+	 * Analyzer button handler
+	 */
+	$('#analyzer').click(function() {
+		var url = $('#url').val();
+
+		var load = {
+			'indexed':  'PageIndexed',
+			'backlink': 'BackLinks'
+		};
+
+		$.each(load, function(action, elementId) {
+			$.ajaxq('toolkit', {
+				url: '<?php echo $this->url(array(), 'seo_toolkit_index'); ?>',
+				data: { url: url, act: action },
+				beforeSend: function(xhr) {
+					$('#loading').addClass('t_a_ui_helper_loading').show();
+				},	
+				success: function(response) {
+					$('#loading').removeClass('t_a_ui_helper_loading').hide();
+					
+					var result = $.evalJSON(response);
+					$.each(['google', 'yahoo', 'bing'], function(index, value) {
+						if (result[value] != null && result[value]['total'] > 0) {
+							var count = result[value]['pages'].length;
+							/**
+							 * Show total indexed pages
+							 */
+							 $('#' + value + elementId + 'Total').html(' (' + result[value]['total'] + ')');
+
+							/**
+							 * Show indexed pages
+							 */
+							$('#' + value + elementId).html(''); 
+							for (var j = 0; j < count; j++) {
+								$('<div/>').addClass('t_a_ui_data_list_content')
+									.html(['<div>',
+											result[value]['pages'][j].title, 
+											'<br />',
+											(result[value]['pages'][j].description == null) ? '' : [result[value]['pages'][j].description, '<br />'].join(''),
+											'<a href="', result[value]['pages'][j].url, '">', result[value]['pages'][j].displayUrl, '</a>', 
+											'</div>'].join(''))
+									.appendTo($('#' + value + elementId));
+							}	
+						}
+					});
+
+					$('#' + elementId).show();
+				}
+			});
+		});
+				 
+		/**
+		 * Load ranks
+		 */
+		$.ajaxq('toolkit', {
+			url: '<?php echo $this->url(array(), 'seo_toolkit_index'); ?>',
+			data: { url: url, act: 'rank' },
+			beforeSend: function(xhr) {
+				$('#loading').addClass('t_a_ui_helper_loading').show();
+			},
+			success: function(response) {
+				$('#loading').removeClass('t_a_ui_helper_loading').hide();
+				
+				var result = $.evalJSON(response);
+				if (result.google == 'RESULT_ERROR') {
+					$('#googleRank').html('<?php echo $this->translator('toolkit_index_google_rank_error'); ?>');
+				} else {
+					$('#googleRank').html(sprintf('<?php echo $this->translator('toolkit_index_google_rank'); ?>', result.google));
+				}
+
+				if (result.alexa == 'RESULT_ERROR') {
+					$('#alexaRank').html('<?php echo $this->translator('toolkit_index_alexa_rank_error'); ?>');
+				} else {
+					$('#alexaRank').html(sprintf('<?php echo $this->translator('toolkit_index_alexa_rank'); ?>', result.alexa));
+				}
+				$('#rank').show();
+			}
+		});
+	});
+});
+</script>

@@ -1,0 +1,66 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: show.phtml 5149 2010-08-30 07:01:53Z huuphuoc $
+ * @since		2.0.2
+ */
+?>
+<div class="t_news_searchbox">
+    <div class="content">
+    	<input type="text" name="q" id="newsSearchBoxKeyword" />
+    	<button type="button" id="newsSearchBoxButton" class="button"><span><?php echo $this->translator()->widget('search_button'); ?></span></button>
+		<div class="clearfix"></div>
+	</div>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+	var url = '<?php echo $this->url(array(), 'news_article_search'); ?>';
+	$('#newsSearchBoxKeyword').keypress(function(e) {
+		if (e.which == 13) {
+			document.location.href = url + '?q=' + $('#newsSearchBoxKeyword').val();
+		}
+	});
+	
+	$('#newsSearchBoxButton').bind('click', function() {
+		document.location.href = url + '?q=' + $('#newsSearchBoxKeyword').val();
+	});
+
+	/**
+	 * Autocomplete
+	 */
+	$('#newsSearchBoxKeyword').autocomplete('<?php echo $this->url(array(), 'news_article_search_suggest'); ?>',
+		{
+			delay: 10,
+			minChars: 2,
+			matchSubset: 1,
+			matchContains: 1,
+			cacheLength: 10,
+			formatItem: function(row) {
+				var img = null;
+				if (row[2] != '') {
+					img = '<img class="left" src="' + row[2] + '" style="padding-right: 5px; width: 40px" />';
+				}
+				return img + row[0];
+			},
+			autoFill: false,
+			extraParams: { 
+				limit: <?php echo $this->limit; ?>
+			}
+		}
+	);
+});
+</script>

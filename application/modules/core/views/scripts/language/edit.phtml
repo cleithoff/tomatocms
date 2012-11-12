@@ -1,0 +1,266 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: edit.phtml 4185 2010-08-01 16:31:02Z huuphuoc $
+ * @since		2.0.0
+ */
+?>
+<?php 
+$this->headTitle($this->translator('language_edit_page_title'));
+
+$this->headLink()
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.core.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.resizable.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.dialog.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.theme.css');
+
+$this->headScript()
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.core.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.draggable.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.resizable.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.dialog.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.validate/jquery.validate.min.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.editinplace/jquery.editinplace.packed.js');
+?>
+
+<div class="grid_12 t_a_ui_breadcrumb">
+	<span><a href="<?php echo $this->url(array(), 'core_language_list'); ?>"><?php echo $this->translator('language_list_breadcrumb'); ?></a></span>
+	<span><?php echo $this->translator('language_edit_breadcrumb'); ?></span>	
+</div>
+
+<div class="grid_12"><?php echo sprintf($this->translator('language_edit_top_guide'), $this->language, $this->moduleName); ?></div>
+
+<div class="grid_12">
+	<!-- Left column -->
+	<div class="grid_3 alpha">
+	<?php if ($this->data) : ?>
+		<div class="t_a_bottom">
+			<div class="t_a_bottom"><?php echo $this->translator('language_edit_section'); ?>:</div>
+			
+			<ul class="t_a_ui_list" id="sectionFilter">
+				<?php foreach ($this->sections as $index => $section) : ?>
+				<li<?php if (0 == $index) : ?> class="t_a_ui_active"<?php endif; ?>><a href="javascript: void(0);"><?php echo $section; ?></a></li>
+				<?php endforeach; ?>
+			</ul>
+		</div>		
+	<?php endif; ?>
+	</div>
+	
+	<!-- Right column -->
+	<div class="grid_9 omega">
+		<?php if ($this->data) : ?>
+		<div class="t_a_bottom">&nbsp;</div>
+		
+		<?php foreach ($this->data as $section => $langs) : ?>
+		<div id="<?php echo $module; ?>Section" class="section t_a_bottom" style="display: none">
+			<div class="t_a_ui_data_list_header">
+				<div class="grid_3 alpha">
+					<div><?php echo $this->translator('language_edit_key'); ?></div>
+				</div>
+				
+				<div class="grid_5"><?php echo $this->translator('language_edit_value'); ?></div>
+				
+				<div class="grid_1 omega">&nbsp;</div>
+			</div>
+		
+			<?php foreach ($langs as $key => $value) : ?>
+			<div class="clearfix t_a_ui_data_list_content" id="keyRow_<?php echo $key; ?>">
+				<div class="grid_3 alpha">
+					<div><?php echo $key; ?></div>
+				</div>
+			
+				<div class="grid_5">
+					<div class="t_a_ui_helper_editable" style="background: #E8E8E8" id="_valueFor_<?php echo $section.'___'.$key; ?>"><?php echo $this->escape($value); ?></div>
+				</div>
+				
+				<div class="grid_1 omega">
+					<div class="t_a_ui_helper_action" style="display: none">
+						<?php if ($this->allow('delete')) : ?>
+							<a class="deleteAction" href="javascript: void(0);" rel="<?php echo $this->escape($section.'___'.$key); ?>"><?php echo $this->translator('language_edit_delete_key'); ?></a>
+						<?php endif; ?>
+					</div>
+				</div>
+			</div>
+			<?php endforeach; ?>
+		</div>
+		<?php endforeach; ?>
+		
+		<?php endif; ?>
+		
+		<!-- Add new language item -->
+		<?php if ($this->allow('add')) : ?>
+		<div class="t_a_bottom">
+			<h3><?php echo $this->translator('language_edit_add_new_key'); ?></h3> 
+			<hr />
+		
+			<form method="post" id="addLanguageForm" action="<?php echo $this->url(array(), 'core_language_add'); ?>">
+				<div class="prefix_1 suffix_1">
+					<div class="clearfix t_a_bottom">
+						<label><?php echo $this->translator('language_edit_select_section'); ?></label>
+						<select name="section" style="width: 140px">
+							<option value="">---</option>
+							<?php foreach ($this->sections as $index => $section) : ?>
+							<option value="<?php echo $section; ?>"><?php echo $section; ?></option>
+							<?php endforeach; ?>
+						</select>
+					</div>
+					
+					<div class="clearfix t_a_bottom">
+						<label><?php echo $this->translator('language_edit_or_create_new_section'); ?></label>
+						<input type="text" style="width: 140px" name="new_section" />
+					</div>
+					
+					<hr />
+					
+					<div class="clearfix t_a_bottom">
+						<label><?php echo $this->translator('language_edit_key'); ?>:</label>
+						<input type="text" style="width: 220px" name="key" id="key" />
+					</div>
+					
+					<hr />
+					
+					<div class="clearfix t_a_bottom">
+						<label><?php echo $this->translator('language_edit_value'); ?>:</label>
+						<input type="text" style="width: 220px" name="value" id="value" />
+					</div>
+					
+					<hr />
+					
+					<div class="clearfix t_a_bottom">
+						<label>&nbsp;</label>
+						<button type="submit"><span><?php echo $this->translator('language_edit_add_new_key_button'); ?></span></button>
+					</div>
+				</div>
+				
+				<input type="hidden" name="module_name" value="<?php echo $this->moduleName; ?>" />
+				<input type="hidden" name="language" value="<?php echo $this->language; ?>" />
+				<input type="hidden" name="widget" value="<?php echo $this->widget; ?>" />
+			</form>
+		</div>
+		<?php endif; ?>
+	</div>
+</div>
+
+<div id="confirmDialog"></div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+	/**
+	 * Data list hover handler
+	 */
+	$('.t_a_ui_data_list_content').hover(function() {
+		$(this).find('.t_a_ui_helper_action').show();
+	}, function() {
+		$(this).find('.t_a_ui_helper_action').hide();
+	});
+
+	/**
+	 * Show all the settings belonging to first module
+	 */
+	$('.section:first').show();
+
+	/**
+	 * Filter settings by module
+	 */
+	$('#sectionFilter').find('a').click(function() {
+		$('.section').hide();
+		$('#' + $(this).html() + 'Module').show();	
+
+		$('#sectionFilter').find('li').removeClass('t_a_ui_active');
+		$(this).parent().addClass('t_a_ui_active');
+	});	
+	
+	<?php if ($this->allow('update')) : ?>
+	$('.t_a_ui_helper_editable').editInPlace({
+		url: "<?php echo $this->url(array(), 'core_language_update'); ?>",
+		bg_out: '#f3f3f3',
+		field_type: 'textarea',
+		textarea_cols: 40,
+		textarea_rows: 5,
+		saving_text: '<?php echo $this->translator('language_edit_saving'); ?>',	
+		callback: function(original_element, html, original) {
+			$.ajax({
+				url: "<?php echo $this->url(array(), 'core_language_update'); ?>",
+				type: 'POST',
+				data: { module_name: "<?php echo $this->moduleName; ?>", widget: "<?php echo $this->widget; ?>", language: "<?php echo $this->language; ?>", keySection: original_element, value: html },
+				success: function(response) {
+				}
+			});
+			return(html);
+	    }	
+	});
+	<?php endif; ?>
+
+	<?php if ($this->allow('delete')) : ?>
+	$('a.deleteAction').click(function() {
+		var self = this;
+		var attr = $(self).attr('rel').split('___');
+
+		$('#confirmDialog').html('<?php echo addslashes($this->translator('language_edit_delete_key_confirm')); ?>')
+			.dialog({
+				title: '<?php echo addslashes($this->translator('common_dialog_confirm')); ?>',
+				dialogClass: 't_a_ui_dialog',
+				modal: true,
+				closeOnEscape: false,
+				resizable: false,
+				open: function(event, ui) {
+					$('.ui-dialog-titlebar-close').hide();
+					$(this).parent().find('.ui-dialog-buttonpane button').wrapInner('<span/>');
+				},
+				buttons: {
+					'<?php echo addslashes($this->translator('common_dialog_confirm_no')); ?>': function() {
+						$(this).dialog('destroy');
+					},
+					'<?php echo addslashes($this->translator('common_dialog_confirm_yes')); ?>': function() {
+						$(this).dialog('destroy');
+						$(self).html('').addClass('t_a_ui_helper_loading');
+						$.ajax({
+							url: "<?php echo $this->url(array(), 'core_language_delete'); ?>",
+							type: 'POST',
+							data: { module_name: "<?php echo $this->moduleName; ?>", widget: "<?php echo $this->widget; ?>", language: "<?php echo $this->language; ?>", section: attr[0], key: attr[1] },
+							success: function(response) {
+								if ('RESULT_OK' == response) {
+									$('#keyRow_' + attr[1]).fadeOut('slow');
+								}
+							}
+						});
+					}
+				}
+			});
+	});
+	<?php endif; ?>
+
+	<?php if ($this->allow('add')) : ?>
+	/**
+	 * Validate form
+	 */
+	$('#addLanguageForm').validate({
+		rules: {
+			key: {required: true },
+			value: {required: true }
+	    },
+	    messages: {
+	    	key: {
+	        	required: "<?php echo $this->translator('language_edit_key_required'); ?>"
+			},
+		    value: {
+	        	required: "<?php echo $this->translator('language_edit_value_required'); ?>"
+			}
+		}
+	});
+	<?php endif; ?>
+});
+</script>

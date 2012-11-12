@@ -1,0 +1,178 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: list.phtml 4188 2010-08-01 16:33:00Z huuphuoc $
+ * @since		2.0.4
+ */
+?>
+<?php 
+$this->headTitle($this->translator('note_list_page_title'));
+
+$this->headLink()
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.core.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.resizable.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.dialog.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.theme.css');
+
+$this->headScript()
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.core.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.draggable.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.resizable.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.dialog.js');
+?>
+
+<div class="grid_12 t_a_ui_breadcrumb">
+	<span><?php echo $this->translator('note_list_breadcrumb'); ?></span>
+</div>
+
+<?php if ($this->numNotes == 0) : ?>
+	<div class="grid_12 t_a_bottom"><?php echo $this->translator('note_list_not_found'); ?></div>
+<?php else : ?>
+<div class="grid_12 t_a_bottom">
+	<?php echo $this->translator('note_list_description'); ?>
+</div>
+
+<div class="grid_12 t_a_ui_data_list_header">
+	<div class="grid_6 alpha">
+		<div><?php echo $this->translator('note_content'); ?></div>
+	</div>
+	
+	<div class="grid_2"><?php echo $this->translator('note_image'); ?></div>
+	
+	<div class="grid_2"><?php echo $this->translator('note_created_date'); ?></div>
+	
+	<div class="grid_2 omega"><?php echo $this->translator('note_status'); ?></div>
+</div>
+
+<div class="grid_12 t_a_bottom">
+	<?php foreach ($this->notes as $note) : ?>
+	<div class="clearfix t_a_ui_data_list_content" id="noteRow_<?php echo $note->note_id; ?>">
+		<div class="grid_6 alpha">
+			<div><?php echo $note->content; ?></div>
+			
+			<div class="t_a_ui_helper_action">
+				<?php if ($this->allow('delete')) : ?>
+				<a href="javascript: void(0);" class="deleteAction" rel="<?php echo $note->note_id; ?>"><?php echo $this->translator('note_list_action_delete'); ?></a> |
+				<?php endif; ?>
+				
+				<?php if ($this->allow('activate')) : ?>
+				<a href="javascript: void(0);" class="activateAction" rel="<?php echo $note->note_id; ?>_<?php echo $note->is_active; ?>" ><?php if ($note->is_active) : ?><?php echo $this->translator('note_list_action_deactivate'); ?><?php else : ?><?php echo $this->translator('note_list_action_activate'); ?><?php endif; ?></a>
+				<?php endif; ?>
+			</div>
+		</div>
+		
+		<div class="grid_2"><a href="<?php echo $this->url(array('file_id' => $note->file_id), 'multimedia_file_details'); ?>"><img src="<?php echo $note->image_square; ?>" /></a></div>
+		
+		<div class="grid_2"><?php echo $note->created_date; ?></div>
+		
+		<div class="grid_2 omega" id="noteStatus_<?php echo $note->note_id; ?>">
+		<?php if ($note->is_active) : ?>
+			<?php echo $this->translator('note_list_status_activated'); ?>
+		<?php else : ?>
+			<?php echo $this->translator('note_list_status_not_activated'); ?>
+		<?php endif; ?>
+		</div>
+	</div>
+	<?php endforeach; ?>
+</div>
+
+<div class="grid_12 t_a_bottom t_a_ui_paginator">
+	<?php echo $this->paginator()->slide($this->paginator, $this->paginatorOptions); ?>
+</div>
+<?php endif; ?>
+
+<div id="messageDialog"></div>
+
+<div id="confirmDialog"></div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+	<?php if ($this->allow('delete')) : ?>
+	$('a.deleteAction').click(function() {
+		var self = this;
+		$('#confirmDialog').html('<?php echo addslashes($this->translator('note_list_action_delete_confirm')); ?>')
+			.dialog({
+				title: '<?php echo addslashes($this->translator('common_dialog_confirm')); ?>',
+				dialogClass: 't_a_ui_dialog',
+				modal: true,
+				closeOnEscape: false,
+				resizable: false,
+				open: function(event, ui) {
+					$('.ui-dialog-titlebar-close').hide();
+					$(this).parent().find('.ui-dialog-buttonpane button').wrapInner('<span/>');
+				},
+				buttons: {
+					'<?php echo addslashes($this->translator('common_dialog_confirm_no')); ?>': function() {
+						$(this).dialog('destroy');
+					},
+					'<?php echo addslashes($this->translator('common_dialog_confirm_yes')); ?>': function() {
+						$(this).dialog('destroy');
+						$(self).html('').addClass('t_a_ui_helper_loading');
+						var id = $(self).attr('rel');
+						$.ajaxq('multimedia_note', {
+							type: 'POST',
+							url: "<?php echo $this->url(array(), 'multimedia_note_delete'); ?>",
+							data: { id: id },
+							success: function(response) {
+								if ('RESULT_OK' == response) {
+									$('#noteRow_' + id).fadeOut('slow');
+								}
+							}
+						});
+					}
+				}
+			});
+	});
+	<?php endif; ?>
+	
+	<?php if ($this->allow('activate')) : ?>
+	$('a.activateAction').click(function() {
+		var self = this;
+		var arr = $(this).attr('rel').split('_');
+		$(self).html('').addClass('t_a_ui_helper_loading');
+		$.ajaxq('multimedia_note', {
+			url: "<?php echo $this->url(array(), 'multimedia_note_activate'); ?>",
+			type: 'POST',
+			data: { id: arr[0], status: arr[1] },
+			success: function(response) {
+				$(self).attr('rel', arr[0] + '_' + response);
+				if (response == 1) {
+					$('#noteStatus_' + arr[0]).html("<?php echo $this->translator('note_list_status_activated'); ?>");
+					$(self).html("<?php echo $this->translator('note_list_action_deactivate'); ?>");
+				} else {
+					$('#noteStatus_' + arr[0]).html("<?php echo $this->translator('note_list_status_not_activated'); ?>");
+					$(self).html("<?php echo $this->translator('note_list_action_activate'); ?>");
+				}
+				$(self).removeClass('t_a_ui_helper_loading');
+
+				$('#messageDialog').html((response == 'active') ? '<?php echo addslashes($this->translator('note_list_activated_success')); ?>' : '<?php echo addslashes($this->translator('note_list_deactivated_success')); ?>')
+					.dialog({
+						title: '<?php echo addslashes($this->translator('common_dialog_message')); ?>',
+						dialogClass: 't_a_ui_dialog',
+						modal: true,
+				    	show: { effect: 'fade' },
+						open: function(event, ui) {
+							setTimeout(function() {
+								$('#' + event.target.id).dialog('option', 'hide', 'fade').dialog('destroy');
+							}, 3000);
+						}
+					});
+			}
+		});
+	});
+	<?php endif; ?>
+});
+</script>

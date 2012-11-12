@@ -1,0 +1,214 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: list.phtml 4185 2010-08-01 16:31:02Z huuphuoc $
+ * @since		2.0.0
+ */
+?>
+<?php 
+$this->headTitle($this->translator('module_list_page_title'));
+
+$this->headLink()
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.core.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.resizable.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.dialog.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.theme.css');
+
+$this->headScript()
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.core.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.draggable.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.resizable.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.dialog.js');
+?>
+
+<div class="grid_12 t_a_ui_breadcrumb">
+	<span><?php echo $this->translator('module_list_breadcrumb'); ?></span>	
+</div>
+
+<div class="grid_12 t_a_bottom"><?php echo $this->translator('module_list_guide'); ?></div>
+
+<div class="grid_12 t_a_bottom">
+	<!-- List of modules -->
+	<div class="grid_9 alpha">
+		<?php foreach ($this->modules as $index => $module) : ?>
+		<?php if ($index % 3 == 0 && $index > 0) : ?><div class="clearfix t_a_bottom"><hr /></div><?php endif; ?>
+		
+		<div class="grid_3 t_a_bottom<?php if ($index % 3 == 0) : ?> alpha<?php elseif ($index % 3 == 2) : ?> omega<?php endif; ?>">
+			<div class="t_a_ui_helper_head t_a_bottom">
+				<h3><?php echo sprintf($this->translator('module_list_module_name'), $module['name']); ?></h3>
+			</div>
+			
+			<!-- Author -->
+			<div class="t_a_bottom">
+				<?php echo $this->translator('module_list_version'); ?>: <?php echo $module['version']; ?><br />
+				<?php echo $this->translator('module_list_author'); ?>: <a href="mailto: <?php echo $module['email']; ?>"><?php echo $module['author']; ?></a>
+			</div>
+			
+			<!-- Thumbnail -->
+			<div class="t_a_bottom">
+				<img class="t_a_image" src="<?php echo $this->APP_STATIC_SERVER; ?>/skins/admin/<?php echo $this->APP_SKIN; ?>/images/a_image_none.jpg" />
+			</div>
+			
+			<div class="t_a_bottom"><?php echo $module['description']; ?></div>
+			
+			<!-- Required modules -->
+			<?php if (count($module['required']['modules']) > 0) : ?>
+			<div class="t_a_bottom">
+				<?php echo $this->translator('module_list_required_modules'); ?>:<br />
+				<ul class="t_a_list">
+					<?php foreach ($module['required']['modules'] as $requiredModule) : ?>
+					<li class="module_<?php echo $requiredModule; ?>"<?php if (isset($this->dbModules[$requiredModule])) : ?> style="text-decoration: line-through"<?php endif; ?>><?php echo $requiredModule; ?></li>
+					<?php endforeach; ?>
+				</ul>
+			</div>
+			<?php endif; ?>
+			
+			<!-- Actions -->
+			<div class="t_a_bottom">
+				<?php if (isset($this->dbModules[$module['name']])) : ?>
+					<?php if ($this->allow('uninstall')) : ?>
+					<button class="installAction" value="<?php echo $module['name']; ?>_uninstall"><span><?php echo $this->translator('module_list_uninstall'); ?></span></button>
+					<?php endif; ?>
+				<?php else : ?>
+					<?php if ($this->allow('install')) : ?>
+					<button class="installAction" value="<?php echo $module['name']; ?>_install"><span><?php echo $this->translator('module_list_install'); ?></span></button>
+					<?php endif; ?>
+				<?php endif; ?>
+			</div>
+		</div>
+		<?php endforeach; ?>
+	</div>
+	
+	<!-- Upload new module -->
+	<?php if ($this->allow('install')) : ?>
+	<div class="grid_3 omega">
+		<div class="t_a_ui_helper_line">
+			<h3><?php echo $this->translator('module_list_upload_head'); ?></h3>
+		</div>
+		
+		<div class="t_a_ui_helper_box">
+			<?php if (extension_loaded('zip')) : ?>
+			<form method="post" action="<?php echo $this->url(array(), 'core_module_upload'); ?>" enctype="multipart/form-data">
+				<?php echo $this->translator('module_list_upload_guide'); ?>
+				<br />
+				<input type="file" name="file" style="width: 200px" />
+				<hr />
+				<button type="submit"><span><?php echo $this->translator('module_list_upload_button'); ?></span></button>
+			</form>
+			<?php else : ?>
+			<div class="t_a_ui_helper_message"><?php echo $this->translator('module_list_zip_extension_not_available'); ?></div>
+			<?php endif; ?>
+		</div>
+	</div>
+	<?php endif; ?>
+</div>
+
+<div id="messageDialog"></div>
+
+<div id="confirmDialog"></div>
+
+<?php if ($this->allow('install') || $this->allow('uninstall')) : ?>
+<script type="text/javascript">
+$(document).ready(function() {
+	$('button.installAction').click(function() {
+		var self 	   = this;
+		var arr 	   = $(self).attr('value').split('_');
+		var moduleName = arr[0];
+		var action 	   = arr[1];
+
+		switch (action) {
+			<?php if ($this->allow('install')) : ?>
+			case 'install':
+				$(self).html('').addClass('t_a_ui_helper_loading');
+				$.ajaxq('module_list', {
+					url: "<?php echo $this->url(array(), 'core_module_install'); ?>",
+					type: 'POST',
+					data: { name: moduleName },
+					success: function(response) {
+						$(self).attr('value', moduleName + '_uninstall')
+								.removeClass('t_a_ui_helper_loading')
+								.append($('<span/>').html("<?php echo $this->translator('module_list_uninstall'); ?>"));
+						$('li.module_' + moduleName).css('text-decoration', 'line-through');
+						$('#messageDialog').html(sprintf('<?php echo addslashes($this->translator('module_list_install_success')); ?>', moduleName))
+							.dialog({
+								title: '<?php echo addslashes($this->translator('common_dialog_message')); ?>',
+								dialogClass: 't_a_ui_dialog',
+								modal: true,
+						    	show: { effect: 'fade' },
+								open: function(event, ui) {
+									setTimeout(function() {
+										$('#' + event.target.id).dialog('option', 'hide', 'fade').dialog('destroy');
+									}, 3000);
+								}
+							});
+					}
+				});				
+				break;
+			<?php endif; ?>
+			
+			<?php if ($this->allow('uninstall')) : ?>
+			case 'uninstall':
+				$('#confirmDialog').html('<?php echo addslashes($this->translator('module_list_uninstall_confirm')); ?>')
+					.dialog({
+						title: '<?php echo addslashes($this->translator('common_dialog_confirm')); ?>',
+						dialogClass: 't_a_ui_dialog',
+						modal: true,
+						closeOnEscape: false,
+						resizable: false,
+						open: function(event, ui) {
+							$('.ui-dialog-titlebar-close').hide();
+							$(this).parent().find('.ui-dialog-buttonpane button').wrapInner('<span/>');
+						},
+						buttons: {
+							'<?php echo addslashes($this->translator('common_dialog_confirm_no')); ?>': function() {
+								$(this).dialog('destroy');
+							},
+							'<?php echo addslashes($this->translator('common_dialog_confirm_yes')); ?>': function() {
+								$(this).dialog('destroy');
+								$(self).html('').addClass('t_a_ui_helper_loading');
+								$.ajaxq('module_list', {
+									url: "<?php echo $this->url(array(), 'core_module_uninstall'); ?>",
+									type: 'POST',
+									data: { name: moduleName },
+									success: function(response) {
+										$(self).attr('value', moduleName + '_install')
+											.removeClass('t_a_ui_helper_loading')
+											.append($('<span/>').html("<?php echo $this->translator('module_list_install'); ?>"));
+										$('li.module_' + moduleName).css('text-decoration', 'none');
+										$('#messageDialog').html(sprintf('<?php echo addslashes($this->translator('module_list_uninstall_success')); ?>', moduleName))
+											.dialog({
+												title: '<?php echo addslashes($this->translator('common_dialog_message')); ?>',
+												dialogClass: 't_a_ui_dialog',
+												modal: true,
+										    	show: { effect: 'fade' },
+												open: function(event, ui) {
+													setTimeout(function() {
+														$('#' + event.target.id).dialog('option', 'hide', 'fade').dialog('destroy');
+													}, 3000);
+												}
+											});
+									}
+								});
+							}
+						}
+					});
+				break;
+			<?php endif; ?>
+		}
+	});
+});
+</script>
+<?php endif; ?>

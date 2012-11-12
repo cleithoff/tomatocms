@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version		$Id: about.xml 4985 2010-08-26 04:00:44Z huuphuoc $
+ * @since		2.0.0
+ */
+-->
+<!DOCTYPE module SYSTEM "http://schemas.tomatocms.com/dtd/module_about.dtd">
+<module>
+	<name>multimedia</name>
+	<description langKey="about_multimedia_description"><![CDATA[Multimedia module: Manage photos and clips]]></description>
+	<thumbnail></thumbnail>
+	<author>TomatoCMS Core Team</author>
+	<email>core@tomatocms.com</email>
+	<version>2.0.0</version>
+	<license>free</license>
+	
+	<requires>
+		<requiredModules>
+			<requiredModule name="tag" />
+			<requiredModule name="upload" />			
+		</requiredModules>
+	</requires>
+	
+	<install>
+		<db adapter="mysql|pdo_mysql">
+			<query><![CDATA[DROP TABLE IF EXISTS `###multimedia_file`;]]></query>
+			<query><![CDATA[CREATE TABLE `###multimedia_file` (
+				  `file_id` int(11) unsigned NOT NULL auto_increment,
+				  `category_id` int(11) default '0',
+				  `title` varchar(255) default NULL,
+				  `slug` varchar(255) default NULL,
+				  `description` text,
+				  `content` text,
+				  `image_square` text,
+				  `image_thumbnail` text,
+				  `image_small` text,
+				  `image_crop` text,
+				  `image_medium` text,
+				  `image_large` text,
+				  `image_original` text,
+				  `num_views` int(11) default '0',
+				  `created_date` datetime default NULL,
+				  `created_user` int(11) default NULL,
+				  `created_user_name` varchar(255) default NULL,
+				  `allow_comment` tinyint(4) default '1',
+				  `ordering` int(11) default '0',
+				  `num_comments` int(11) default '0',
+				  `url` varchar(255) default NULL,
+				  `html_code` text,
+				  `is_active` tinyint(1) default '1',
+				  `file_type` enum('image','video','audio','game') default 'image',
+				  PRIMARY KEY  (`file_id`),
+				  KEY `idx_latest` (`is_active`,`file_type`)
+				) ENGINE=InnoDB DEFAULT CHARSET=utf8;]]>
+			</query>
+			<query><![CDATA[DROP TABLE IF EXISTS `###multimedia_file_set_assoc`;]]></query>
+			<query><![CDATA[CREATE TABLE `###multimedia_file_set_assoc` (
+				  `file_id` int(11) NOT NULL,
+				  `set_id` int(11) NOT NULL,
+				  PRIMARY KEY  (`file_id`,`set_id`)
+				) ENGINE=InnoDB DEFAULT CHARSET=utf8;]]>
+			</query>
+			<query><![CDATA[DROP TABLE IF EXISTS `###multimedia_set`;]]></query>
+			<query><![CDATA[CREATE TABLE `###multimedia_set` (
+				  `set_id` int(11) NOT NULL auto_increment,
+				  `slug` varchar(255) default NULL,
+				  `title` varchar(255) NOT NULL,
+				  `description` text,
+				  `created_date` datetime default NULL,
+				  `updated_date` datetime default NULL,
+				  `created_user_id` int(11) default NULL,
+				  `created_user_name` varchar(255) default NULL,
+				  `num_views` int(11) default '0',
+				  `num_comments` int(11) default '0',
+				  `is_active` tinyint(4) default '1',
+				  `image_square` text,
+				  `image_thumbnail` text,
+				  `image_small` text,
+				  `image_crop` text,
+				  `image_medium` text,
+				  `image_large` text,
+				  PRIMARY KEY  (`set_id`)
+				) ENGINE=InnoDB DEFAULT CHARSET=utf8;]]>
+			</query>	
+			<query><![CDATA[DROP TABLE IF EXISTS `###multimedia_note`]]></query>
+			<query><![CDATA[CREATE TABLE `###multimedia_note` (
+				  `note_id` int(10) unsigned NOT NULL auto_increment,
+				  `file_id` int(11) NOT NULL,
+				  `top` int(11) NOT NULL,
+				  `left` int(11) NOT NULL,
+				  `width` int(11) NOT NULL,
+				  `height` int(11) NOT NULL,
+				  `content` varchar(200) default NULL,
+				  `is_active` tinyint(1) default '0',
+				  `user_id` int(11) default NULL,
+				  `user_name` varchar(100) default NULL,
+				  `created_date` datetime NOT NULL,
+				  PRIMARY KEY  (`note_id`),
+				  KEY `file_id` (`file_id`)
+				) ENGINE=InnoDB DEFAULT CHARSET=utf8;]]>
+			</query>		
+		</db>		
+		<db adapter="pgsql">
+			<query><![CDATA[DROP TABLE IF EXISTS ###multimedia_file;]]></query>
+			<query><![CDATA[CREATE TABLE ###multimedia_file (
+				    file_id integer NOT NULL,
+				    category_id integer DEFAULT 0,
+				    title character varying(255) DEFAULT NULL::character varying,
+				    slug character varying(255) DEFAULT NULL::character varying,
+				    description text,
+				    content text,
+				    image_square text,
+				    image_thumbnail text,
+				    image_small text,
+				    image_crop text,
+				    image_medium text,
+				    image_large text,
+				    image_original text,
+				    num_views integer DEFAULT 0,
+				    created_date time without time zone,
+				    created_user integer,
+				    created_user_name character varying(255) DEFAULT NULL::character varying,
+				    allow_comment smallint DEFAULT 1::smallint,
+				    ordering integer DEFAULT 0,
+				    num_comments integer DEFAULT 0,
+				    url character varying(255) DEFAULT NULL::character varying,
+				    html_code text,
+				    is_active smallint DEFAULT 1::smallint,
+				    file_type character varying(15) DEFAULT 'image'::character varying,
+				    CONSTRAINT multimedia_file_file_type_check CHECK (((file_type)::text = ANY ((ARRAY['image'::character varying, 'video'::character varying, 'audio'::character varying, 'game'::character varying])::text[])))
+				);
+				CREATE SEQUENCE multimedia_file_file_id_seq
+				    START WITH 1
+				    INCREMENT BY 1
+				    NO MAXVALUE
+				    NO MINVALUE
+				    CACHE 1;
+				ALTER SEQUENCE multimedia_file_file_id_seq OWNED BY ###multimedia_file.file_id;
+				SELECT pg_catalog.setval('multimedia_file_file_id_seq', 1, false);]]>
+			</query>
+			<query><![CDATA[DROP TABLE IF EXISTS ###multimedia_file_set_assoc;]]></query>
+			<query><![CDATA[CREATE TABLE multimedia_file_set_assoc (
+				    file_id integer NOT NULL,
+				    set_id integer NOT NULL
+				);]]>
+			</query>
+			<query><![CDATA[DROP TABLE IF EXISTS ###multimedia_set;]]></query>
+			<query><![CDATA[CREATE TABLE ###multimedia_set (
+				    set_id integer NOT NULL,
+				    slug character varying(255) DEFAULT NULL::character varying,
+				    title character varying(255) NOT NULL,
+				    description text,
+				    created_date time without time zone,
+				    updated_date time without time zone,
+				    created_user_id integer,
+				    created_user_name character varying(255) DEFAULT NULL::character varying,
+				    num_views integer DEFAULT 0,
+				    num_comments integer DEFAULT 0,
+				    is_active smallint DEFAULT 1::smallint,
+				    image_square text,
+				    image_thumbnail text,
+				    image_small text,
+				    image_crop text,
+				    image_medium text,
+				    image_large text
+				);
+				CREATE SEQUENCE multimedia_set_set_id_seq
+				    START WITH 1
+				    INCREMENT BY 1
+				    NO MAXVALUE
+				    NO MINVALUE
+				    CACHE 1;
+				ALTER SEQUENCE multimedia_set_set_id_seq OWNED BY ###multimedia_set.set_id;
+				SELECT pg_catalog.setval('multimedia_set_set_id_seq', 1, false);]]>
+			</query>	
+			<query><![CDATA[DROP TABLE IF EXISTS ###multimedia_note]]></query>
+			<query><![CDATA[CREATE TABLE ###multimedia_note (
+				    note_id integer NOT NULL,
+				    file_id integer NOT NULL,
+				    top integer NOT NULL,
+				    "left" integer NOT NULL,
+				    width integer NOT NULL,
+				    height integer NOT NULL,
+				    content character varying(200) DEFAULT NULL::character varying,
+				    is_active smallint DEFAULT 0::smallint,
+				    user_id integer,
+				    user_name character varying(100) DEFAULT NULL::character varying,
+				    created_date time without time zone NOT NULL
+				);
+				CREATE SEQUENCE multimedia_note_note_id_seq
+				    START WITH 1
+				    INCREMENT BY 1
+				    NO MAXVALUE
+				    NO MINVALUE
+				    CACHE 1;
+				ALTER SEQUENCE multimedia_note_note_id_seq OWNED BY ###multimedia_note.note_id;
+				SELECT pg_catalog.setval('multimedia_note_note_id_seq', 1, false);]]>
+			</query>		
+		</db>
+		<db adapter="sqlsrv">
+			<query><![CDATA[IF EXISTS (SELECT NAME FROM SYSOBJECTS WHERE NAME='###multimedia_file' AND TYPE='U') DROP TABLE ###multimedia_file;]]></query>
+			<query><![CDATA[CREATE TABLE ###multimedia_file(
+					file_id int identity(1,1) NOT NULL,
+					category_id int NULL,
+					title nvarchar(255) NULL,
+					slug nvarchar(255) NULL,
+					description ntext NULL,
+					content ntext NULL,
+					image_square ntext NULL,
+					image_thumbnail ntext NULL,
+					image_small ntext NULL,
+					image_crop ntext NULL,					
+					image_medium ntext NULL,					
+					image_large ntext NULL,
+					image_original ntext NULL,
+					num_views int default 0,
+					created_date varchar(19) NULL,
+					created_user int NULL,
+					created_user_name nvarchar(255) NULL,
+					allow_comment bit default 1,
+					ordering int default 0,
+					num_comments int default 0,
+					url nvarchar(255) NULL,
+					html_code ntext NULL,
+					is_active bit default 1,
+					file_type nchar(5) check(file_type in ('image','video','audio','game')) default 'image',
+					PRIMARY KEY (file_id)
+				);]]>
+			</query>
+			<query><![CDATA[CREATE INDEX idx_latest ON ###multimedia_file (is_active,file_type);]]></query>
+			
+			<query><![CDATA[IF EXISTS (SELECT NAME FROM SYSOBJECTS WHERE NAME='###multimedia_file_set_assoc' AND TYPE='U') DROP TABLE ###multimedia_file_set_assoc;]]></query>
+			<query><![CDATA[CREATE TABLE ###multimedia_file_set_assoc(
+					file_id int NOT NULL,
+					set_id int NOT NULL,
+					PRIMARY KEY (file_id,set_id));]]>
+			</query>
+			
+			<query><![CDATA[IF EXISTS (SELECT NAME FROM SYSOBJECTS WHERE NAME='###multimedia_set' AND TYPE='U') DROP TABLE ###multimedia_set;]]></query>
+			<query><![CDATA[CREATE TABLE ###multimedia_set(
+					set_id int identity(1,1) NOT NULL,
+					slug nvarchar(255) NULL,
+					title nvarchar(255) NOT NULL,
+					description ntext NULL,
+					created_date varchar(19) NULL,
+					updated_date varchar(19) NULL,
+					created_user_id int NULL,
+					created_user_name nvarchar(255) NULL,
+					num_views int default 0,
+					num_comments int default 0,
+					is_active bit default 1,
+					image_square ntext NULL,
+					image_thumbnail ntext NULL,
+					image_small ntext NULL,
+					image_crop ntext NULL,
+					image_medium ntext NULL,					
+					image_large ntext NULL,
+					PRIMARY KEY (set_id));]]>
+			</query>
+				
+			<query><![CDATA[IF EXISTS (SELECT NAME FROM SYSOBJECTS WHERE NAME='###multimedia_note' AND TYPE='U') DROP TABLE ###multimedia_note;]]></query>
+			<query><![CDATA[CREATE TABLE ###multimedia_note(
+					note_id int identity(1,1) NOT NULL,
+					[file_id] int NOT NULL,
+					[top] int NOT NULL,
+					[left] int NOT NULL,
+					width int NOT NULL,
+					height int NOT NULL,
+					content nvarchar(200) NULL,
+					is_active bit default 0,
+					[user_id] int NULL,
+					[user_name] nvarchar(100) NULL,
+					created_date varchar(19) NOT NULL,
+					PRIMARY KEY (note_id));]]>
+			</query>
+			<query><![CDATA[CREATE INDEX file_id ON ###multimedia_note (file_id);]]></query>		
+		</db>		
+	</install>
+	
+	<uninstall>
+		<db adapter="mysql|pdo_mysql">
+			<query><![CDATA[DROP TABLE IF EXISTS `###multimedia_file`;]]></query>
+			<query><![CDATA[DROP TABLE IF EXISTS `###multimedia_file_set_assoc`;]]></query>
+			<query><![CDATA[DROP TABLE IF EXISTS `###multimedia_set`;]]></query>
+			<query><![CDATA[DROP TABLE IF EXISTS `###multimedia_note`]]></query>
+		</db>
+		<db adapter="pgsql">
+			<query><![CDATA[DROP TABLE IF EXISTS ###multimedia_file;]]></query>
+			<query><![CDATA[DROP TABLE IF EXISTS ###multimedia_file_set_assoc;]]></query>
+			<query><![CDATA[DROP TABLE IF EXISTS ###multimedia_set;]]></query>
+			<query><![CDATA[DROP TABLE IF EXISTS ###multimedia_note;]]></query>
+		</db>
+		<db adapter="sqlsrv">
+			<query><![CDATA[IF EXISTS (SELECT NAME FROM SYSOBJECTS WHERE NAME='###multimedia_file' AND TYPE='U') DROP TABLE ###multimedia_file;]]></query>
+			<query><![CDATA[IF EXISTS (SELECT NAME FROM SYSOBJECTS WHERE NAME='###multimedia_file_set_assoc' AND TYPE='U') DROP TABLE ###multimedia_file_set_assoc;]]></query>
+			<query><![CDATA[IF EXISTS (SELECT NAME FROM SYSOBJECTS WHERE NAME='###multimedia_set' AND TYPE='U') DROP TABLE ###multimedia_set;]]></query>
+			<query><![CDATA[IF EXISTS (SELECT NAME FROM SYSOBJECTS WHERE NAME='###multimedia_note' AND TYPE='U') DROP TABLE ###multimedia_note;]]></query>
+		</db>
+	</uninstall>
+	
+	<admin>
+		<task langKey="task_list_files" route="multimedia_file_list" />
+		<task langKey="task_upload_photos" route="multimedia_photo_upload" />
+		<task langKey="task_list_sets" route="multimedia_set_list" />
+		<task langKey="task_list_notes" route="multimedia_note_list" />
+	</admin>
+</module>

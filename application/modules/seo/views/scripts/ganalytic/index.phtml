@@ -1,0 +1,208 @@
+<?php
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: index.phtml 4192 2010-08-01 16:33:45Z huuphuoc $
+ * @since		2.0.7
+ */
+?>
+<?php
+$this->headTitle($this->translator('ganalytic_page_title'));
+
+$this->headScript()
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.bgiframe/jquery.bgiframe.min.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.dimensions/jquery.dimensions.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.tooltip/jquery.tooltip.js');
+?>
+<!--[if IE]>
+<script type="text/javascript" src="<?php echo $this->APP_STATIC_SERVER; ?>/js/tomato/seo/ganalytic.iecanvas.js"></script>
+<![endif]-->
+<script type="text/javascript" src="<?php echo $this->APP_STATIC_SERVER; ?>/js/tomato/seo/ganalytic.formatter.js"></script>
+<script type="text/javascript" src="<?php echo $this->APP_STATIC_SERVER; ?>/js/tomato/seo/ganalytic.reporter.js"></script>
+
+<div class="grid_12 t_a_ui_breadcrumb">
+	<span><?php echo $this->translator('breadcump'); ?></span>
+	<span><?php echo $this->translator('ganalytic_breadcrumb'); ?></span>
+</div>
+
+<div class="grid_12 t_a_bottom">
+	<div class="t_a_bottom">
+		<label><?php echo $this->translator('ganalytic_select_site'); ?></label>
+		<select id="sites">
+			<?php foreach ($this->sites as $site) : ?>
+			<option value="<?php echo $site['tableId']; ?>"><?php echo $site['title']; ?></option>
+			<?php endforeach; ?>
+		</select>
+	</div>
+
+	<div class="t_a_bottom">
+		<label><?php echo $this->translator('ganalytic_view_report_for'); ?></label>
+		<ul class="t_a_ui_filter t_a_left">
+			<li><a href="javascript: void(0);" onclick="javascript: loadData(1);"><?php echo $this->translator('ganalytic_report_one_day'); ?></a></li>
+			<li class="t_a_ui_active"><a href="javascript: void(0);" onclick="javascript: loadData(7);"><?php echo $this->translator('ganalytic_report_one_week'); ?></a></li>
+			<li><a href="javascript: void(0);" onclick="javascript: loadData(30);"><?php echo $this->translator('ganalytic_report_one_month'); ?></a></li>
+			<li><a href="javascript: void(0);" onclick="javascript: loadData(90);"><?php echo $this->translator('ganalytic_report_three_months'); ?></a></li>
+			<li><a href="javascript: void(0);" onclick="javascript: loadData(180);"><?php echo $this->translator('ganalytic_report_six_months'); ?></a></li>
+		</ul>
+	</div> 
+</div>
+
+<div class="grid_12 t_a_bottom"><hr /></div>
+
+<div class="grid_12 t_a_bottom">
+	<div class="grid_3 alpha" id="reportType">
+		<!-- Visitor -->
+		<div class="t_a_ui_helper_line">
+			<h3><?php echo $this->translator('ganalytic_visitors'); ?></h3>
+		</div>
+		<ul class="t_a_ui_list t_a_bottom">
+			<li class="t_a_ui_active"><a href="javascript: void(0);" id="visits"><?php echo $this->translator('ganalytic_visits'); ?></a></li>
+			<li><a href="javascript: void(0);" id="visitors"><?php echo $this->translator('ganalytic_unique_visitors'); ?></a></li>
+			<li><a href="javascript: void(0);" id="pageviews"><?php echo $this->translator('ganalytic_page_views'); ?></a></li>
+			<li><a href="javascript: void(0);" id="timeOnSite"><?php echo $this->translator('ganalytic_time_on_site'); ?></a></li>
+			<li><a href="javascript: void(0);" id="bounces"><?php echo $this->translator('ganalytic_bounce_rate'); ?></a></li>
+		</ul>
+		
+		<!-- Browser -->
+		<div class="t_a_ui_helper_line">
+			<h3><?php echo $this->translator('ganalytic_browser'); ?></h3>
+		</div>
+		<ul class="t_a_ui_list t_a_bottom">
+			<li><a href="javascript: void(0);" id="browser"><?php echo $this->translator('ganalytic_browser'); ?></a></li>
+			<li><a href="javascript: void(0);" id="operatingSystem"><?php echo $this->translator('ganalytic_operating_system'); ?></a></li>
+			<li><a href="javascript: void(0);" id="screenResolution"><?php echo $this->translator('ganalytic_screen_resolution'); ?></a></li>
+		</ul>
+		
+		<!-- Traffic source -->
+		<div class="t_a_ui_helper_line">
+			<h3><?php echo $this->translator('ganalytic_source'); ?></h3>
+		</div>
+		<ul class="t_a_ui_list t_a_bottom">
+			<li><a href="javascript: void(0);" id="source"><?php echo $this->translator('ganalytic_source'); ?></a></li>
+			<li><a href="javascript: void(0);" id="keyword"><?php echo $this->translator('ganalytic_keyword'); ?></a></li>
+		</ul>
+		
+		<!-- Content -->
+		<div class="t_a_ui_helper_line">
+			<h3><?php echo $this->translator('ganalytic_content'); ?></h3>
+		</div>
+		<ul class="t_a_ui_list t_a_bottom">
+			<li><a href="javascript: void(0);" id="pagePath"><?php echo $this->translator('ganalytic_top_pages'); ?></a></li>
+			<li><a href="javascript: void(0);" id="exitPagePath"><?php echo $this->translator('ganalytic_top_exit_pages'); ?></a></li>
+		</ul>
+	</div>
+	
+	<div class="grid_9 omega">
+		<div id="guide" class="t_a_bottom" style="display: none">
+			<?php echo $this->translator('ganalytic_show_report_guide'); ?>
+		</div>
+		
+		<div id="verticalReport" style="position: relative; height: auto; width: 700px">
+			<canvas id="reporter" style="height: 300px; width: 700px" width="700px" height="300px"></canvas>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+var gReportData = {};
+var G_TOOLTIP = {
+	'visits': 			'<?php echo addslashes($this->translator('ganalytic_visits_tooltip')); ?>',
+	'visitors': 		'<?php echo addslashes($this->translator('ganalytic_unique_visitors_tooltip')); ?>',
+	'pageviews': 		'<?php echo addslashes($this->translator('ganalytic_page_views_tooltip')); ?>',
+	'timeOnSite': 		'<?php echo addslashes($this->translator('ganalytic_time_on_site_tooltip')); ?>',
+	'bounces': 			'<?php echo addslashes($this->translator('ganalytic_bounce_rate_tooltip')); ?>',
+	'browser': 			'<?php echo addslashes($this->translator('ganalytic_browser_tooltip')); ?>',
+	'operatingSystem':  '<?php echo addslashes($this->translator('ganalytic_operating_system_tooltip')); ?>',
+	'screenResolution': '<?php echo addslashes($this->translator('ganalytic_screen_resolution_tooltip')); ?>',
+	'source': 			'<?php echo addslashes($this->translator('ganalytic_source_tooltip')); ?>',
+	'keyword': 			'<?php echo addslashes($this->translator('ganalytic_keyword_tooltip')); ?>',
+	'pagePath': 		'<?php echo addslashes($this->translator('ganalytic_top_pages_tooltip')); ?>',
+	'exitPagePath': 	'<?php echo addslashes($this->translator('ganalytic_top_exit_pages_tooltip')); ?>'
+};
+
+function loadData(days) {
+	$('#guide').hide();
+	$('#verticalReport').html('<canvas id="reporter" style="height: 300px; width: 700px" width="700px" height="300px"></canvas>');
+	
+	/**
+	 * Get selected site
+	 */
+	var tableId = $('#sites').val();
+	$('#verticalReport').addClass('t_a_ui_helper_loading');
+	
+	$.ajaxq('seo_ganalytic', {
+		url: '<?php echo $this->url(array(), 'seo_ganalytic'); ?>',
+		data: { act: 'report', tableId: tableId, days: days },
+		success: function(response) {
+			$('#verticalReport').removeClass('t_a_ui_helper_loading');
+			gReportData = $.evalJSON(response);
+
+			/**
+			 * Get selected report type
+			 */
+			var reportType = $('#reportType li.t_a_ui_active').find('a:first').attr('id');
+			showReport(reportType);
+		}
+	});
+};
+
+function showReport(id) {
+	if (!gReportData[id]) {
+		$('#guide').hide();
+		return;
+	}
+	$('#guide').show();
+	var reporter = new Tomato.Seo.Ganalytic.Reporter('reporter', gReportData[id]);
+	reporter.enableTooltip(true);
+
+	switch (id) {
+		/**
+		 * Format the date of visit
+		 */
+		case 'visits':
+		case 'visitors':
+		case 'pageviews':
+		case 'bounces':
+			reporter.setFormatDimensionCallback(Tomato.Seo.Ganalytic.Formatter.formatVisitDate);
+			break;
+
+		/**
+		 * Format time on site
+		 */
+		case 'timeOnSite':
+			reporter.setFormatDimensionCallback(Tomato.Seo.Ganalytic.Formatter.formatVisitDate);
+			reporter.setFormatMetricCallback(Tomato.Seo.Ganalytic.Formatter.formatTimeOnSite);
+			break;
+	}
+	 
+	reporter.setTooltipPattern(G_TOOLTIP[id]);
+	reporter.show();	
+};
+
+$(document).ready(function() {
+	$('.t_a_ui_filter a').click(function() {
+		$(this).parents('.t_a_ui_filter').find('li').removeClass('t_a_ui_active');
+		$(this).parent().addClass('t_a_ui_active');
+	});
+
+	$('#reportType a').click(function() {
+		$('#reportType').find('li').removeClass('t_a_ui_active');
+		$(this).parent().addClass('t_a_ui_active');
+
+		var id = $(this).attr('id');
+		showReport(id);
+	});
+});
+</script>

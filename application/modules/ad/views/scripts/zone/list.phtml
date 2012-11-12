@@ -1,0 +1,142 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: list.phtml 4182 2010-08-01 16:27:10Z huuphuoc $
+ * @since		2.0.0
+ */
+?>
+<?php 
+$this->headTitle($this->translator('zone_list_zone_title'));
+
+$this->headLink()
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.core.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.resizable.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.dialog.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.theme.css');
+
+$this->headScript()
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.core.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.draggable.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.resizable.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.dialog.js');
+?>
+
+<div class="grid_12 t_a_ui_breadcrumb">
+	<span><?php echo $this->translator('zone_list_breadcrumb'); ?></span>
+</div>
+
+<div class="grid_12 t_a_bottom">
+	<div class="grid_10 alpha"><?php echo $this->translator('zone_list_top_desc'); ?></div>
+	
+	<div class="grid_2 omega">
+		<div class="t_a_right">
+			<a href="<?php echo $this->url(array(), 'ad_zone_add'); ?>" class="t_a_ui_button_link"><span><?php echo $this->translator('zone_list_add'); ?></span></a>
+		</div>
+	</div>
+</div>
+
+<div class="grid_12 t_a_ui_data_list_header">
+	<div class="grid_7 alpha">
+		<div><?php echo $this->translator('zone_list_name'); ?></div>
+	</div>
+	
+	<div class="grid_3"><?php echo $this->translator('zone_list_width_height'); ?></div>
+	
+	<div class="grid_2 omega"><?php echo $this->translator('zone_list_id'); ?></div>
+</div>
+
+<div class="grid_12 t_a_bottom">
+	<?php foreach ($this->zones as $zone) : ?>
+	<div class="clearfix t_a_ui_data_list_content" id="zoneId_<?php echo $zone->zone_id; ?>">
+		<div class="grid_7 alpha">
+			<div>
+				<?php echo $zone->name; ?>:<br />
+				<?php echo $zone->description; ?>
+			</div>
+			
+			<div class="t_a_ui_helper_action">
+				<?php if ($this->allow('edit')) : ?>
+				<a href="<?php echo $this->url(array('zone_id' => $zone->zone_id), 'ad_zone_edit'); ?>"><?php echo $this->translator('zone_list_edit_action'); ?></a>
+				<?php endif; ?>
+				
+				<?php if ($this->allow('delete')) : ?> 
+				<a href="javascript: void(0);" rel="<?php echo $zone->zone_id; ?>" class="deleteAction"><?php echo $this->translator('zone_list_delete_action'); ?></a>
+				<?php endif; ?>
+			</div>
+		</div>
+		
+		<div class="grid_3"><b><?php echo $zone->width; ?></b> x <b><?php echo $zone->height; ?></b></div>
+		
+		<div class="grid_2 omega"><?php if (null != $zone->zone_id) : ?><?php echo $zone->zone_id;?><?php else : ?>&nbsp;<?php endif; ?></div>
+	</div>
+	<?php endforeach; ?>
+</div>
+
+<div id="messageDialog"></div>
+
+<div id="confirmDialog"></div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+	<?php if ($this->allow('delete')) : ?>
+	$('.deleteAction').click(function() {
+		var self = this;
+
+		$('#confirmDialog').html('<?php echo addslashes($this->translator('zone_list_delete_confirm')); ?>')
+			.dialog({
+				title: '<?php echo addslashes($this->translator('common_dialog_confirm')); ?>',
+				dialogClass: 't_a_ui_dialog',
+				modal: true,
+				closeOnEscape: false,
+				resizable: false,
+				open: function(event, ui) {
+					$('.ui-dialog-titlebar-close').hide();
+					$(this).parent().find('.ui-dialog-buttonpane button').wrapInner('<span/>');
+				},
+				buttons: {
+					'<?php echo addslashes($this->translator('common_dialog_confirm_no')); ?>': function() {
+						$(this).dialog('destroy');
+					},
+					'<?php echo addslashes($this->translator('common_dialog_confirm_yes')); ?>': function() {
+						$(this).dialog('destroy');
+						$(self).html('').addClass('t_a_ui_helper_loading');
+						$.ajaxq('zone_list', {
+							url: '<?php echo $this->url(array(), 'ad_zone_delete'); ?>',
+							type: 'POST',
+							data: { id: $(self).attr('rel') },
+							success: function(response) {
+								$('#zoneId_' + $(self).attr('rel')).fadeOut('slow');
+								$('#messageDialog').html('<?php echo addslashes($this->translator('zone_list_delete_zone_success')); ?>')
+								.dialog({
+									title: '<?php echo addslashes($this->translator('common_dialog_message')); ?>',
+									dialogClass: 't_a_ui_dialog',
+									modal: true,
+							    	show: { effect: 'fade' },
+									open: function(event, ui) {
+										setTimeout(function() {
+											$('#' + event.target.id).dialog('option', 'hide', 'fade').dialog('destroy');
+										}, 3000);
+									}
+								});
+							}
+						});
+					}
+				}
+			});
+	});
+	<?php endif; ?>
+});
+</script>

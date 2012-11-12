@@ -1,0 +1,247 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: add.phtml 4780 2010-08-23 02:16:03Z huuphuoc $
+ * @since		2.0.0
+ */
+?>
+<?php 
+$this->headTitle($this->translator('poll_add_page_title'));
+
+$this->headLink()
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.core.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.datepicker.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.theme.css');
+
+$this->headScript()
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.datepicker.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.validate/jquery.validate.min.js');
+?>
+
+<div class="grid_12 t_a_ui_breadcrumb">
+	<span><a href="<?php echo $this->url(array(), 'poll_question_list'); ?>"><?php echo $this->translator('poll_list_breadcrumb'); ?></a></span>
+	<span><?php echo $this->translator('poll_add_breadcrumb'); ?></span>	
+</div>
+
+<div class="grid_12"><?php echo $this->flashMessenger(); ?></div>
+
+<form method="post" action="<?php echo $this->url(array(), 'poll_question_add'); ?>" id="addPollForm">
+<div class="grid_12 t_a_bottom"><?php echo $this->translator('poll_add_guide'); ?></div>
+
+<div class="grid_12 t_a_bottom">
+	<div class="prefix_1 suffix_1">
+		<div class="clearfix t_a_bottom">
+			<label><?php echo $this->translator('poll_title'); ?>:</label>
+			<input maxlength="255" type="text" id="title" name="title" style="width: 300px" />
+		</div>
+		
+		<hr />
+		
+		<div class="clearfix t_a_bottom">
+			<label><?php echo $this->translator('poll_content'); ?>:</label>
+			<textarea id="content" name="content" style="width: 300px; height: 100px"></textarea>
+		</div>
+		
+		<hr />
+		
+		<?php 
+		/**
+		 * @since 2.0.8
+		 */
+		?>
+		<div class="clearfix t_a_bottom">
+			<div class="grid_2 alpha">
+				<label><?php echo $this->translator('poll_language'); ?>:</label>
+			</div>
+			<div class="grid_8 omega">
+				<?php 
+				echo $this->languageSelector(array(
+										'id'   => 'languageSelector', 
+										'name' => 'languageSelector', 
+									), $this->translatableData);
+				?>
+			</div>
+		</div>
+		
+		<hr />
+		
+		<div class="clearfix t_a_bottom">
+			<div class="grid_2 alpha">
+				<label><?php echo $this->translator('poll_source_item'); ?>:</label>
+			</div>
+			<div class="grid_8 omega">
+				<div class="translatable translationSourceItems">
+					<?php 
+					echo $this->translatableQuestion(array(
+									'id'       => 'sourceItem',
+									'name'     => 'sourceItem',
+									'selected' => (null == $this->sourceQuestion) ? null : $this->sourceQuestion->question_id,
+									'disabled' => (null == $this->sourceQuestion) ? null : $this->sourceQuestion->question_id,
+								), $this->lang);
+					?>
+				</div>
+			</div>
+		</div>
+		
+		<hr />
+		
+		<div class="clearfix t_a_bottom">
+			<label><?php echo $this->translator('poll_start_date'); ?>:</label>
+			<input maxlength="10" readonly="readonly" type="text" id="startDate" name="startDate" style="width: 100px" />
+		</div>
+		
+		<hr />
+		
+		<div class="clearfix t_a_bottom">
+			<label><?php echo $this->translator('poll_end_date'); ?>:</label>
+			<input maxlength="10" readonly="readonly" type="text" id="endDate" name="endDate" style="width: 100px" />
+		</div>
+		
+		<hr />
+		
+		<div class="clearfix t_a_bottom">
+			<label><?php echo $this->translator('poll_multiple_options'); ?>:</label>
+			<input type="checkbox" name="multipleOptions" value="1" />
+		</div>
+		
+		<hr />
+		
+		<div class="clearfix t_a_bottom">
+			<div class="grid_2 alpha">
+				<label><?php echo $this->translator('poll_answer'); ?>:</label>
+			</div>
+			<div class="grid_8 omega">
+				<div class="t_a_bottom">
+					<a href="javascript: void(0);" id="addAnswer" class="t_a_ui_helper_action_add">&nbsp;</a>
+				</div>
+				
+				<div id="answers">
+				</div>
+				
+				<!-- Use to check the answer required -->
+				<input type="hidden" name="answerRequired" id="answerRequired" value="" />
+			</div>
+		</div>
+		
+		<hr />
+		
+		<div class="clearfix t_a_bottom">
+			<label>&nbsp;</label>
+			<button type="submit"><span><?php echo $this->translator('poll_save_button'); ?></span></button>
+		</div>
+	</div>
+</div>
+</form>
+
+<script type="text/javascript">
+function addAnswer() {
+	var div = $('<div/>').css('padding', '0 0 10px 0');
+	$(div).append($('<input/>').attr('maxlength', 255).attr('type', 'text').attr('name', 'answers[]').css('width', '360px'))
+		.append('&nbsp;')
+		.append($('<a/>').attr('href', 'javascript: void(0)').addClass('t_a_ui_helper_action_delete').click(function() {
+					$(div).remove();
+				}))
+		.appendTo($('#answers'));
+};
+
+$(document).ready(function() {
+	addAnswer();
+
+	/**
+	 * Init date pickers
+	 */
+	var dateOption = { dateFormat: 'yy-mm-dd' };
+	$('#startDate').datepicker(dateOption);
+	$('#endDate').datepicker(dateOption);
+
+	/**
+	 * Add answer handler
+	 */
+	$('#addAnswer').click(function() {
+		addAnswer();
+	});
+
+	/**
+	 * Validate form
+	 */
+	$.validator.addMethod('validateAnswerInput', function() {
+		var result = true;
+		$('#answers').find('input[name="answers[]"]').each(function() {
+			var that = this;
+			if ($(that).val() == undefined || $(that).val() == '') {
+				result = false;
+			}
+		});
+		return result;
+	}); 
+	
+	$.validator.addMethod('validateAnswerRequired', function() {
+		var result = true;
+		var numAnswer = $('#answers').find('input[name="answers[]"]').length;
+		if (numAnswer == 0) {
+			result = false;
+		}
+		return result;
+	});
+	
+	$.validator.addMethod('validateDate', function() {
+		return $('#startDate').val() <= $('#endDate').val();
+	});
+	
+	$('#addPollForm').validate({
+		rules: {
+			title: {
+				required: true,
+		  		maxlength: 255
+			},
+			content: {
+		  		required: true
+			},
+			startDate: {
+				required: true
+			},
+			endDate: {
+				required: true,
+				validateDate: true
+			},
+			answerRequired: {
+				validateAnswerRequired: true,
+				validateAnswerInput: true
+			}
+	    },
+	    messages: {
+	    	title: {
+	        	required: "<?php echo $this->translator('poll_title_required'); ?>",
+				maxlength: "<?php echo $this->translator('poll_title_maxlength'); ?>"
+			},
+			content: { 
+	        	required: "<?php echo $this->translator('poll_content_required'); ?>"
+	    	},
+	    	startDate: {
+				required: "<?php echo $this->translator('poll_start_date_required'); ?>"
+			},
+			endDate: {
+				required: "<?php echo $this->translator('poll_end_date_required'); ?>",
+				validateDate: "<?php echo $this->translator('poll_end_date_greater_than_start_date'); ?>"
+			},
+			answerRequired: {
+				validateAnswerRequired: "<?php echo $this->translator('poll_answer_invalid'); ?>",
+	    		validateAnswerInput: "<?php echo $this->translator('poll_answer_invalid'); ?>"
+			}
+		}
+	});
+});
+</script>

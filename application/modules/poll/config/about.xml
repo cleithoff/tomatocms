@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version		$Id: about.xml 4966 2010-08-25 18:40:25Z huuphuoc $
+ * @since		2.0.0
+ */
+-->
+<!DOCTYPE module SYSTEM "http://schemas.tomatocms.com/dtd/module_about.dtd">
+<module>
+	<name>poll</name>
+	<description langKey="about_poll_description"><![CDATA[Manage polls]]></description>
+	<thumbnail></thumbnail>
+	<author>TomatoCMS Core Team</author>
+	<email>core@tomatocms.com</email>
+	<version>2.0.0</version>
+	<license>free</license>
+	
+	<requires></requires>
+	
+	<install>
+		<db adapter="mysql|pdo_mysql">
+			<query><![CDATA[DROP TABLE IF EXISTS `###poll_answer`;]]></query>
+			<query><![CDATA[CREATE TABLE `###poll_answer` (
+				  `answer_id` int(10) unsigned NOT NULL auto_increment,
+				  `question_id` int(11) NOT NULL,
+				  `position` int(11) NOT NULL,
+				  `title` varchar(255) NOT NULL,
+				  `content` text,
+				  `is_correct` tinyint(4) default NULL,
+				  `user_id` int(11) NOT NULL,
+				  `num_views` int(11) NOT NULL default '0',
+				  PRIMARY KEY  (`answer_id`),
+				  KEY `question_id` (`question_id`)
+				) ENGINE=InnoDB DEFAULT CHARSET=utf8;]]>
+			</query>
+			<query><![CDATA[DROP TABLE IF EXISTS `###poll_question`;]]></query>
+			<query><![CDATA[CREATE TABLE `###poll_question` (
+				  `question_id` int(10) unsigned NOT NULL auto_increment,
+				  `title` varchar(255) NOT NULL,
+				  `content` varchar(255) default NULL,
+				  `created_date` datetime NOT NULL,
+				  `start_date` datetime NOT NULL,
+				  `end_date` datetime default NULL,
+				  `is_active` tinyint(1) NOT NULL,
+				  `multiple_options` tinyint(1) NOT NULL,
+				  `user_id` int(11) NOT NULL,
+				  `num_views` int(11) default NULL,
+				  `language` varchar(10) default NULL,
+				  PRIMARY KEY  (`question_id`),
+				  KEY `idx_language` (`language`)
+				) ENGINE=InnoDB DEFAULT CHARSET=utf8;]]>
+			</query>
+		</db>
+		<db adapter="pgsql">
+			<query><![CDATA[DROP TABLE IF EXISTS ###poll_answer;]]></query>
+			<query><![CDATA[CREATE TABLE ###poll_answer (
+				    answer_id integer NOT NULL,
+				    question_id integer NOT NULL,
+				    "position" integer NOT NULL,
+				    title character varying(255) NOT NULL,
+				    content text,
+				    is_correct smallint,
+				    user_id integer NOT NULL,
+				    num_views integer DEFAULT 0 NOT NULL
+				);
+				CREATE SEQUENCE poll_answer_answer_id_seq
+				    START WITH 1
+				    INCREMENT BY 1
+				    NO MAXVALUE
+				    NO MINVALUE
+				    CACHE 1;
+				ALTER SEQUENCE poll_answer_answer_id_seq OWNED BY ###poll_answer.answer_id;
+				SELECT pg_catalog.setval('poll_answer_answer_id_seq', 1, false);]]>
+			</query>
+			<query><![CDATA[DROP TABLE IF EXISTS ###poll_question;]]></query>
+			<query><![CDATA[CREATE TABLE ###poll_question (
+				    question_id integer NOT NULL,
+				    title character varying(255) NOT NULL,
+				    content character varying(255) DEFAULT NULL::character varying,
+				    created_date time without time zone NOT NULL,
+				    start_date time without time zone NOT NULL,
+				    end_date time without time zone,
+				    is_active smallint NOT NULL,
+				    multiple_options smallint NOT NULL,
+				    user_id integer NOT NULL,
+				    num_views integer,
+				    language character varying(10) DEFAULT NULL::character varying
+				);
+				CREATE SEQUENCE poll_question_question_id_seq
+				    START WITH 1
+				    INCREMENT BY 1
+				    NO MAXVALUE
+				    NO MINVALUE
+				    CACHE 1;
+				ALTER SEQUENCE poll_question_question_id_seq OWNED BY ###poll_question.question_id;
+				SELECT pg_catalog.setval('poll_question_question_id_seq', 1, false);]]>
+			</query>
+		</db>
+		<db adapter="sqlsrv">
+			<query><![CDATA[IF EXISTS (SELECT NAME FROM SYSOBJECTS WHERE NAME='###poll_answer' AND TYPE='U') DROP TABLE ###poll_answer;]]></query>
+			<query><![CDATA[CREATE TABLE ###poll_answer(
+					answer_id int identity(1,1) NOT NULL,
+					question_id int NOT NULL,
+					position int NOT NULL,
+					title nvarchar(255) NOT NULL,
+					content ntext NULL,
+					is_correct bit default null,
+					user_id int NOT NULL,
+					num_views int NOT NULL default 0,
+					PRIMARY KEY (answer_id));]]></query>
+			<query><![CDATA[CREATE INDEX question_id ON ###poll_answer (question_id);]]></query>
+			
+			<query><![CDATA[IF EXISTS (SELECT NAME FROM SYSOBJECTS WHERE NAME='###poll_question' AND TYPE='U') DROP TABLE ###poll_question;]]></query>
+			<query><![CDATA[CREATE TABLE ###poll_question(
+					question_id int identity(1,1) NOT NULL,
+					title nvarchar(255) NOT NULL,
+					content nvarchar(255) NULL,
+					created_date varchar(19) NOT NULL,
+					start_date varchar(19) NOT NULL,
+					end_date varchar(19) NULL,
+					is_active numeric(3, 0) NOT NULL,
+					multiple_options numeric(3, 0) NOT NULL,
+					user_id int NOT NULL,
+					num_views int NULL,
+					language varchar(10) default NULL,
+					PRIMARY KEY (question_id));]]>
+			</query>
+			<query><![CDATA[CREATE INDEX idx_language ON ###poll_question (language);]]></query>
+		</db>
+	</install>
+	
+	<uninstall>
+		<db adapter="mysql|pdo_mysql">
+			<query><![CDATA[DROP TABLE IF EXISTS `###poll_question`;]]></query>
+			<query><![CDATA[DROP TABLE IF EXISTS `###poll_answer`;]]></query>
+		</db>
+		<db adapter="pgsql">
+			<query><![CDATA[DROP TABLE IF EXISTS ###poll_question;]]></query>
+			<query><![CDATA[DROP TABLE IF EXISTS ###poll_answer;]]></query>
+		</db>
+		<db adapter="sqlsrv">
+			<query><![CDATA[IF EXISTS (SELECT NAME FROM SYSOBJECTS WHERE NAME='###poll_answer' AND TYPE='U') DROP TABLE ###poll_answer;]]></query>
+			<query><![CDATA[IF EXISTS (SELECT NAME FROM SYSOBJECTS WHERE NAME='###poll_question' AND TYPE='U') DROP TABLE ###poll_question;]]></query>
+		</db>
+	</uninstall>
+	
+	<admin>
+		<task langKey="task_list_polls" route="poll_question_list" />
+		<task langKey="task_add_poll" route="poll_question_add" />
+	</admin>
+</module>

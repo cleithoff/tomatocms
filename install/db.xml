@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version		$Id: db.xml 4835 2010-08-24 08:52:58Z huuphuoc $
+ */
+-->
+<db version="2.0.6">
+	<!-- Queries to initialize data -->
+	<init adapter="mysql|pdo_mysql">
+		<module name="core">
+			<!-- since 2.0.0 -->
+			<query><![CDATA[INSERT INTO `###core_role`(role_id, name, description, locked) VALUES (1,'admin','Administrator',1);]]></query>
+			<query><![CDATA[INSERT INTO `###core_user`(user_id, role_id, user_name, password, full_name, email, is_active, created_date, logged_in_date, is_online) VALUES (1,1,'admin',md5('admin'),'Administrator','admin@email.com',1,NULL,NULL,0);]]></query>
+			<query><![CDATA[INSERT INTO `###core_rule`(rule_id, obj_id, obj_type, privilege_id, allow, resource_name) VALUES (1,1,'role',NULL,1,NULL);]]></query>
+			
+			<!-- since 2.0.6 -->
+			<query><![CDATA[INSERT INTO `###mail_template`(template_id, name, title, subject, body, from_mail, from_name, reply_to_mail, reply_to_name, created_user_id, locked) VALUES ('1', 'forgot_password', 'Forgot password', 'Link to reset password', 'Hi %user_name%,<br />\r\nPlease click on the link below to reset the password:\r\n<a href=\"%reset_link%\">%reset_link%</a>', 'YourMail@Domain.com', 'Administrator', 'YourMail@Domain.com', 'Administrator', '1', '1');]]></query>
+			<query><![CDATA[INSERT INTO `###mail_template`(template_id, name, title, subject, body, from_mail, from_name, reply_to_mail, reply_to_name, created_user_id, locked) VALUES ('2', 'new_password', 'New password', 'New password', 'Hi %user_name%, <br />\r\n\r\nYou can use the following account to access <a href=\"%link%\">our website</a><br />:\r\n- Username: %user_name%<br />\r\n- Password: %new_password%<br />\r\nDo NOT forget to change the password after logging in the website.', 'YourMail@Domain.com', 'Administrator', 'YourMail@Domain.com', 'Administrator', '1', '1');]]></query>
+			
+			<!-- since 2.0.7 -->
+			<query><![CDATA[INSERT INTO `###core_hook` VALUES ('1', 'news', 'articlelinks', 'Show the categories and most recently articles links. Used to integrate with Link Provider', '', 'TomatoCMS Core Team', 'core@tomatocms.com', '2.0.7', 'free');]]></query>
+			<query><![CDATA[INSERT INTO `###core_hook` VALUES ('2', 'page', 'pagelinks', 'Show the pages links. Used to integrate with Link Provider', '', 'TomatoCMS Core Team', 'core@tomatocms.com', '2.0.7', 'free');]]></query>
+			<!--
+			<query><![CDATA[INSERT INTO `###core_dashboard` VALUES ('1', '1', 'admin', '{\"isRoot\": 1, \"cols\": 12, \"containers\": [{\"isRoot\": 0, \"cols\": 12, \"containers\": [{\"isRoot\": 0, \"cols\": 8, \"containers\": [], \"widgets\": [{\"cls\": \"Tomato.Core.Layout.Widget\", \"module\": \"news\", \"name\": \"dashboardarticle\", \"title\": \"Show latest articles\", \"resources\": {\"css\": [], \"javascript\": []}, \"params\": {\"limit\": {\"value\": \"10\", \"type\": \"\"}, \"___cacheLifetime\": {\"value\": \"\", \"type\": \"\"}, \"___loadAjax\": {\"value\": \"\", \"type\": \"\"}}}], \"position\": \"first\"}, {\"isRoot\": 0, \"cols\": 4, \"containers\": [], \"widgets\": [{\"cls\": \"Tomato.Core.Layout.Widget\", \"module\": \"comment\", \"name\": \"dashboardcomment\", \"title\": \"Show latest comments\", \"resources\": {\"css\": [], \"javascript\": []}, \"params\": {\"limit\": {\"value\": \"5\", \"type\": \"\"}, \"___cacheLifetime\": {\"value\": \"\", \"type\": \"\"}, \"___loadAjax\": {\"value\": \"\", \"type\": \"\"}}}, {\"cls\": \"Tomato.Core.Layout.Widget\", \"module\": \"core\", \"name\": \"dashboardsystem\", \"title\": \"System information\", \"resources\": {\"css\": [], \"javascript\": []}, \"params\": {\"___cacheLifetime\": {\"value\": \"\", \"type\": \"\"}, \"___loadAjax\": {\"value\": \"\", \"type\": \"\"}}}], \"position\": \"last\"}], \"widgets\": []}], \"widgets\": []}', '0');]]></query>
+			-->
+		</module>
+	</init>
+	<init adapter="pgsql">
+		<module name="core">
+			<query><![CDATA[INSERT INTO ###core_role(role_id, name, description, locked) VALUES (1,'admin','Administrator',1);]]></query>
+			<query><![CDATA[INSERT INTO ###core_user(user_id, role_id, user_name, password, full_name, email, is_active, created_date, logged_in_date, is_online) VALUES (1,1,'admin',md5('admin'),'Administrator','admin@email.com',1,NULL,NULL,0);]]></query>
+			<query><![CDATA[INSERT INTO ###core_rule(rule_id, obj_id, obj_type, privilege_id, allow, resource_name) VALUES (1,1,'role',NULL,1,NULL);]]></query>
+			<query><![CDATA[INSERT INTO ###mail_template(template_id, name, title, subject, body, from_mail, from_name, reply_to_mail, reply_to_name, created_user_id, locked) VALUES (1, 'forgot_password', 'Forgot password', 'Link to reset password', 'Hi %user_name%,<br />\r\nPlease click on the link below to reset the password:\r\n<a href=\"%reset_link%\">%reset_link%</a>', 'YourMail@Domain.com', 'Administrator', 'YourMail@Domain.com', 'Administrator', 1, 1);]]></query>
+			<query><![CDATA[INSERT INTO ###mail_template(template_id, name, title, subject, body, from_mail, from_name, reply_to_mail, reply_to_name, created_user_id, locked) VALUES (2, 'new_password', 'New password', 'New password', 'Hi %user_name%, <br />\r\n\r\nYou can use the following account to access <a href=\"%link%\">our website</a><br />:\r\n- Username: %user_name%<br />\r\n- Password: %new_password%<br />\r\nDo NOT forget to change the password after logging in the website.', 'YourMail@Domain.com', 'Administrator', 'YourMail@Domain.com', 'Administrator', 1, 1);]]></query>
+		</module>
+	</init>
+	<init adapter="sqlsrv">
+		<module name="core">
+			<query><![CDATA[INSERT INTO ###core_role(role_id, name, description, locked) VALUES (1,'admin','Administrator',1);]]></query>
+			<query><![CDATA[INSERT INTO ###core_user(user_id, role_id, user_name, password, full_name, email, is_active, created_date, logged_in_date, is_online) VALUES (1,1,'admin',md5('admin'),'Administrator','admin@email.com',1,NULL,NULL,0);]]></query>
+			<query><![CDATA[INSERT INTO ###core_rule(rule_id, obj_id, obj_type, privilege_id, allow, resource_name) VALUES (1,1,'role',NULL,1,NULL);]]></query>
+			<query><![CDATA[INSERT INTO ###mail_template(template_id, name, title, subject, body, from_mail, from_name, reply_to_mail, reply_to_name, created_user_id, locked) VALUES (1, 'forgot_password', 'Forgot password', 'Link to reset password', 'Hi %user_name%,<br />\r\nPlease click on the link below to reset the password:\r\n<a href=\"%reset_link%\">%reset_link%</a>', 'YourMail@Domain.com', 'Administrator', 'YourMail@Domain.com', 'Administrator', 1, 1);]]></query>
+			<query><![CDATA[INSERT INTO ###mail_template(template_id, name, title, subject, body, from_mail, from_name, reply_to_mail, reply_to_name, created_user_id, locked) VALUES (2, 'new_password', 'New password', 'New password', 'Hi %user_name%, <br />\r\n\r\nYou can use the following account to access <a href=\"%link%\">our website</a><br />:\r\n- Username: %user_name%<br />\r\n- Password: %new_password%<br />\r\nDo NOT forget to change the password after logging in the website.', 'YourMail@Domain.com', 'Administrator', 'YourMail@Domain.com', 'Administrator', 1, 1);]]></query>
+		</module>
+	</init>
+</db>

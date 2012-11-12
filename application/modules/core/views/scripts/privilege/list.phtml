@@ -1,0 +1,261 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: list.phtml 4185 2010-08-01 16:31:02Z huuphuoc $
+ * @since		2.0.0
+ */
+?>
+<?php 
+$this->headTitle($this->translator('privilege_list_page_title'));
+
+$this->headLink()
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.core.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.resizable.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.dialog.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.theme.css');
+
+$this->headScript()
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.core.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.draggable.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.resizable.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.dialog.js');
+?>
+
+<div class="grid_12 t_a_ui_breadcrumb">
+	<span><?php echo $this->translator('privilege_list_breadcrumb'); ?></span>	
+</div>
+
+<div class="grid_12">
+	<!-- List of modules -->
+	<div class="grid_2 alpha">
+		<ul id="modules" class="t_a_ui_list">
+			<?php foreach ($this->modules as $index => $module) : ?>
+			<li<?php if ($index == 0) : ?> class="t_a_ui_active"<?php endif; ?>><a href="javascript: void(0);"><?php echo $module; ?></a></li>
+			<?php endforeach; ?>
+		</ul>
+	</div>
+	
+	<!-- List of resources -->
+	<div class="grid_10 omega">
+		<?php foreach ($this->modules as $index => $module) : ?>
+		<div id="<?php echo $module; ?>Resource" class="moduleResource" style="display: <?php echo (($index == 0) ? 'block' : 'none'); ?>">
+			<?php if ($result = $this->privilegeLoader()->getPrivileges($module)) : ?>
+			<?php foreach ($result as $i => $item) : ?>
+				<div class="grid_5 t_a_bottom<?php if ($i % 2 == 0) : ?> alpha<?php else : ?> omega<?php endif; ?>">
+					
+					<!-- Resource description -->
+					<div class="t_a_bottom t_a_ui_helper_head">
+						<div class="grid_4 alpha">
+							<span style="padding-left: 5px"><b><?php echo $item['resource']->description; ?></b></span>
+						</div>
+						
+						<div class="grid_1 omega">
+							<?php if (isset($this->dbResources[$module . ':' . ((string)$item['resource']->controller_name)])) : ?>
+								<?php if ($this->allow('delete', 'resource')) : ?>
+								<a href="javascript: void(0);" rel="<?php echo $this->dbResources[$module . ':' . ((string)$item['resource']->controller_name)]; ?>" class="resourceAction" alt="-"><?php echo $this->translator('privilege_list_delete_resource'); ?></a>
+								<?php endif; ?>
+							<?php else : ?>
+								<?php if ($this->allow('add', 'resource')) : ?>
+								<a href="javascript: void(0);" rel="<?php echo $module . ':' . ((string)$item['resource']->controller_name); ?>" title="<?php echo $this->escape($item['resource']->description); ?>" class="resourceAction" alt="+"><?php echo $this->translator('privilege_list_add_resource'); ?></a>
+								<?php endif; ?>
+							<?php endif; ?>
+						</div>
+						
+						<div class="clearfix"></div>
+					</div>
+				
+					<!-- Resource privileges -->
+					<div class="clearfix">
+						<?php foreach ($item['privileges'] as $priv) : ?>
+						<div class="clearfix t_a_bottom">
+							<div class="grid_4 alpha"><?php echo $priv->description; ?></div>
+							
+							<div class="grid_1 omega">
+								<?php if (isset($this->dbPrivileges[((string)$priv->module_name) . ':' . ((string)$priv->controller_name) . ':' . ((string)$priv->name)])) : ?>
+								<?php if ($this->allow('delete')) : ?>
+									<a href="javascript: void(0);" class="privilegeAction" rel="<?php echo $this->dbPrivileges[((string)$priv->module_name) . ':' . ((string)$priv->controller_name) . ':' . ((string)$priv->name)]; ?>">[ - ]</a>
+								<?php endif; ?>
+								
+								<?php else : ?>
+								<?php if ($this->allow('add')) : ?>
+									<a href="javascript: void(0);" class="privilegeAction" title="<?php echo $this->escape($priv->description); ?>" rel="<?php echo ((string)$priv->module_name) . ':' . ((string)$priv->controller_name) . ':' . ((string)$priv->name); ?>">[ + ]</a>
+								<?php endif; ?>
+								<?php endif; ?>
+							</div>
+						</div>
+						<?php endforeach; ?>
+					</div>
+				</div>
+				<?php if ($i % 2 == 1) : ?><div class="clearfix"></div><?php endif; ?>
+			<?php endforeach; ?>
+			
+			<?php else : ?>
+			<?php echo $this->translator('privilege_list_module_has_not_resource'); ?>
+			<?php endif; ?>
+			<div class="clearfix"></div>
+		</div>
+		<?php endforeach; ?>
+	</div>
+</div>
+
+<div id="messageDialog"></div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+	/**
+	 * Load resource based on selected module
+	 */
+	$('#modules').find('a').click(function() {
+		$('.moduleResource').hide();
+		$('#' + $(this).html() + 'Resource').show();
+
+		$('#modules').find('li').removeClass('t_a_ui_active');
+		$(this).parent().addClass('t_a_ui_active');
+	});
+	
+	<?php if ($this->allow('add', 'resource') || $this->allow('delete', 'resource')) : ?>
+	$('a.resourceAction').click(function() {
+		var label = $(this).attr('alt');
+		var self = this;
+		$(this).html('').addClass('t_a_ui_helper_loading');
+		switch (label) {
+			<?php if ($this->allow('add', 'resource')) : ?>
+			case '+':
+				$.ajaxq('core_resource', {
+					url: '<?php echo $this->url(array(), 'core_resource_add'); ?>',
+					type: 'POST',
+					data: { mc: $(this).attr('rel'), description: $(this).attr('title') },
+					success: function(response) {
+						$(self).html("<?php echo $this->escape($this->translator('privilege_list_delete_resource')); ?>")
+								.removeClass('t_a_ui_helper_loading')
+								.attr('alt', '-')
+								.attr('rel', response);
+						$('#messageDialog').html(sprintf('<?php echo addslashes($this->translator('privilege_list_add_resource_success')); ?>', $(self).attr('title')))
+							.dialog({
+								title: '<?php echo addslashes($this->translator('common_dialog_message')); ?>',
+								dialogClass: 't_a_ui_dialog',
+								modal: true,
+						    	show: { effect: 'fade' },
+								open: function(event, ui) {
+									setTimeout(function() {
+										$('#' + event.target.id).dialog('option', 'hide', 'fade').dialog('destroy');
+									}, 3000);
+								}
+							});
+					}
+				});
+				break;
+			<?php endif; ?>
+			
+			<?php if ($this->allow('delete', 'resource')) : ?>
+			case '-':
+				$.ajaxq('core_resource', {
+					url: '<?php echo $this->url(array(), 'core_resource_delete'); ?>',
+					type: 'POST',
+					data: { id: $(this).attr('rel') },
+					success: function(response) {
+						response = $.evalJSON(response);
+						$(self).html("<?php echo $this->escape($this->translator('privilege_list_add_resource')); ?>")
+								.removeClass('t_a_ui_helper_loading')
+								.attr('alt', '+')
+								.attr('rel', response.mc).attr('title', response.description);
+						$('#messageDialog').html(sprintf('<?php echo addslashes($this->translator('privilege_list_delete_resource_success')); ?>', response.description))
+							.dialog({
+								title: '<?php echo addslashes($this->translator('common_dialog_message')); ?>',
+								dialogClass: 't_a_ui_dialog',
+								modal: true,
+						    	show: { effect: 'fade' },
+								open: function(event, ui) {
+									setTimeout(function() {
+										$('#' + event.target.id).dialog('option', 'hide', 'fade').dialog('destroy');
+									}, 3000);
+								}
+							});
+					}
+				});
+				break;
+			<?php endif; ?>
+		}
+	});
+	<?php endif; ?>
+
+	<?php if ($this->allow('add') || $this->allow('delete')) : ?>
+	$('a.privilegeAction').click(function() {
+		var label = $(this).html();
+		var self = this;
+		$(this).html('').addClass('t_a_ui_helper_loading');
+		switch (label) {
+			<?php if ($this->allow('add')) : ?>
+			case '[ + ]':
+				/**
+				 * Add privilege
+				 */
+				$.ajaxq('core_privilege', {
+					url: '<?php echo $this->url(array(), 'core_privilege_add'); ?>',
+					type: 'POST',
+					data: { mca: $(this).attr('rel'), description: $(this).attr('title') },
+					success: function(response) {
+						$(self).html('[ - ]').removeClass('t_a_ui_helper_loading').attr('rel', response);
+						$('#messageDialog').html(sprintf('<?php echo addslashes($this->translator('privilege_list_add_success')); ?>', $(self).attr('title')))
+							.dialog({
+								title: '<?php echo addslashes($this->translator('common_dialog_message')); ?>',
+								dialogClass: 't_a_ui_dialog',
+								modal: true,
+						    	show: { effect: 'fade' },
+								open: function(event, ui) {
+									setTimeout(function() {
+										$('#' + event.target.id).dialog('option', 'hide', 'fade').dialog('destroy');
+									}, 3000);
+								}
+							});						
+					}
+				});
+				break;
+			<?php endif; ?>
+			
+			<?php if ($this->allow('delete')) : ?>
+			case '[ - ]':
+				/**
+				 * Delete privilege
+				 */
+				$.ajaxq('core_privilege', {
+					url: '<?php echo $this->url(array(), 'core_privilege_delete'); ?>',
+					type: 'POST',
+					data: { id: $(this).attr('rel') },
+					success: function(response) {
+						response = $.evalJSON(response);
+						$(self).html('[ + ]').removeClass('t_a_ui_helper_loading').attr('rel', response.mca).attr('title', response.description);
+						$('#messageDialog').html(sprintf('<?php echo addslashes($this->translator('privilege_list_delete_success')); ?>', response.description))
+							.dialog({
+								title: '<?php echo addslashes($this->translator('common_dialog_message')); ?>',
+								dialogClass: 't_a_ui_dialog',
+								modal: true,
+						    	show: { effect: 'fade' },
+								open: function(event, ui) {
+									setTimeout(function() {
+										$('#' + event.target.id).dialog('option', 'hide', 'fade').dialog('destroy');
+									}, 3000);
+								}
+							});					
+					}
+				});
+				break;
+			<?php endif; ?>
+		}
+	});
+	<?php endif; ?>
+});
+</script>

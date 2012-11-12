@@ -1,0 +1,142 @@
+<?php
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: list.phtml 4186 2010-08-01 16:31:52Z huuphuoc $
+ * @since		2.0.6
+ */
+?>
+<?php 
+$this->headTitle($this->translator('template_list_page_title'));
+
+$this->headLink()
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.core.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.resizable.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.dialog.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.theme.css');
+
+$this->headScript()
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.core.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.draggable.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.resizable.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.dialog.js');
+?>
+
+<div class="grid_12 t_a_ui_breadcrumb">
+	<span><a href="<?php echo $this->url(array(), 'mail_mail_list'); ?>"><?php echo $this->translator('mail_list_breadcrumb'); ?></a></span>
+	<span><?php echo $this->translator('template_list_breadcrumb'); ?></span>
+</div>
+
+<div class="grid_12 t_a_bottom">
+	<div class="grid_9 alpha"><?php echo $this->translator('template_list_guide'); ?></div>
+	
+	<div class="grid_3 omega">
+		<div class="t_a_right">
+			<a href="<?php echo $this->url(array(), 'mail_template_add'); ?>" class="t_a_ui_button_link"><span><?php echo $this->translator('template_add_breadcrumb'); ?></span></a>
+		</div>
+	</div>	
+</div>
+
+<?php if ($this->numTemplates == 0) : ?>
+<div class="grid_12 t_a_bottom"><?php echo $this->translator('template_list_not_found'); ?></div>	
+<?php else : ?>
+	<div class="grid_12 t_a_ui_data_list_header">
+		<div class="grid_4 alpha">
+			<div><?php echo $this->translator('template_name'); ?></div>
+		</div>
+		
+		<div class="grid_4"><?php echo $this->translator('template_title'); ?></div>
+		
+		<div class="grid_4 omega"><?php echo $this->translator('template_from_mail'); ?></div>
+	</div>
+	
+	<div class="grid_12 t_a_bottom">
+	<?php foreach ($this->templates as $template) : ?>
+	<div id="templateRow_<?php echo $template->template_id; ?>" class="clearfix t_a_ui_data_list_content">
+		<div class="grid_4 alpha">
+			<div><?php echo $template->name; ?></div>
+			
+			<div class="t_a_ui_helper_action">
+				<?php if ($this->allow('edit')) : ?>
+				<a href="<?php echo $this->url(array('template_id' => $template->template_id), 'mail_template_edit'); ?>"><?php echo $this->translator('template_list_action_edit'); ?></a> |				
+				<?php endif; ?>
+			
+				<?php if ($template->locked == 0 && $this->allow('delete')) : ?>
+				<a class="deleteAction" rel="<?php echo $template->template_id; ?>" href="javascript: void(0);"><?php echo $this->translator('template_list_action_delete'); ?></a> |
+				<?php endif; ?>
+				
+				<?php if ($this->routeAccessor('mail_mail_send')) : ?>
+				<a href="<?php echo $this->url(array('template_id' => $template->template_id), 'mail_mail_send_template'); ?>"><?php echo $this->translator('template_list_action_send'); ?></a>				
+				<?php endif; ?>
+			</div>
+		</div>
+		
+		<div class="grid_4"><?php echo $template->title; ?></div>
+		
+		<div class="grid_4 omega"><?php echo $template->from_name; ?> (<?php echo $template->from_mail; ?>)</div>
+	</div>
+	<?php endforeach; ?>
+	</div>
+	
+	<div class="grid_12 t_a_bottom t_a_ui_paginator">
+		<?php echo $this->paginator()->slide($this->paginator, $this->paginatorOptions); ?>
+	</div>	
+<?php endif; ?>
+
+<div id="messageDialog"></div>
+
+<div id="confirmDialog"></div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+	<?php if ($this->allow('delete')) : ?>
+	$('a.deleteAction').click(function() {
+		var self = this;
+		$('#confirmDialog').html('<?php echo addslashes($this->translator('template_list_action_delete_confirm')); ?>')
+			.dialog({
+				title: '<?php echo addslashes($this->translator('common_dialog_confirm')); ?>',
+				dialogClass: 't_a_ui_dialog',
+				modal: true,
+				closeOnEscape: false,
+				resizable: false,
+				open: function(event, ui) {
+					$('.ui-dialog-titlebar-close').hide();
+					$(this).parent().find('.ui-dialog-buttonpane button').wrapInner('<span/>');
+				},
+				buttons: {
+					'<?php echo addslashes($this->translator('common_dialog_confirm_no')); ?>': function() {
+						$(this).dialog('destroy');
+					},
+					'<?php echo addslashes($this->translator('common_dialog_confirm_yes')); ?>': function() {
+						$(this).dialog('destroy');
+						$(self).html('').addClass('t_a_ui_helper_loading');
+						var id = $(self).attr('rel');
+						$.ajaxq('mail_template', {
+							type: 'POST',
+							url: "<?php echo $this->url(array(), 'mail_template_delete'); ?>",
+							data: { id: id },
+							success: function(response) {
+								if ('RESULT_OK' == response) {
+									$('#templateRow_' + id).fadeOut('slow');
+								}
+							}
+						});
+					}
+				}
+			});
+	});
+	<?php endif; ?>	
+});
+</script>

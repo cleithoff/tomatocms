@@ -1,0 +1,45 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: editskin.phtml 3971 2010-07-25 10:26:42Z huuphuoc $
+ * @since		2.0.0
+ */
+?>
+<?php 
+$this->headTitle($this->translator('template_edit_skin_page_title'));
+?>
+
+<div class="grid_12 t_a_ui_breadcrumb">
+	<span><a href="<?php echo $this->url(array(), 'core_template_list'); ?>"><?php echo $this->translator('template_list_breadcrumb'); ?></a></span><span><?php echo $this->translator('template_edit_skin_breadcrumb'); ?></span>	
+</div>
+
+<div class="grid_12 t_a_bottom">
+	<?php 
+	echo sprintf($this->translator('template_edit_skin_guide'), 
+					'<b>'.$this->skin.'</b>', 
+					'<a href="'.$this->url(array(), 'core_template_list').'"><b>'.$this->template.'</b></a>'); 
+	?>
+</div>
+
+<div class="grid_12">
+	<form method="post" action="<?php echo $this->url(array('template' => $this->template, 'skin' => $this->skin), 'core_template_editskin'); ?>">
+		<div class="t_a_bottom">
+			<textarea name="content" style="width: 930px; height: 400px"><?php echo $this->content; ?></textarea>
+		</div>
+		
+		<button type="submit"><span><?php echo $this->translator('template_edit_skin_save_button'); ?></span></button>
+	</form>
+</div>

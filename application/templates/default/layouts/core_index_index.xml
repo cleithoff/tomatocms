@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE layout SYSTEM "http://schemas.tomatocms.com/dtd/layout.dtd">
+<layout>
+	<container cols="12">
+        <widget module="core" name="localeswitcher" load="php">
+            <title><![CDATA[Switch locale]]></title>
+            <params>
+                <param name="type"><value><![CDATA[full]]></value></param>
+            </params>
+        </widget>
+    </container>
+    <container cols="12">
+        <widget module="menu" name="menu" load="php">
+            <title><![CDATA[Menu]]></title>
+            <resources>
+                <resource type="javascript" src="{APP_STATIC_SERVER}/js/jquery.hoverIntent/jquery.hoverIntent.minified.js" />
+                <resource type="javascript" src="{APP_STATIC_SERVER}/js/megamenu/megamenu.js" />
+            </resources>
+            <params>
+                <param name="menu_id"><value><![CDATA[1]]></value></param>
+            </params>
+        </widget>
+    </container>
+    <container cols="12">
+        <container cols="5" position="first">
+            <widget module="news" name="hotest" load="php">
+                <title><![CDATA[Hotest articles]]></title>
+                <params>
+                    <param name="limit"><value><![CDATA[3]]></value></param>
+                </params>
+            </widget>
+        </container>
+        <container cols="3">
+            <widget module="news" name="newest" load="php">
+                <title><![CDATA[Latest articles]]></title>
+                <params>
+                    <param name="limit"><value><![CDATA[4]]></value></param>
+                </params>
+            </widget>
+        </container>
+        <container cols="4" position="last">
+            <widget module="ad" name="zone" load="php">
+                <title><![CDATA[Banner]]></title>
+                <resources>
+                    <resource type="javascript" src="{APP_STATIC_SERVER}/js/tomato/ad/banner.js" />
+                    <resource type="javascript" src="{APP_STATIC_SERVER}/js/tomato/ad/zone.js" />
+                    <resource type="javascript" src="{APP_STATIC_SERVER}/js/tomato/ad/loader.js" />
+                    <resource type="javascript" src="{APP_STATIC_SERVER}/js/swfobject/swfobject.js" />
+                    <resource type="javascript" src="{APP_STATIC_SERVER}/index.php/ad/zone/load/" />
+                </resources>
+                <params>
+                    <param name="code"><value><![CDATA[H1]]></value></param>
+                </params>
+            </widget>
+            <widget module="news" name="searchbox" load="php">
+                <title><![CDATA[Search Box]]></title>
+                <resources>
+                    <resource type="css" src="{APP_STATIC_SERVER}/js/jquery.autocomplete/jquery.autocomplete.css" />
+                    <resource type="javascript" src="{APP_STATIC_SERVER}/js/jquery.autocomplete/jquery.autocomplete.js" />
+                </resources>
+                <params>
+                    <param name="limit"><value><![CDATA[5]]></value></param>
+                </params>
+            </widget>
+        </container>
+    </container>
+    <container cols="12">
+        <container cols="8" position="first">
+            <widget module="news" name="categories" load="php">
+                <title><![CDATA[Latest articles]]></title>
+                <params>
+                    <param name="limit"><value><![CDATA[5]]></value></param>
+                </params>
+            </widget>
+            <widget module="multimedia" name="slideshow" load="php">
+                <title><![CDATA[Latest photos]]></title>
+                <resources>
+                    <resource type="javascript" src="{APP_STATIC_SERVER}/js/jquery.cycle/jquery.cycle.all.min.js" />
+                </resources>
+                <params>
+                    <param name="limit"><value><![CDATA[10]]></value></param>
+                </params>
+            </widget>
+        </container>
+        <container cols="4" position="last">
+            <widget module="news" name="mostviewed" load="php">
+                <title><![CDATA[Most viewed articles]]></title>
+                <params>
+                    <param name="category_id"><value><![CDATA[]]></value></param>
+                    <param name="limit"><value><![CDATA[10]]></value></param>
+                </params>
+            </widget>
+            <widget module="multimedia" name="player" load="php">
+                <title><![CDATA[Latest photos]]></title>
+                <resources>
+                    <resource type="javascript" src="{APP_STATIC_SERVER}/js/swfobject/swfobject.js" />
+                </resources>
+                <params>
+                    <param name="limit"><value><![CDATA[10]]></value></param>
+                </params>
+            </widget>
+        </container>
+    </container>
+    <container cols="12">
+        <container cols="4" position="first">
+            <widget module="utility" name="feed" load="php">
+                <title><![CDATA[Feed]]></title>
+                <params>
+                    <param name="url"><value><![CDATA[http://demo.tomatocms.com/news/rss/index.xml]]></value></param>
+                    <param name="title"><value><![CDATA[]]></value></param>
+                    <param name="limit"><value><![CDATA[5]]></value></param>
+                </params>
+                <cache lifetime="3600" />
+            </widget>
+        </container>
+        <container cols="4">
+            <widget module="utility" name="twitter" load="php">
+                <title><![CDATA[Twitter Updates]]></title>
+                <params>
+                    <param name="account"><value><![CDATA[tomatocms]]></value></param>
+                    <param name="limit"><value><![CDATA[3]]></value></param>
+                </params>
+                <cache lifetime="3600" />
+            </widget>
+        </container>
+        <container cols="4" position="last">
+            <widget module="poll" name="vote" load="php">
+                <title><![CDATA[Poll]]></title>
+                <params>
+                    <param name="poll_id"><value><![CDATA[1]]></value></param>
+                </params>
+            </widget>
+        </container>
+    </container>
+</layout>

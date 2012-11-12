@@ -1,0 +1,212 @@
+<?php
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: list.phtml 4185 2010-08-01 16:31:02Z huuphuoc $
+ * @since		2.0.7
+ */
+?>
+<?php 
+$this->headTitle($this->translator('log_list_page_title'));
+
+$this->headLink()
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.core.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.resizable.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.dialog.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.theme.css');
+
+$this->headScript()
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.core.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.draggable.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.resizable.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.dialog.js');
+?>
+
+<div class="grid_12 t_a_ui_breadcrumb">
+	<span><?php echo $this->translator('log_list_breadcrumb'); ?></span>
+</div>
+
+<?php if ($this->numLogs == 0) : ?>
+	<div class="grid_12 t_a_bottom"><?php echo $this->translator('log_list_not_found'); ?></div>
+<?php else : ?>
+<div class="grid_12 t_a_bottom">
+	<?php echo $this->translator('log_list_description'); ?>
+</div>
+
+<div class="grid_12 t_a_ui_data_list_header">
+	<div class="grid_7 alpha">
+		<div><input type="checkbox" id="checkAll" /> <?php echo $this->translator('log_message'); ?></div>
+	</div>
+	
+	<div class="grid_3"><?php echo $this->translator('log_class'); ?></div>
+	
+	<div class="grid_2 omega"><?php echo $this->translator('log_created_date'); ?></div>
+</div>
+
+<div class="grid_12 t_a_bottom">
+	<?php foreach ($this->logs as $log) : ?>
+	<div class="clearfix t_a_ui_data_list_content" id="logRow_<?php echo $log->log_id; ?>">
+		<div class="grid_7 alpha">
+			<div class="t_a_left">
+				<input type="checkbox" class="selectLog" value="<?php echo $log->log_id; ?>" />
+			</div>
+		
+			<div class="t_a_left" style="margin: 0px 5px">
+				<div><?php echo $log->message; ?></div>
+				
+				<div class="t_a_ui_helper_action">
+					<?php if ($this->allow('delete')) : ?>
+					<a href="javascript: void(0);" class="deleteAction" rel="<?php echo $log->log_id; ?>"><?php echo $this->translator('log_list_action_delete'); ?></a>
+					<?php endif; ?>
+				</div>
+			</div>
+		</div>
+		
+		<div class="grid_3"><?php echo $log->class; ?></div>
+		
+		<div class="grid_2 omega"><?php echo $log->created_date; ?></div>
+	</div>
+	<?php endforeach; ?>
+</div>
+
+<div class="grid_12 t_a_bottom">
+	<?php if ($this->allow('delete')) : ?>
+	<button id="deleteSelectedButton"><span><?php echo $this->translator('log_list_delete_selected_button'); ?></span></button>
+	<?php endif; ?>
+</div>
+
+<div class="grid_12 t_a_bottom t_a_ui_paginator">
+	<?php echo $this->paginator()->slide($this->paginator, $this->paginatorOptions); ?>
+</div>
+<?php endif; ?>
+
+<div id="messageDialog"></div>
+
+<div id="confirmDialog"></div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+	/**
+	 * Select/Deselect all rows handler
+	 */
+	$('#checkAll').click(function() {
+		$('input[type="checkbox"].selectLog').attr('checked', $(this).attr('checked'));
+	});
+
+	<?php if ($this->allow('delete')) : ?>
+	/**
+	 * Delete log handler
+	 */
+	$('#deleteSelectedButton').click(function() {
+		var numSelected = $('input[type="checkbox"].selectLog:checked').length;
+		var self = this;
+		if (0 == numSelected) {
+			$('#confirmDialog').html('<?php echo addslashes($this->translator('log_list_action_delete_none_selected')); ?>')
+				.dialog({
+					title: '<?php echo addslashes($this->translator('common_dialog_error')); ?>',
+					dialogClass: 't_a_ui_dialog',
+					modal: true,
+					closeOnEscape: false,
+					resizable: false,
+					open: function(event, ui) {
+						$('.ui-dialog-titlebar-close').hide();
+						$(this).parent().find('.ui-dialog-buttonpane button').wrapInner('<span/>');
+					},
+					buttons: {
+						'<?php echo addslashes($this->translator('common_dialog_confirm_ok')); ?>': function() {
+							$(this).dialog('destroy');
+						}
+					}
+				});
+		} else {
+			$('#confirmDialog').html('<?php echo addslashes($this->translator('log_list_delete_selected_confirm')); ?>')
+				.dialog({
+					title: '<?php echo addslashes($this->translator('common_dialog_confirm')); ?>',
+					dialogClass: 't_a_ui_dialog',
+					modal: true,
+					closeOnEscape: false,
+					resizable: false,
+					open: function(event, ui) {
+						$('.ui-dialog-titlebar-close').hide();
+						$(this).parent().find('.ui-dialog-buttonpane button').wrapInner('<span/>');
+					},
+					buttons: {
+						'<?php echo addslashes($this->translator('common_dialog_confirm_no')); ?>': function() {
+							$(this).dialog('destroy');
+						},
+						'<?php echo addslashes($this->translator('common_dialog_confirm_yes')); ?>': function() {
+							$(this).dialog('destroy');
+							$(self).html('').addClass('t_a_ui_helper_loading');
+							var ids = new Array();
+							$('input[type="checkbox"].selectLog:checked').each(function() {
+								ids.push($(this).val());
+							});
+							$.ajaxq('core_log', {
+								type: 'POST',
+								url: "<?php echo $this->url(array(), 'core_log_delete'); ?>",
+								data: { id: $.toJSON(ids) },
+								success: function(response) {
+									if ('RESULT_OK' == response) {
+										for (var i in ids) {
+											$('#logRow_' + ids[i]).fadeOut('slow');
+										}
+										$(self).removeClass('t_a_ui_helper_loading').append($('<span/>').html('<?php echo addslashes($this->translator('log_list_delete_selected_button')); ?>'));
+									}
+								}
+							});
+						}
+					}
+				});
+		}
+	});
+
+	$('a.deleteAction').click(function() {
+		var self = this;
+		$('#confirmDialog').html('<?php echo addslashes($this->translator('log_list_action_delete_confirm')); ?>')
+			.dialog({
+				title: '<?php echo addslashes($this->translator('common_dialog_confirm')); ?>',
+				dialogClass: 't_a_ui_dialog',
+				modal: true,
+				closeOnEscape: false,
+				resizable: false,
+				open: function(event, ui) {
+					$('.ui-dialog-titlebar-close').hide();
+					$(this).parent().find('.ui-dialog-buttonpane button').wrapInner('<span/>');
+				},
+				buttons: {
+					'<?php echo addslashes($this->translator('common_dialog_confirm_no')); ?>': function() {
+						$(this).dialog('destroy');
+					},
+					'<?php echo addslashes($this->translator('common_dialog_confirm_yes')); ?>': function() {
+						$(this).dialog('destroy');
+						$(self).html('').addClass('t_a_ui_helper_loading');
+						var id = $(self).attr('rel');
+						$.ajaxq('core_log', {
+							type: 'POST',
+							url: "<?php echo $this->url(array(), 'core_log_delete'); ?>",
+							data: { id: id },
+							success: function(response) {
+								if ('RESULT_OK' == response) {
+									$('#logRow_' + id).fadeOut('slow');
+								}
+							}
+						});
+					}
+				}
+			});
+	});
+	<?php endif; ?>
+});
+</script>

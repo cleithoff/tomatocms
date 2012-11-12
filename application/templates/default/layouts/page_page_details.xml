@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE layout SYSTEM "http://schemas.tomatocms.com/dtd/layout.dtd">
+<layout>
+	<container cols="12">
+        <widget module="core" name="localeswitcher" load="php">
+            <title><![CDATA[Switch locale]]></title>
+            <params>
+                <param name="type"><value><![CDATA[full]]></value></param>
+            </params>
+        </widget>
+    </container>
+    <container cols="12">
+        <widget module="menu" name="menu" load="php">
+            <title><![CDATA[Menu]]></title>
+            <resources>
+                <resource type="javascript" src="{APP_STATIC_SERVER}/js/jquery.hoverIntent/jquery.hoverIntent.minified.js" />
+                <resource type="javascript" src="{APP_STATIC_SERVER}/js/megamenu/megamenu.js" />
+            </resources>
+            <params>
+                <param name="menu_id"><value><![CDATA[1]]></value></param>
+            </params>
+        </widget>
+    </container>
+    <container cols="12">
+        <container cols="3" position="first">
+            <widget module="page" name="pagetree" load="php">
+                <title><![CDATA[Page Tree]]></title>
+            </widget>
+        </container>
+        <container cols="9" position="last">
+            <widget module="page" name="breadcrumb" load="php">
+                <title><![CDATA[Breadcrumb]]></title>
+                <params>
+                    <param name="page_id" type="global" />
+                </params>
+            </widget>
+            <defaultOutput />
+            <widget module="utility" name="socialshare" load="php">
+                <title><![CDATA[Share via social networks]]></title>
+                <resources>
+                    <resource type="javascript" src="http://static.ak.fbcdn.net/connect.php/js/FB.Share" />
+                    <resource type="javascript" src="http://platform.twitter.com/widgets.js" />
+                    <resource type="javascript" src="http://widgets.digg.com/buttons.js" />
+                </resources>
+                <params>
+                    <param name="size"><value><![CDATA[compact]]></value></param>
+                </params>
+            </widget>
+            <widget module="core" name="localizer" load="php">
+                <title><![CDATA[Localizer page content]]></title>
+            </widget>
+        </container>
+    </container>
+</layout>

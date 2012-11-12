@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version		$Id: about.xml 4965 2010-08-25 18:39:30Z huuphuoc $
+ * @since		2.0.7
+ */
+-->
+<!DOCTYPE module SYSTEM "http://schemas.tomatocms.com/dtd/module_about.dtd">
+<module>
+	<name>page</name>
+	<description langKey="about_page_description"><![CDATA[Manage static pages]]></description>
+	<thumbnail></thumbnail>
+	<author>TomatoCMS Core Team</author>
+	<email>core@tomatocms.com</email>
+	<version>2.0.7</version>
+	<license>free</license>
+	<requires></requires>
+	<install>
+		<db adapter="mysql|pdo_mysql">
+			<query><![CDATA[DROP TABLE IF EXISTS `###page`;]]></query>
+			<query><![CDATA[CREATE TABLE `###page` (
+				  `page_id` smallint(6) unsigned NOT NULL auto_increment,
+				  `name` varchar(255) NOT NULL,
+				  `slug` varchar(100) NOT NULL,
+				  `description` text NOT NULL,
+				  `content` text NOT NULL,
+				  `left_id` int(11) NOT NULL,
+				  `right_id` int(11) NOT NULL,
+				  `parent_id` int(11) default 0,
+				  `num_views` int(11) default NULL,
+				  `created_date` datetime default NULL,
+				  `modified_date` datetime default NULL,
+				  `user_id` int(11) default NULL,
+				  `language` varchar(10) default NULL,
+				  PRIMARY KEY  (`page_id`),
+				  KEY `idx_left_right` (`left_id`,`right_id`),
+				  KEY `idx_language` (`language`)
+				) ENGINE=InnoDB DEFAULT CHARSET=utf8;]]>
+			</query>
+		</db>
+		<db adapter="pgsql">
+			<query><![CDATA[DROP TABLE IF EXISTS ###page;]]></query>
+			<query><![CDATA[CREATE TABLE ###page (
+				    page_id smallint NOT NULL,
+				    name character varying(255) NOT NULL,
+				    slug character varying(255) NOT NULL,
+				    description text NOT NULL,
+				    content text NOT NULL,
+				    left_id integer NOT NULL,
+				  	right_id integer NOT NULL,
+				  	parent_id integer NOT NULL,
+				  	num_views integer DEFAULT 0,
+				    created_date time without time zone DEFAULT NULL,
+				    modified_date time without time zone DEFAULT NULL,
+				    user_id integer DEFAULT NULL,
+				    language character varying(10) DEFAULT NULL::character varying
+				);
+				CREATE SEQUENCE page_page_id_seq
+				    START WITH 1
+				    INCREMENT BY 1
+				    NO MAXVALUE
+				    NO MINVALUE
+				    CACHE 1;
+				ALTER SEQUENCE page_page_id_seq OWNED BY ###page.page_id;
+				SELECT pg_catalog.setval('page_page_id_seq', 1, false);]]>
+			</query>
+		</db>
+		<db adapter="sqlsrv">
+			<query><![CDATA[IF EXISTS (SELECT NAME FROM SYSOBJECTS WHERE NAME='###page' AND TYPE='U') DROP TABLE ###page;]]></query>
+			<query><![CDATA[CREATE TABLE ###page (
+				  	page_id int identity(1,1) NOT NULL,
+					[name] nvarchar(255) NOT NULL,
+					slug nvarchar(255) NOT NULL,
+					description ntext NULL,
+					[content] ntext NULL,
+					left_id int NOT NULL,	 
+					right_id int NOT NULL,
+					parent_id int default 0,
+					num_views int default NULL,
+					created_date datetime default NULL,
+					modified_date datetime default NULL,     
+					[user_id] int default NULL,	
+					[language] varchar(10) default null,
+					PRIMARY KEY (page_id));]]>
+			</query>
+			<query><![CDATA[CREATE INDEX idx_left_right ON ###page (left_id, right_id);]]></query>
+			<query><![CDATA[CREATE INDEX idx_language ON ###page ([language]);]]></query>
+		</db>
+	</install>
+	
+	<uninstall>
+		<db adapter="mysql|pdo_mysql">
+			<query><![CDATA[DROP TABLE IF EXISTS `###page`;]]></query>
+		</db>
+		<db adapter="pgsql">
+			<query><![CDATA[DROP TABLE IF EXISTS ###page;]]></query>
+		</db>
+		<db adapter="sqlsrv">
+			<query><![CDATA[IF EXISTS (SELECT NAME FROM SYSOBJECTS WHERE NAME='###page' AND TYPE='U') DROP TABLE ###page;]]></query>
+		</db>
+	</uninstall>
+	
+	<admin>
+		<task langKey="dashboard_list_pages" route="page_page_list" />
+		<task langKey="dashboard_add_page" route="page_page_add" />
+	</admin>
+</module>

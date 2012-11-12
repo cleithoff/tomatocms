@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE layout SYSTEM "http://schemas.tomatocms.com/dtd/layout.dtd">
+<layout>
+    <container cols="12">
+        <container cols="9" position="first">
+            <widget module="news" name="breadcrumb" load="php">
+                <title><![CDATA[Breadcrumb]]></title>
+                <resources>
+                </resources>
+                <params>
+                    <param name="category_id" type="global" />
+                </params>
+            </widget>
+            <widget module="utility" name="textresizer" load="php">
+                <title><![CDATA[Resize text]]></title>
+                <resources>
+                </resources>
+                <params>
+                    <param name="sizes"><value><![CDATA[11,12,13,14,15]]></value></param>
+                    <param name="default_size"><value><![CDATA[11]]></value></param>
+                </params>
+            </widget>
+            <defaultOutput />
+            <widget module="utility" name="socialshare" load="php">
+                <title><![CDATA[Share link]]></title>
+                <resources>
+                    <resource type="javascript" src="http://static.ak.fbcdn.net/connect.php/js/FB.Share" />
+                    <resource type="javascript" src="http://platform.twitter.com/widgets.js" />
+                    <resource type="javascript" src="http://widgets.digg.com/buttons.js" />
+                </resources>
+                <params>
+                </params>
+            </widget>
+            <widget module="tag" name="tags" load="php">
+                <title><![CDATA[Tags]]></title>
+                <resources>
+                </resources>
+                <params>
+                </params>
+            </widget>
+            <widget module="comment" name="comment" load="php">
+                <title><![CDATA[Latest comments]]></title>
+                <resources>
+                </resources>
+                <params>
+                    <param name="limit"><value><![CDATA[]]></value></param>
+                    <param name="allow_comment"><value><![CDATA[1]]></value></param>
+                    <param name="show_avatar"><value><![CDATA[1]]></value></param>
+                    <param name="avatar_size"><value><![CDATA[]]></value></param>
+                </params>
+            </widget>
+        </container>
+        <container cols="3" position="last">
+            <widget module="news" name="newer" load="php">
+                <title><![CDATA[Newer articles]]></title>
+                <resources>
+                </resources>
+                <params>
+                    <param name="article_id" type="global" />
+                    <param name="category_id" type="global" />
+                    <param name="limit"><value><![CDATA[6]]></value></param>
+                </params>
+            </widget>
+            <widget module="tag" name="tagcloud" load="php">
+                <title><![CDATA[Tag Cloud]]></title>
+                <resources>
+                </resources>
+                <params>
+                </params>
+            </widget>
+        </container>
+    </container>
+</layout>

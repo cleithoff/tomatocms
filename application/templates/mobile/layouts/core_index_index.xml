@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE layout SYSTEM "http://schemas.tomatocms.com/dtd/layout.dtd">
+<layout>
+	<container>
+		<widget module="news" name="hotest">
+			<params>
+				<param name="limit">
+					<value><![CDATA[4]]></value>
+				</param>
+			</params>
+		</widget>
+		<widget module="news" name="categories">
+			<resources></resources>
+			<params>
+				<param name="limit">
+					<value><![CDATA[5]]></value>
+				</param>
+			</params>
+		</widget>
+	</container>
+</layout>

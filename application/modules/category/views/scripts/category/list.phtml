@@ -1,0 +1,235 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: list.phtml 4684 2010-08-16 08:44:14Z huuphuoc $
+ * @since		2.0.0
+ */
+?>
+<?php 
+$this->headTitle($this->translator('category_list_page_title'));
+
+$this->headLink()
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.core.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.resizable.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.dialog.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.theme.css');
+
+$this->headScript()
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.core.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.draggable.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.droppable.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.resizable.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.dialog.js')
+	
+	/**
+	 * Allows user to drag and drop category
+	 * @since 2.0.7
+	 */
+	->appendFile($this->APP_STATIC_SERVER . '/js/tomato/treetable.js');
+?>
+
+<div class="grid_12 t_a_ui_breadcrumb">
+	<span><?php echo $this->translator('category_list_breadcrumb'); ?></span>
+</div>
+
+<div class="grid_12 t_a_bottom">
+	<div class="grid_9 alpha">
+		<?php if (count($this->categories) == 0) : ?>
+		<?php echo $this->translator('category_list_not_found'); ?>
+		<?php else : ?>
+		<?php echo $this->translator('category_list_guide'); ?>
+		<?php endif; ?>
+	</div>
+	
+	<div class="grid_3 omega">
+		<div class="t_a_right">	
+			<a href="<?php echo $this->url(array(), 'category_category_add'); ?>" class="t_a_ui_button_link"><span><?php echo $this->translator('category_add_breadcrumb'); ?></span></a>
+		</div>
+	</div>
+</div>
+
+<!-- List of categories -->
+<?php if (count($this->categories) == 0) : ?>
+<div class="grid_12 t_a_bottom">
+	<?php 
+	/**
+	 * Show language switcher
+	 * @since 2.0.8
+	 */
+	?>
+	<?php echo $this->languageSwitcher('flag', str_repeat('&nbsp;', 2)); ?>
+</div>
+<?php else : ?>
+<div class="grid_12 t_a_top t_a_bottom">
+	<table id="categoryTable" class="t_a_ui_table">
+		<thead>
+			<tr>
+				<th width="420px"><?php echo $this->translator('category_name'); ?></th>
+				<th width="320px"><?php echo $this->translator('category_slug'); ?></th>
+				<th width="140px"><?php echo $this->languageSwitcher('flag', str_repeat('&nbsp', 2)); ?></th>
+				<th width="60px"><?php echo $this->translator('category_id'); ?></th>
+			</tr>
+		</thead>
+		
+		<tbody>
+			<?php foreach ($this->categories as $category) : ?>
+			<tr id="row_id_<?php echo $category->category_id; ?>" class="row_parent_<?php echo $category->parent_id; ?>">
+				<td style="padding-left: <?php echo 40 * $category->depth; ?>px">
+					<span class="row_draggable" style="cursor: move"><?php echo $category->name; ?></span>
+					
+					<span class="t_a_ui_helper_action" style="display: none; padding-left: 20px">
+						<?php if ($this->allow('edit')) : ?>
+						<a href="<?php echo $this->url(array('category_id' => $category->category_id), 'category_category_edit'); ?>"><?php echo $this->translator('category_list_action_edit'); ?></a> | 
+						<?php endif; ?>
+						
+						<?php if ($this->allow('delete')) : ?>
+						<a href="javascript: void(0);" class="deleteAction" rel="<?php echo $category->category_id; ?>"><?php echo $this->translator('category_list_action_delete'); ?></a>
+						<?php endif; ?>
+					</span>
+				</td>
+				
+				<td><?php echo $category->slug; ?></td>
+				
+				<?php 
+				/**
+				 * @since 2.0.8
+				 */
+				?>
+				<td>
+				<?php if (($translations = $this->translationItems($category)) != null) : ?>
+					<?php foreach ($translations as $language => $translation) : ?>
+						<?php if ($translation == null && $language != $category->language) : ?>
+							<?php if (isset($translations[$this->APP_DEFAULT_LANG])) : ?>
+							<a class="t_a_ui_helper_action_add" href="<?php echo $this->url(array('source_id' => $translations[$this->APP_DEFAULT_LANG]->category_id), 'category_category_add_localization'); ?>/<?php echo $language; ?>/">&nbsp;</a>
+							<?php else :?>
+							<a class="t_a_ui_helper_action_add" href="<?php echo $this->url(array(), 'category_category_add'); ?>/<?php echo $language; ?>/">&nbsp;</a>
+							<?php endif; ?>
+					
+						<?php elseif (($translation == null && $language == $category->language) || ($translation != null && $translation->category_id == $category->category_id)) : ?>
+						<a class="t_a_ui_helper_action_edit" href="<?php echo $this->url(array('category_id' => $category->category_id), 'category_category_edit'); ?>/<?php echo $language; ?>/">&nbsp;</a>
+						
+						<?php elseif ($translation != null && $translation->category_id != $category->category_id) : ?>
+						<a class="t_a_ui_helper_action_edit" href="<?php echo $this->url(array('category_id' => $translation->category_id), 'category_category_edit'); ?>/<?php echo $language; ?>/">&nbsp;</a>
+						<?php endif; ?>
+					<?php endforeach; ?>
+				<?php endif; ?>
+				</td>
+				
+				<td><?php echo $category->category_id; ?></td>
+			</tr>
+			<?php endforeach; ?>
+		</tbody>
+	</table>
+</div>
+
+<?php if ($this->allow('order')) : ?>
+<div class="grid_12 t_a_top t_a_bottom">
+	<button id="saveButton"><span><?php echo $this->translator('category_list_save_button'); ?></span></button>
+</div>
+<?php endif; ?>	
+<?php endif; ?>
+
+<div id="messageDialog"></div>
+
+<div id="confirmDialog"></div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+	<?php if ($this->allow('order') && count($this->categories) > 0) : ?>
+	var treeTable = new Tomato.TreeTable('categoryTable', 'row');
+	/**
+	 * Save button handler
+	 */
+	$('#saveButton').click(function() {
+		var data = $.toJSON(treeTable.getTreeData());
+		var self = this;
+		$(self).html('').addClass('t_a_ui_helper_loading');
+		
+		$.ajaxq('category_list', {
+			type: 'POST',
+			url: '<?php echo $this->url(array(), 'category_category_order'); ?>',
+			data: { data: data },
+			success: function(response) {
+				if ('RESULT_OK' == response) {
+					$(self).removeClass('t_a_ui_helper_loading')
+							.append($('<span/>').html('<?php echo addslashes($this->translator('category_list_save_button')); ?>'));
+					$('#messageDialog').html('<?php echo addslashes($this->translator('category_list_order_success')); ?>')
+						.dialog({
+							title: '<?php echo addslashes($this->translator('common_dialog_message')); ?>',
+							dialogClass: 't_a_ui_dialog',
+							modal: true,
+					    	show: { effect: 'fade' },
+							open: function(event, ui) {
+								setTimeout(function() {
+									$('#' + event.target.id).dialog('option', 'hide', 'fade').dialog('destroy');
+								}, 3000);
+							}
+						});
+				}
+			}
+		});
+	});
+	<?php endif; ?>
+	
+	/**
+	 * Data list hover handler
+	 */
+	$('#categoryTable tr').hover(function() {
+		$(this).find('.t_a_ui_helper_action').show();
+	}, function() {
+		$(this).find('.t_a_ui_helper_action').hide();
+	});
+	
+	<?php if ($this->allow('delete')) : ?>
+	$('a.deleteAction').click(function() {
+		var self = this;
+		$('#confirmDialog').html('<?php echo addslashes($this->translator('category_list_action_delete_confirm')); ?>')
+			.dialog({
+				title: '<?php echo addslashes($this->translator('common_dialog_confirm')); ?>',
+				dialogClass: 't_a_ui_dialog',
+				modal: true,
+				closeOnEscape: false,
+				resizable: false,
+				open: function(event, ui) {
+					$('.ui-dialog-titlebar-close').hide();
+					$(this).parent().find('.ui-dialog-buttonpane button').wrapInner('<span/>');
+				},
+				buttons: {
+					'<?php echo addslashes($this->translator('common_dialog_confirm_no')); ?>': function() {
+						$(this).dialog('destroy');
+					},
+					'<?php echo addslashes($this->translator('common_dialog_confirm_yes')); ?>': function() {
+						$(this).dialog('destroy');
+						$(self).html('').addClass('t_a_ui_helper_loading');
+						var id = $(self).attr('rel');
+						$.ajaxq('category_list', {
+							type: 'POST',
+							url: '<?php echo $this->url(array(), 'category_category_delete'); ?>',
+							data: { id: id },
+							success: function(response) {
+								if ('RESULT_OK' == response) {
+									$('#row_id_' + id).fadeOut('slow');
+									window.location = '<?php echo $this->url(array(), 'category_category_list'); ?>';
+								}
+							}
+						});
+					}
+				}
+			});
+	});
+	<?php endif; ?>
+});
+</script>

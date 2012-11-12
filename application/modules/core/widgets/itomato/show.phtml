@@ -1,0 +1,75 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: show.phtml 3971 2010-07-25 10:26:42Z huuphuoc $
+ * @since		2.0.0
+ */
+?>
+<?php $this->headScript()->captureStart(); ?>
+$(document).ready(function() {
+	var ITOMATO_COOKIE = 'widget-core-itomato';
+	var cookie = $.cookie(ITOMATO_COOKIE);
+	if (cookie) {
+		var ids = cookie.split('|');
+		var script = null;
+		$(ids).each(function() {
+			var arr = this.split(';');
+			var containerId = arr[0], widgetId = arr[1], html = '';
+			if (!$('#' + widgetId).hasClass('t_core_itomato')) {
+				var cloned = $('#' + widgetId);
+//				$('#' + widgetId).remove();
+				$('#' + containerId).append(cloned);
+			}
+		});
+	}
+	
+	$('.t_g_widget_container').css({visibility: 'visible'}).each(function() {
+		if ($(this).find('.t_g_widget').length < 1) {
+			$(this).css('min-height', '140px');
+    	}
+	});
+	
+	$('.t_g_widget_container').sortable({
+		items: '.t_g_widget',
+	    connectWith: '.t_g_widget_container',
+	    handle: '.t_g_box_head',
+	    placeholder: 't_core_itomato_placeholder',
+	    forcePlaceholderSize: true,
+	    revert: 300,
+	    opacity: 0.8,
+	    containment: 'document',
+	    start: function(e, ui) {
+	    	if ($(this).find('.t_g_widget').length <= 1) {
+				$(this).css('min-height', '140px');
+	    	}
+	    },
+	    over: function(e, ui) {
+	    	$(ui.item).css({width: $(e.target).width() + 'px'});
+	    },
+	    receive: function(e, ui) {
+	    },
+	    stop: function(e, ui) {
+		    var cookieStr = '';
+		    $('.t_g_widget').each(function(i) {
+		    	cookieStr += (i == 0) ? '' : '|';
+		    	cookieStr += $(this).parents('.t_g_widget_container:first').attr('id') 
+		    				+ ';' + $(this).attr('id');
+			});
+			$.cookie(ITOMATO_COOKIE, cookieStr, { expires: 10 });
+	    }
+	});
+});
+<?php $this->headScript()->captureEnd(); ?>

@@ -1,0 +1,93 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: login.phtml 4185 2010-08-01 16:31:02Z huuphuoc $
+ * @since		2.0.0
+ */
+?>
+<?php 
+$this->headTitle($this->translator('auth_login_page_title'));
+$this->headScript()->appendFile($this->APP_STATIC_SERVER . '/js/jquery.validate/jquery.validate.min.js');
+?>
+
+<form action="<?php echo $this->url(array(), 'core_auth_login'); ?>" method="post" id="loginForm" class="t_a_login_form">
+<div class="grid_8 prefix_2 suffix_2">
+	<h1>TomatoCMS</h1>
+	
+	<div class="grid_8 t_a_bottom">
+		<div class="grid_4 prefix_2 alpha"><?php echo $this->flashMessenger(); ?></div>
+	</div>
+	
+	<div class="grid_8 t_a_bottom">
+		<div class="grid_4 alpha">
+			<label><?php echo $this->translator('auth_login_user_name'); ?>:</label>
+		</div>
+		<div class="grid_4 omega">
+			<label><?php echo $this->translator('auth_login_password'); ?>:</label>
+		</div>
+	</div>
+		
+	<div class="grid_8 t_a_bottom">
+		<div class="grid_4 alpha">
+			<input type="text" name="username" id="username" />
+		</div>
+		<div class="grid_4 omega">
+			<input type="password" name="password" id="password" />
+		</div>
+	</div>
+	
+	<div class="grid_8">	
+		<?php
+		/**
+		 * Provide the link in case user forgot the password
+		 * @since 2.0.6
+		 */
+		?>
+		<div class="grid_4 alpha">
+			<a href="<?php echo $this->url(array(), 'core_auth_forgot'); ?>" class="t_a_ui_helper_arrow_right"><?php echo $this->translator('auth_forgot_password'); ?></a>
+		</div>
+		<div class="grid_4 omega">
+			<button type="submit" class="t_a_right"><span><?php echo $this->translator('auth_login_submit_button'); ?></span></button>
+		</div>
+	</div>
+</div>
+</form>
+
+<script type="text/javascript">
+$(document).ready(function() {
+	/**
+	 * Validate form
+	 */
+	$('#loginForm').validate({
+		rules: {
+			username: {
+		  		required: true
+			},
+			password: {
+				required: true
+			}
+	    },
+	    messages: {
+	    	username: {
+	        	required: "<?php echo $this->translator('auth_login_user_name_required'); ?>"
+			},
+			password: {
+	        	required: "<?php echo $this->translator('auth_login_password_required'); ?>"
+			}
+		}
+	});
+});
+</script>

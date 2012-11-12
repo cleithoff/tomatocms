@@ -1,0 +1,772 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version		$Id: about.xml 4960 2010-08-25 18:28:37Z huuphuoc $
+ * @since		2.0.0
+ */
+-->
+<!DOCTYPE module SYSTEM "http://schemas.tomatocms.com/dtd/module_about.dtd">
+<module>
+	<name>core</name>
+	<description langKey="about_core_description"><![CDATA[Core module. This module will be installed at the first time you install website]]></description>
+	<thumbnail></thumbnail>
+	<author>TomatoCMS Core Team</author>
+	<email>core@tomatocms.com</email>
+	<version>2.0.1</version>
+	<license>free</license>
+	
+	<requires>
+		<requiredModules>
+			<requiredModule name="mail" />
+		</requiredModules>
+	</requires>
+	
+	<install>
+		<db adapter="mysql|pdo_mysql">
+			<!-- since 2.0.7 -->
+			<query><![CDATA[DROP TABLE IF EXISTS `###core_dashboard`;]]></query>
+			<query><![CDATA[CREATE TABLE `###core_dashboard` (
+				  `dashboard_id` int(10) unsigned NOT NULL auto_increment,
+				  `user_id` int(11) NOT NULL,
+				  `user_name` varchar(50) NOT NULL,
+				  `layout` text NOT NULL,
+				  `is_default` tinyint(4) NOT NULL default '0',
+				  PRIMARY KEY  (`dashboard_id`),
+				  KEY `idx_user_id` (`user_id`),
+  				  KEY `idx_is_default` (`is_default`)
+				) ENGINE=InnoDB DEFAULT CHARSET=utf8;]]>
+			</query>
+			
+			<query><![CDATA[DROP TABLE IF EXISTS `###core_hook`;]]></query>
+			<query><![CDATA[CREATE TABLE `###core_hook` (
+				  `hook_id` int(10) unsigned NOT NULL auto_increment,
+				  `module` varchar(100) default NULL,
+				  `name` varchar(100) NOT NULL,
+				  `description` text NOT NULL,
+				  `thumbnail` text,
+				  `author` varchar(255) NOT NULL,
+				  `email` varchar(100) NOT NULL,
+				  `version` varchar(20) default NULL,
+				  `license` text,
+				  PRIMARY KEY  (`hook_id`)
+				) ENGINE=InnoDB DEFAULT CHARSET=utf8;]]>
+			</query>
+			
+			<!-- since 2.0.7 -->
+			<query><![CDATA[DROP TABLE IF EXISTS `###core_log`;]]></query>
+			<query><![CDATA[CREATE TABLE `###core_log` (
+				  `log_id` int(11) NOT NULL AUTO_INCREMENT,
+				  `created_date` datetime NOT NULL,
+				  `uri` text NOT NULL,
+				  `module` varchar(255) NOT NULL,
+				  `controller` varchar(255) NOT NULL,
+				  `action` varchar(255) NOT NULL,
+				  `class` varchar(255) NOT NULL,
+				  `file` varchar(255) NOT NULL,
+				  `line` int(11) NOT NULL,
+				  `message` text NOT NULL,
+				  `trace` text NOT NULL,
+				  PRIMARY KEY (`log_id`)
+				) ENGINE=InnoDB DEFAULT CHARSET=utf8;]]>
+			</query>
+			
+			<query><![CDATA[DROP TABLE IF EXISTS `###core_module`;]]></query>
+			<query><![CDATA[CREATE TABLE `###core_module` (
+				  `module_id` int(10) unsigned NOT NULL auto_increment,
+				  `name` varchar(100) NOT NULL,
+				  `description` text NOT NULL,
+				  `thumbnail` text,
+				  `author` varchar(255) default NULL,
+				  `email` varchar(100) default NULL,
+				  `version` varchar(20) default NULL,
+				  `license` text,
+				  PRIMARY KEY  (`module_id`)
+				) ENGINE=InnoDB DEFAULT CHARSET=utf8;]]>
+			</query>
+			<query><![CDATA[DROP TABLE IF EXISTS `###core_page`;]]></query>
+			<query><![CDATA[CREATE TABLE `###core_page` (
+				  `page_id` int(10) unsigned NOT NULL auto_increment,
+				  `route` varchar(50) NOT NULL,
+				  `title` varchar(100) NOT NULL,
+				  `ordering` smallint(6) default '0',
+				  PRIMARY KEY  (`page_id`)
+				) ENGINE=InnoDB DEFAULT CHARSET=utf8;]]>
+			</query>
+			<query><![CDATA[DROP TABLE IF EXISTS `###core_plugin`;]]></query>
+			<query><![CDATA[CREATE TABLE `###core_plugin` (
+				  `plugin_id` int(10) unsigned NOT NULL auto_increment,
+				  `name` varchar(100) NOT NULL,
+				  `description` text NOT NULL,
+				  `thumbnail` text,
+				  `author` varchar(255) default NULL,
+				  `email` varchar(100) default NULL,
+				  `version` varchar(20) default NULL,
+				  `license` text,
+				  `ordering` smallint(6) default NULL,
+				  PRIMARY KEY  (`plugin_id`),
+				  KEY `idx_ordering` (`ordering`)
+				) ENGINE=InnoDB DEFAULT CHARSET=utf8;]]>
+			</query>
+			<query><![CDATA[DROP TABLE IF EXISTS `###core_privilege`;]]></query>
+			<query><![CDATA[CREATE TABLE `###core_privilege` (
+				  `privilege_id` int(10) unsigned NOT NULL auto_increment,
+				  `name` varchar(255) NOT NULL,
+				  `description` text,
+				  `module_name` varchar(100) default NULL,
+				  `controller_name` varchar(100) default NULL,
+				  PRIMARY KEY  (`privilege_id`)
+				) ENGINE=InnoDB DEFAULT CHARSET=utf8;]]>
+			</query>
+			<query><![CDATA[DROP TABLE IF EXISTS `###core_request_log`;]]></query>
+			<query><![CDATA[CREATE TABLE `###core_request_log` (
+				  `log_id` int(10) unsigned NOT NULL auto_increment,
+				  `ip` varchar(30) NOT NULL,
+				  `agent` varchar(255) default NULL,
+				  `browser` varchar(100) default NULL,
+				  `version` varchar(30) default NULL,
+				  `platform` varchar(30) default NULL,
+				  `bot` varchar(100) default NULL,
+				  `uri` text,
+				  `full_url` text,
+				  `refer_url` text,
+				  `access_time` datetime NOT NULL,
+				  PRIMARY KEY  (`log_id`)
+				) ENGINE=InnoDB DEFAULT CHARSET=utf8;]]>
+			</query>
+			<query><![CDATA[DROP TABLE IF EXISTS `###core_resource`;]]></query>
+			<query><![CDATA[CREATE TABLE `###core_resource` (
+				  `resource_id` int(10) unsigned NOT NULL auto_increment,
+				  `description` text,
+				  `parent_id` varchar(50) default NULL,
+				  `module_name` varchar(255) default NULL,
+				  `controller_name` varchar(255) default NULL,
+				  PRIMARY KEY  (`resource_id`),
+				  UNIQUE KEY `idx_name_parent` (`parent_id`)
+				) ENGINE=InnoDB DEFAULT CHARSET=utf8;]]>
+			</query>
+			<query><![CDATA[DROP TABLE IF EXISTS `###core_role`;]]></query>
+			<query><![CDATA[CREATE TABLE `###core_role` (
+				  `role_id` int(50) unsigned NOT NULL auto_increment,
+				  `name` varchar(200) NOT NULL,
+				  `description` varchar(255) NOT NULL,
+				  `locked` tinyint(4) NOT NULL,
+				  PRIMARY KEY  (`role_id`),
+				  UNIQUE KEY `name` (`name`)
+				) ENGINE=InnoDB DEFAULT CHARSET=utf8;]]>
+			</query>
+			<query><![CDATA[DROP TABLE IF EXISTS `###core_role_inheritance`;]]></query>
+			<query><![CDATA[CREATE TABLE `###core_role_inheritance` (
+				  `child_id` int(11) NOT NULL,
+				  `parent_id` int(11) NOT NULL,
+				  `ordering` int(11) NOT NULL default '0',
+				  PRIMARY KEY  (`child_id`,`parent_id`),
+				  KEY `parent_id` (`parent_id`)
+				) ENGINE=InnoDB DEFAULT CHARSET=utf8;]]></query>
+			<query><![CDATA[DROP TABLE IF EXISTS `###core_rule`;]]></query>
+			<query><![CDATA[CREATE TABLE `###core_rule` (
+				  `rule_id` int(10) unsigned NOT NULL auto_increment,
+				  `obj_id` int(50) NOT NULL,
+				  `obj_type` enum('user','role') default 'role',
+				  `privilege_id` int(11) default NULL,
+				  `allow` tinyint(1) NOT NULL default '0',
+				  `resource_name` varchar(100) default NULL,
+				  PRIMARY KEY  (`rule_id`)
+				) ENGINE=InnoDB DEFAULT CHARSET=utf8;]]>
+			</query>
+			<query><![CDATA[DROP TABLE IF EXISTS `###core_session`;]]></query>
+			<query><![CDATA[CREATE TABLE `###core_session` (
+				  `session_id` varchar(255) NOT NULL,
+				  `data` text NOT NULL,
+				  `modified` int(11) default NULL,
+				  `lifetime` int(11) default NULL,
+				  PRIMARY KEY  (`session_id`)
+				) ENGINE=InnoDB DEFAULT CHARSET=utf8;]]>
+			</query>
+			<query><![CDATA[DROP TABLE IF EXISTS `###core_target`;]]></query>
+			<query><![CDATA[CREATE TABLE `###core_target` (
+				  `target_id` int(10) unsigned NOT NULL auto_increment,
+				  `target_module` varchar(100) default NULL,
+				  `target_name` varchar(255) NOT NULL,
+				  `description` text,
+				  `hook_module` varchar(100) default NULL,
+				  `hook_name` varchar(100) NOT NULL,
+				  `hook_type` enum('action','filter') default 'action',
+				  PRIMARY KEY  (`target_id`)
+				) ENGINE=InnoDB DEFAULT CHARSET=utf8;]]>
+			</query>
+			
+			<!-- since 2.0.8 -->
+			<query><![CDATA[DROP TABLE IF EXISTS `###core_translation`;]]></query>
+			<query><![CDATA[CREATE TABLE `###core_translation` (
+				  `translation_id` int(10) unsigned NOT NULL auto_increment,
+				  `item_id` int(11) NOT NULL,
+				  `item_class` varchar(100) NOT NULL,
+				  `source_item_id` int(11) NOT NULL,
+				  `language` varchar(10) default NULL,
+				  `source_language` varchar(10) default NULL,
+				  PRIMARY KEY  (`translation_id`),
+				  UNIQUE KEY `idx_item` (`item_id`,`item_class`),
+				  UNIQUE KEY `idx_source_item` (`item_class`,`source_item_id`,`source_language`)
+				) ENGINE=InnoDB DEFAULT CHARSET=utf8;]]>
+			</query>
+			
+			<query><![CDATA[DROP TABLE IF EXISTS `###core_user`;]]></query>
+			<query><![CDATA[CREATE TABLE `###core_user` (
+				  `user_id` int(10) unsigned NOT NULL auto_increment,
+				  `role_id` int(11) NOT NULL,
+				  `user_name` varchar(100) NOT NULL,
+				  `password` varchar(50) NOT NULL,
+				  `full_name` varchar(100) NOT NULL,
+				  `email` varchar(255) NOT NULL,
+				  `is_active` tinyint(4) NOT NULL default '0',
+				  `created_date` datetime default NULL,
+				  `logged_in_date` datetime default NULL,
+				  `is_online` tinyint(4) default '0',  
+				  PRIMARY KEY  (`user_id`),
+				  UNIQUE KEY `user_name` (`user_name`),
+				  UNIQUE KEY `email` (`email`)
+				) ENGINE=InnoDB DEFAULT CHARSET=utf8;]]>
+			</query>
+			<query><![CDATA[DROP TABLE IF EXISTS `###core_widget`;]]></query>
+			<query><![CDATA[CREATE TABLE `###core_widget` (
+				  `widget_id` int(10) unsigned NOT NULL auto_increment,
+				  `name` varchar(100) NOT NULL,
+				  `title` varchar(100) default NULL,
+				  `module` varchar(100) NOT NULL,
+				  `description` text,
+				  `thumbnail` text,
+				  `author` varchar(255) default NULL,
+				  `email` varchar(100) default NULL,
+				  `version` varchar(20) default NULL,
+				  `license` text,
+				  PRIMARY KEY  (`widget_id`)
+				) ENGINE=InnoDB DEFAULT CHARSET=utf8;]]>
+			</query>
+		</db>	
+		<db adapter="pgsql">
+			<query><![CDATA[DROP TABLE IF EXISTS ###core_dashboard;]]></query>
+			<query><![CDATA[CREATE TABLE ###core_dashboard (
+				    dashboard_id integer NOT NULL,
+				    user_id integer NOT NULL,
+				    user_name character varying(50) NOT NULL,
+				    layout text NOT NULL,
+				    is_default smallint DEFAULT 0::smallint
+				);
+				CREATE SEQUENCE core_dashboard_dashboard_id_seq
+				    START WITH 1
+				    INCREMENT BY 1
+				    NO MAXVALUE
+				    NO MINVALUE
+				    CACHE 1;
+				ALTER SEQUENCE core_dashboard_dashboard_id_seq OWNED BY ###core_dashboard.dashboard_id;
+				SELECT pg_catalog.setval('core_dashboard_dashboard_id_seq', 1, false);]]>
+			</query>
+			<query><![CDATA[DROP TABLE IF EXISTS ###core_hook;]]></query>
+			<query><![CDATA[CREATE TABLE ###core_hook (
+				    hook_id integer NOT NULL,
+				    module character varying(100) DEFAULT NULL::character varying,
+				    name character varying(100) NOT NULL,
+				    description text NOT NULL,
+				    thumbnail text,
+				    author character varying(255) NOT NULL,
+				    email character varying(100) NOT NULL,
+				    version character varying(20) DEFAULT NULL::character varying,
+				    license text
+				);
+				CREATE SEQUENCE core_hook_hook_id_seq
+				    START WITH 1
+				    INCREMENT BY 1
+				    NO MAXVALUE
+				    NO MINVALUE
+				    CACHE 1;
+				ALTER SEQUENCE core_hook_hook_id_seq OWNED BY ###core_hook.hook_id;
+				SELECT pg_catalog.setval('core_hook_hook_id_seq', 1, false);]]>
+			</query>
+			<query><![CDATA[DROP TABLE IF EXISTS ###core_module;]]></query>
+			<query><![CDATA[CREATE TABLE ###core_module (
+				    module_id integer NOT NULL,
+				    name character varying(100) NOT NULL,
+				    description text NOT NULL,
+				    thumbnail text,
+				    author character varying(255) DEFAULT NULL::character varying,
+				    email character varying(100) DEFAULT NULL::character varying,
+				    version character varying(20) DEFAULT NULL::character varying,
+				    license text
+				);
+				CREATE SEQUENCE core_module_module_id_seq
+				    START WITH 1
+				    INCREMENT BY 1
+				    NO MAXVALUE
+				    NO MINVALUE
+				    CACHE 1;
+				ALTER SEQUENCE core_module_module_id_seq OWNED BY ###core_module.module_id;
+				SELECT pg_catalog.setval('core_module_module_id_seq', 1, false);]]>
+			</query>
+			<query><![CDATA[DROP TABLE IF EXISTS ###core_page;]]></query>
+			<query><![CDATA[CREATE TABLE CREATE TABLE ###core_page (
+				    page_id integer NOT NULL,
+				    route character varying(50) NOT NULL,
+				    title character varying(100) NOT NULL,
+				    ordering smallint DEFAULT 0::smallint
+				);
+				CREATE SEQUENCE core_page_page_id_seq
+				    START WITH 1
+				    INCREMENT BY 1
+				    NO MAXVALUE
+				    NO MINVALUE
+				    CACHE 1;
+				ALTER SEQUENCE core_page_page_id_seq OWNED BY ###core_page.page_id;
+				SELECT pg_catalog.setval('core_page_page_id_seq', 1, false);]]>
+			</query>
+			<query><![CDATA[DROP TABLE IF EXISTS ###core_plugin;]]></query>
+			<query><![CDATA[CREATE TABLE ###core_plugin (
+				    plugin_id integer NOT NULL,
+				    name character varying(100) NOT NULL,
+				    description text NOT NULL,
+				    thumbnail text,
+				    author character varying(255) DEFAULT NULL::character varying,
+				    email character varying(100) DEFAULT NULL::character varying,
+				    version character varying(20) DEFAULT NULL::character varying,
+				    license text,
+				    ordering smallint
+				);
+				CREATE SEQUENCE core_plugin_plugin_id_seq
+				    START WITH 1
+				    INCREMENT BY 1
+				    NO MAXVALUE
+				    NO MINVALUE
+				    CACHE 1;
+				ALTER SEQUENCE core_plugin_plugin_id_seq OWNED BY ###core_plugin.plugin_id;
+				SELECT pg_catalog.setval('core_plugin_plugin_id_seq', 1, false);]]>
+			</query>
+			<query><![CDATA[DROP TABLE IF EXISTS ###core_privilege;]]></query>
+			<query><![CDATA[CREATE TABLE ###core_privilege (
+				    privilege_id integer NOT NULL,
+				    name character varying(255) NOT NULL,
+				    description text,
+				    module_name character varying(100) DEFAULT NULL::character varying,
+				    controller_name character varying(100) DEFAULT NULL::character varying
+				);
+				CREATE SEQUENCE core_privilege_privilege_id_seq
+				    START WITH 1
+				    INCREMENT BY 1
+				    NO MAXVALUE
+				    NO MINVALUE
+				    CACHE 1;
+				ALTER SEQUENCE core_privilege_privilege_id_seq OWNED BY ###core_privilege.privilege_id;
+				SELECT pg_catalog.setval('core_privilege_privilege_id_seq', 1, false);]]>
+			</query>
+			<query><![CDATA[DROP TABLE IF EXISTS ###core_request_log;]]></query>
+			<query><![CDATA[CREATE TABLE ###core_request_log (
+				    log_id integer NOT NULL,
+				    ip character varying(30) NOT NULL,
+				    agent character varying(255) DEFAULT NULL::character varying,
+				    browser character varying(100) DEFAULT NULL::character varying,
+				    version character varying(30) DEFAULT NULL::character varying,
+				    platform character varying(30) DEFAULT NULL::character varying,
+				    bot character varying(100) DEFAULT NULL::character varying,
+				    uri text,
+				    full_url text,
+				    refer_url text,
+				    access_time time without time zone NOT NULL
+				);
+				CREATE SEQUENCE core_request_log_log_id_seq
+				    START WITH 1
+				    INCREMENT BY 1
+				    NO MAXVALUE
+				    NO MINVALUE
+				    CACHE 1;
+				ALTER SEQUENCE core_request_log_log_id_seq OWNED BY ###core_request_log.log_id;
+				SELECT pg_catalog.setval('core_request_log_log_id_seq', 1, false);]]>
+			</query>
+			<query><![CDATA[DROP TABLE IF EXISTS ###core_resource;]]></query>
+			<query><![CDATA[CREATE TABLE ###core_resource (
+				    resource_id integer NOT NULL,
+				    description text,
+				    parent_id character varying(50) DEFAULT NULL::character varying,
+				    module_name character varying(255) DEFAULT NULL::character varying,
+				    controller_name character varying(255) DEFAULT NULL::character varying
+				);
+				CREATE SEQUENCE core_resource_resource_id_seq
+				    START WITH 1
+				    INCREMENT BY 1
+				    NO MAXVALUE
+				    NO MINVALUE
+				    CACHE 1;
+				ALTER SEQUENCE core_resource_resource_id_seq OWNED BY ###core_resource.resource_id;
+				SELECT pg_catalog.setval('core_resource_resource_id_seq', 1, false);]]>
+			</query>
+			<query><![CDATA[DROP TABLE IF EXISTS ###core_role;]]></query>
+			<query><![CDATA[CREATE TABLE ###core_role (
+				    role_id integer NOT NULL,
+				    name character varying(200) NOT NULL,
+				    description character varying(255) NOT NULL,
+				    locked smallint NOT NULL
+				);]]>
+			</query>
+			<query><![CDATA[DROP TABLE IF EXISTS ###core_role_inheritance;]]></query>
+			<query><![CDATA[CREATE TABLE ###core_role_inheritance (
+				    child_id integer NOT NULL,
+				    parent_id integer NOT NULL,
+				    ordering integer DEFAULT 0 NOT NULL
+				);
+				CREATE SEQUENCE core_role_role_id_seq
+				    START WITH 1
+				    INCREMENT BY 1
+				    NO MAXVALUE
+				    NO MINVALUE
+				    CACHE 1;
+				ALTER SEQUENCE core_role_role_id_seq OWNED BY ###core_role.role_id;
+				SELECT pg_catalog.setval('core_role_role_id_seq', 1, false);]]></query>
+			<query><![CDATA[DROP TABLE IF EXISTS ###core_rule;]]></query>
+			<query><![CDATA[CREATE TABLE ###core_rule (
+				    rule_id integer NOT NULL,
+				    obj_id integer NOT NULL,
+				    obj_type character varying(15) DEFAULT 'role'::character varying,
+				    privilege_id integer,
+				    allow smallint DEFAULT 0::smallint NOT NULL,
+				    resource_name character varying(100) DEFAULT NULL::character varying,
+				    CONSTRAINT core_rule_obj_type_check CHECK (((obj_type)::text = ANY ((ARRAY['user'::character varying, 'role'::character varying])::text[])))
+				);
+				CREATE SEQUENCE core_rule_rule_id_seq
+				    START WITH 1
+				    INCREMENT BY 1
+				    NO MAXVALUE
+				    NO MINVALUE
+				    CACHE 1;
+				ALTER SEQUENCE core_rule_rule_id_seq OWNED BY ###core_rule.rule_id;
+				SELECT pg_catalog.setval('core_rule_rule_id_seq', 1, false);]]>
+			</query>
+			<query><![CDATA[DROP TABLE IF EXISTS ###core_session;]]></query>
+			<query><![CDATA[CREATE TABLE ###core_session (
+				    session_id character varying(255) NOT NULL,
+				    data text NOT NULL,
+				    modified integer,
+				    lifetime integer
+				);]]>
+			</query>
+			<query><![CDATA[DROP TABLE IF EXISTS ###core_target;]]></query>
+			<query><![CDATA[CREATE TABLE ###core_target (
+				    target_id integer NOT NULL,
+				    target_module character varying(100) DEFAULT NULL::character varying,
+				    target_name character varying(255) NOT NULL,
+				    description text,
+				    hook_module character varying(100) DEFAULT NULL::character varying,
+				    hook_name character varying(100) NOT NULL,
+				    hook_type character varying(15) DEFAULT 'action'::character varying,
+				    CONSTRAINT core_target_hook_type_check CHECK (((hook_type)::text = ANY ((ARRAY['action'::character varying, 'filter'::character varying])::text[])))
+				);
+				CREATE SEQUENCE core_target_target_id_seq
+				    START WITH 1
+				    INCREMENT BY 1
+				    NO MAXVALUE
+				    NO MINVALUE
+				    CACHE 1;
+				ALTER SEQUENCE core_target_target_id_seq OWNED BY ###core_target.target_id;
+				SELECT pg_catalog.setval('core_target_target_id_seq', 1, false);]]>
+			</query>
+			
+			<!-- since 2.0.8 -->
+			<query><![CDATA[DROP TABLE IF EXISTS ###core_translation;]]></query>
+			<query><![CDATA[CREATE TABLE ###core_translation (
+				    translation_id integer NOT NULL,
+				    item_id integer NOT NULL,
+				    item_class character varying(100) NOT NULL,
+				    source_item_id integer NOT NULL,
+				    language character varying(10) DEFAULT NULL::character varying,
+				    source_language character varying(10) DEFAULT NULL::character varying				    
+				);
+				CREATE SEQUENCE core_translation_translation_id_seq
+				    START WITH 1
+				    INCREMENT BY 1
+				    NO MAXVALUE
+				    NO MINVALUE
+				    CACHE 1;
+				ALTER SEQUENCE core_translation_user_id_seq OWNED BY ###core_translation.translation_id;
+				SELECT pg_catalog.setval('core_translation_translation_id_seq', 1, false);]]>
+			</query>
+			
+			<query><![CDATA[DROP TABLE IF EXISTS ###core_user;]]></query>
+			<query><![CDATA[CREATE TABLE ###core_user (
+				    user_id integer NOT NULL,
+				    role_id integer NOT NULL,
+				    user_name character varying(100) NOT NULL,
+				    password character varying(50) NOT NULL,
+				    full_name character varying(100) NOT NULL,
+				    email character varying(255) NOT NULL,
+				    is_active smallint DEFAULT 0::smallint NOT NULL,
+				    created_date time without time zone,
+				    logged_in_date time without time zone,
+				    is_online smallint DEFAULT 0::smallint
+				);
+				CREATE SEQUENCE core_user_user_id_seq
+				    START WITH 1
+				    INCREMENT BY 1
+				    NO MAXVALUE
+				    NO MINVALUE
+				    CACHE 1;
+				ALTER SEQUENCE core_user_user_id_seq OWNED BY ###core_user.user_id;
+				SELECT pg_catalog.setval('core_user_user_id_seq', 1, false);]]>
+			</query>
+			<query><![CDATA[DROP TABLE IF EXISTS ###core_widget;]]></query>
+			<query><![CDATA[CREATE TABLE ###core_widget (
+				    widget_id integer NOT NULL,
+				    name character varying(100) NOT NULL,
+				    title character varying(100) DEFAULT NULL::character varying,
+				    module character varying(100) NOT NULL,
+				    description text,
+				    thumbnail text,
+				    author character varying(255) DEFAULT NULL::character varying,
+				    email character varying(100) DEFAULT NULL::character varying,
+				    version character varying(20) DEFAULT NULL::character varying,
+				    license text
+				);
+				CREATE SEQUENCE core_widget_widget_id_seq
+				    START WITH 1
+				    INCREMENT BY 1
+				    NO MAXVALUE
+				    NO MINVALUE
+				    CACHE 1;
+				ALTER SEQUENCE core_widget_widget_id_seq OWNED BY ###core_widget.widget_id;
+				SELECT pg_catalog.setval('core_widget_widget_id_seq', 1, false);]]>
+			</query>
+		</db>
+		<db adapter="sqlsrv">
+			<!-- since 2.0.7 -->
+			<query><![CDATA[IF EXISTS (SELECT NAME FROM SYSOBJECTS WHERE NAME='###core_dashboard' AND TYPE='U') DROP TABLE ###core_dashboard;]]></query>
+			<query><![CDATA[CREATE TABLE ###core_dashboard(
+					dashboard_id int identity(1,1) NOT NULL,
+					user_id int NOT NULL,
+					user_name nvarchar(50) NOT NULL,
+					layout ntext NOT NULL,
+					is_default int default 0,
+					PRIMARY KEY (dashboard_id));]]>
+			</query>
+			<query><![CDATA[CREATE INDEX idx_user_id ON ###core_dashboard (user_id);]]></query>
+			<query><![CDATA[CREATE INDEX idx_is_default ON ###core_dashboard (is_default);]]></query>
+			
+			<query><![CDATA[IF EXISTS (SELECT NAME FROM SYSOBJECTS WHERE NAME='###core_hook' AND TYPE='U') DROP TABLE ###core_hook;]]></query>
+			<query><![CDATA[CREATE TABLE ###core_hook(
+					hook_id int identity(1,1) NOT NULL,
+					module nvarchar(100) NULL,
+					name nvarchar(100) NOT NULL,
+					description ntext NOT NULL,
+					thumbnail ntext NULL,
+					author nvarchar(255) NOT NULL,
+					email nvarchar(100) NOT NULL,
+					version nvarchar(20) NULL,
+					license ntext NULL,
+					PRIMARY KEY (hook_id));]]>
+			</query>
+			
+			<query><![CDATA[IF EXISTS (SELECT NAME FROM SYSOBJECTS WHERE NAME='###core_log' AND TYPE='U') DROP TABLE ###core_log;]]></query>
+			<query><![CDATA[CREATE TABLE ###core_log(
+					log_id int identity(1,1) NOT NULL,
+					created_date datetime NOT NULL,
+					uri ntext NOT NULL,
+					module nvarchar(255) NULL,
+					controller nvarchar(255) NOT NULL,
+					[action] nvarchar(255) NOT NULL,
+					class nvarchar(255) NOT NULL,
+					[file] nvarchar(255) NOT NULL,
+					line int NOT NULL,
+					[message] ntext NOT NULL,
+					[trace] ntext NOT NULL,
+					PRIMARY KEY (log_id));]]>
+			</query>
+			
+			<query><![CDATA[IF EXISTS (SELECT NAME FROM SYSOBJECTS WHERE NAME='###core_module' AND TYPE='U') DROP TABLE ###core_module;]]></query>
+			<query><![CDATA[CREATE TABLE ###core_module(
+					module_id int identity(1,1) NOT NULL,
+					name nvarchar(100) NOT NULL,
+					description ntext NOT NULL,
+					thumbnail ntext NULL,
+					author nvarchar(255) NULL,
+					email nvarchar(100) NULL,
+					version nvarchar(20) NULL,
+					license ntext NULL,
+					PRIMARY KEY (module_id));]]>
+			</query>
+			
+			<query><![CDATA[IF EXISTS (SELECT NAME FROM SYSOBJECTS WHERE NAME='###core_page' AND TYPE='U') DROP TABLE ###core_page;]]></query>
+			<query><![CDATA[CREATE TABLE ###core_page(
+					page_id int identity(1,1) NOT NULL,
+					route nvarchar(50) NOT NULL,
+					title nvarchar(100) NOT NULL,
+					ordering smallint default 0,
+					PRIMARY KEY (page_id));]]>
+			</query>
+			
+			<query><![CDATA[IF EXISTS (SELECT NAME FROM SYSOBJECTS WHERE NAME='###core_plugin' AND TYPE='U') DROP TABLE ###core_plugin;]]></query>
+			<query><![CDATA[CREATE TABLE ###core_plugin(
+					plugin_id int identity(1,1) NOT NULL,
+					name nvarchar(100) NOT NULL,
+					description ntext NOT NULL,
+					thumbnail ntext NULL,
+					author nvarchar(255) NULL,
+					email nvarchar(100) NULL,
+					version nvarchar(20) NULL,
+					license ntext NULL,
+					ordering smallint NULL,
+					PRIMARY KEY (plugin_id)
+				);]]>
+			</query>
+			<query><![CDATA[CREATE INDEX idx_ordering ON ###core_plugin (ordering);]]></query>
+			
+			<query><![CDATA[IF EXISTS (SELECT NAME FROM SYSOBJECTS WHERE NAME='###core_privilege' AND TYPE='U') DROP TABLE ###core_privilege;]]></query>
+			<query><![CDATA[CREATE TABLE ###core_privilege(
+					privilege_id int identity(1,1) NOT NULL,
+					name nvarchar(255) NOT NULL,
+					description ntext NULL,
+					module_name nvarchar(100) NULL,
+					controller_name nvarchar(100) NULL,
+					PRIMARY KEY (privilege_id));]]>
+			</query>
+			
+			<query><![CDATA[IF EXISTS (SELECT NAME FROM SYSOBJECTS WHERE NAME='###core_request_log' AND TYPE='U') DROP TABLE ###core_request_log;]]></query>
+			<query><![CDATA[CREATE TABLE ###core_request_log(
+					log_id int identity(1,1) NOT NULL,
+					ip nvarchar(30) NOT NULL,
+					agent nvarchar(255) NULL,
+					browser nvarchar(100) NULL,
+					version nvarchar(30) NULL,
+					platform nvarchar(30) NULL,
+					bot nvarchar(100) NULL,
+					uri ntext NULL,
+					full_url ntext NULL,
+					refer_url ntext NULL,
+					access_time varchar(19) NOT NULL,
+					PRIMARY KEY (log_id));]]>
+			</query>
+			
+			<query><![CDATA[IF EXISTS (SELECT NAME FROM SYSOBJECTS WHERE NAME='###core_resource' AND TYPE='U') DROP TABLE ###core_resource;]]></query>
+			<query><![CDATA[CREATE TABLE ###core_resource(
+					resource_id int identity(1,1) NOT NULL,
+					description ntext NULL,
+					parent_id nvarchar(50) NULL,
+					module_name nvarchar(255) NULL,
+					controller_name nvarchar(255) NULL,
+					PRIMARY KEY (resource_id));]]>
+			</query>
+			<query><![CDATA[CREATE INDEX idx_name_parent ON ###core_resource (parent_id);]]></query>
+			
+			<query><![CDATA[IF EXISTS (SELECT NAME FROM SYSOBJECTS WHERE NAME='###core_role' AND TYPE='U') DROP TABLE ###core_role;]]></query>
+			<query><![CDATA[CREATE TABLE ###core_role (
+					role_id int identity(1,1) NOT NULL,
+					name nvarchar(200) NOT NULL,
+					description nvarchar(255) NOT NULL,
+					locked numeric(3, 0) NOT NULL,
+					PRIMARY KEY (role_id)
+				);]]>
+			</query>
+			<query><![CDATA[CREATE INDEX name ON ###core_role (name);]]></query>
+			
+			<query><![CDATA[IF EXISTS (SELECT NAME FROM SYSOBJECTS WHERE NAME='###core_role_inheritance' AND TYPE='U') DROP TABLE ###core_role_inheritance;]]></query>
+			<query><![CDATA[CREATE TABLE ###core_role_inheritance(
+					child_id int NOT NULL,
+					parent_id int NOT NULL,
+					ordering int default 0,
+					PRIMARY KEY (child_id,parent_id)
+				);]]>
+			</query>
+			<query><![CDATA[CREATE INDEX parent_id ON ###core_role_inheritance (parent_id);]]></query>
+			
+			<query><![CDATA[IF EXISTS (SELECT NAME FROM SYSOBJECTS WHERE NAME='###core_rule' AND TYPE='U') DROP TABLE ###core_rule;]]></query>
+			<query><![CDATA[CREATE TABLE ###core_rule(
+					rule_id int identity(1,1) NOT NULL,
+					obj_id int NOT NULL,
+					obj_type nchar(4) check(obj_type in ('user','role')) default 'role',
+					privilege_id int NULL,
+					allow bit default 0,
+					resource_name nvarchar(100) NULL,
+					PRIMARY KEY (rule_id));]]>
+			</query>
+			
+			<query><![CDATA[IF EXISTS (SELECT NAME FROM SYSOBJECTS WHERE NAME='###core_session' AND TYPE='U') DROP TABLE ###core_session;]]></query>
+			<query><![CDATA[CREATE TABLE ###core_session(
+					session_id nvarchar(255) NOT NULL,
+					data ntext NOT NULL,
+					modified int NULL,
+					lifetime int NULL,
+					PRIMARY KEY (session_id));]]>
+			</query>
+			
+			<query><![CDATA[IF EXISTS (SELECT NAME FROM SYSOBJECTS WHERE NAME='###core_target' AND TYPE='U') DROP TABLE ###core_target;]]></query>
+			<query><![CDATA[CREATE TABLE ###core_target(
+					target_id int identity(1,1) NOT NULL,
+					target_module nvarchar(100) NULL,
+					target_name nvarchar(255) NOT NULL,
+					description ntext NULL,
+					hook_module nvarchar(100) NULL,
+					hook_name nvarchar(100) NOT NULL,
+					hook_type nchar(6) check(hook_type in ('action','filter')) default 'action',
+					PRIMARY KEY (target_id));]]>
+			</query>
+			
+			<!-- since 2.0.8 -->
+			<query><![CDATA[IF EXISTS (SELECT NAME FROM SYSOBJECTS WHERE NAME='###core_translation' AND TYPE='U') DROP TABLE ###core_translation;]]></query>
+			<query><![CDATA[CREATE TABLE ###core_translation(
+					translation_id int identity(1,1) NOT NULL,
+					item_id int NOT NULL,
+					item_class nvarchar(100) NOT NULL,	
+					source_item_id int NOT NULL,
+					[language] nvarchar(10) DEFAULT NULL,
+					source_language nvarchar(10) DEFAULT NULL,
+					PRIMARY KEY  (translation_id));]]>
+			</query>
+			<query><![CDATA[CREATE INDEX idx_item ON core_translation (item_id,item_class);]]></query>
+			<query><![CDATA[CREATE INDEX idx_source_item ON core_translation (source_item_id,source_language);]]></query>
+			
+			<query><![CDATA[IF EXISTS (SELECT NAME FROM SYSOBJECTS WHERE NAME='###core_user' AND TYPE='U') DROP TABLE ###core_user;]]></query>
+			<query><![CDATA[CREATE TABLE ###core_user(
+					user_id int identity(1,1) NOT NULL,
+					role_id int NOT NULL,
+					user_name nvarchar(100) NOT NULL,
+					password nvarchar(50) NOT NULL,
+					full_name nvarchar(100) NOT NULL,
+					email nvarchar(255) NOT NULL,
+					is_active bit NOT NULL default 0,
+					created_date varchar(19) NULL,
+					logged_in_date varchar(19) NULL,
+					is_online bit default 0,
+					PRIMARY KEY (user_id)
+				);]]>
+			</query>
+			<query><![CDATA[CREATE INDEX user_name ON ###core_user (user_name);]]></query>
+			<query><![CDATA[CREATE INDEX email ON ###core_user (email);]]></query>
+			
+			<query><![CDATA[IF EXISTS (SELECT NAME FROM SYSOBJECTS WHERE NAME='###core_widget' AND TYPE='U') DROP TABLE ###core_widget;]]></query>
+			<query><![CDATA[CREATE TABLE ###core_widget(
+					widget_id int identity(1,1) NOT NULL,
+					name nvarchar(100) NOT NULL,
+					title nvarchar(100) NULL,
+					module nvarchar(100) NOT NULL,
+					description ntext NULL,
+					thumbnail ntext NULL,
+					author nvarchar(255) NULL,
+					email nvarchar(100) NULL,
+					version nvarchar(20) NULL,
+					license ntext NULL,
+					PRIMARY KEY (widget_id));]]>
+			</query>
+		</db>
+	</install>
+	
+	<uninstall></uninstall>
+	
+	<admin></admin>
+</module>

@@ -1,0 +1,42 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version		$Id: _sampleHeaderWithAd.phtml 3059 2010-05-26 02:47:38Z huuphuoc $
+ */
+?>
+<div class="grid_4 alpha">
+	<a href="<?php echo $this->baseUrl(); ?>"><img src="<?php echo $this->APP_STATIC_SERVER; ?>/skins/<?php echo $this->APP_TEMPLATE; ?>/<?php echo $this->APP_SKIN; ?>/images/logo.png" width="200px" height="73x" /></a>	
+</div>
+
+<div class="t_g_widget_container grid_4" id="t_g_container_3">
+	<div class="t_g_widget" id="t_g_container_3_1">
+	<script type="text/javascript"> 
+	$(document).ready(function() {
+		Tomato.Ad.Loader.load('1A', 't_g_container_3_1', '/');
+	});
+	</script>
+	</div>
+</div>
+
+<div class="t_g_widget_container grid_4 omega" id="t_g_container_4">
+	<div class="t_g_widget" id="t_g_container_4_1">
+	<script type="text/javascript"> 
+	$(document).ready(function() {
+		Tomato.Ad.Loader.load('1B', 't_g_container_4_1', '/');
+	});
+	</script>
+	</div>
+</div>

@@ -1,0 +1,78 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: config.phtml 5369 2010-09-09 16:09:14Z huuphuoc $
+ * @since		2.0.0
+ */
+?>
+<div>
+	<div class="t_a_bottom"><?php echo $this->translator()->widget('config_enter_name'); ?></div>
+	<div class="t_a_bottom">
+		<input type="text" class="t_widget_input" name="event" style="width: 100%" />
+		<input type="hidden" class="t_widget_input" name="target" id="target" style="width: 100%" />
+	</div>
+	
+	<hr />
+
+	<div class="t_a_bottom"><?php echo $this->translator()->widget('config_enter_target'); ?></div>
+	<div class="t_a_bottom">
+		<input type="text" name="date" id="date" style="width: 70px" />
+		<select id="hour">
+			<option value="00"><?php echo $this->translator()->widget('config_select_hour'); ?></option>
+			<?php foreach (range(1, 24) as $hour) : ?>
+			<option value="<?php echo $this->helper()->format($hour); ?>"><?php echo $this->helper()->format($hour); ?></option>
+			<?php endforeach; ?>
+		</select>
+		<select id="minute">
+			<option value="00"><?php echo $this->translator()->widget('config_select_minute'); ?></option>
+			<?php foreach (range(0, 59) as $minute) : ?>
+			<option value="<?php echo $this->helper()->format($minute); ?>"><?php echo $this->helper()->format($minute); ?></option>
+			<?php endforeach; ?>
+		</select>
+		<select id="second">
+			<option value="00"><?php echo $this->translator()->widget('config_select_second'); ?></option>
+			<?php foreach (range(0, 59) as $second) : ?>
+			<option value="<?php echo $this->helper()->format($second); ?>"><?php echo $this->helper()->format($second); ?></option>
+			<?php endforeach; ?>
+		</select>
+	</div>
+	
+	<hr />
+</div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+	/**
+	 * Init select boxes
+	 */
+	var target = '<?php echo $this->target['value']; ?>';
+	var date = target.substring(0, 10);
+	$('#date').val(date);
+	if (target.length > 11) {
+		var time = target.substring(11).split(':');
+		$('#hour').val(time[0]);
+		$('#minute').val(time[1]);
+		$('#second').val(time[2]);
+	}
+	
+	$('#date').datepicker({ dateFormat: 'yy-mm-dd' });
+	$.each(['#date', '#hour', '#minute', '#second'], function(index, value) { 
+		$(value).bind('change', function() {
+			$('#target').val($('#date').val() + ' ' + $('#hour').val() + ':' + $('#minute').val() + ':' + $('#second').val());
+		});
+	});
+});
+</script>

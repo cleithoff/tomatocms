@@ -1,0 +1,105 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: show.phtml 5231 2010-08-31 04:45:59Z huuphuoc $
+ * @since		2.0.0
+ */
+?>
+<div class="t_news_categories">
+<?php if ($this->categories != null) : ?>
+	<?php foreach ($this->categories as $index => $category) : ?>
+	<div class="clearfix">
+		<h2>
+			<a id="<?php echo $category->category_id; ?>" href="<?php echo $this->url($category->getProperties(), 'news_article_category'); ?>"><?php echo $category->name; ?></a>
+			
+			<?php if ($subCats = $this->helper()->getSubCategories($category)) : ?>
+			<?php foreach ($subCats as $subCat) : ?>
+			<a id="<?php echo $subCat->category_id; ?>" href="<?php echo $this->url($subCat->getProperties(), 'news_article_category'); ?>"><?php echo $subCat->name; ?></a>
+			<?php endforeach; ?>
+			<?php endif; ?>
+			
+			<a class="rss" href="<?php echo $this->url($category->getProperties(), 'news_rss_category'); ?>">&nbsp;</a>
+		</h2>
+		
+		<div>
+			<?php if (($articles = $this->helper()->getLatestArticles($category, $this->limit)) != null && count($articles) > 0) : ?>
+			<div class="grid_3 alpha">
+				<?php if ($articles[0]->image_small) : ?>
+				<div class="image">
+					<a href="<?php echo $this->url($articles[0]->getProperties(), 'news_article_details'); ?>">
+						<img src="<?php echo $articles[0]->image_small; ?>" />
+					</a>
+				</div>
+				<?php endif; ?>
+				
+				<h3>
+					<a href="<?php echo $this->url($articles[0]->getProperties(), 'news_article_details'); ?>">
+						<?php echo $this->articleIcons($articles[0]->icons); ?> <?php echo $articles[0]->title; ?>
+					</a>
+					<cite><?php echo $this->dateFormatter()->diff(strtotime($articles[0]->created_date), $this->dateFormat); ?></cite>
+				</h3>
+			</div>
+			
+			<div class="grid_5 omega">
+				<ul>
+				<?php for ($i = 1; $i < count($articles); $i++) : ?>
+					<li>
+						<?php echo $this->articleIcons($articles[$i]->icons); ?><a href="<?php echo $this->url($articles[$i]->getProperties(), 'news_article_details'); ?>"><?php echo $articles[$i]->title; ?></a>
+						<cite><?php echo $this->dateFormatter()->diff(strtotime($articles[$i]->created_date), $this->dateFormat); ?></cite>
+					</li>
+				<?php endfor; ?>
+				</ul>
+				
+				<div class="more">
+					<a href="<?php echo $this->url($category->getProperties(), 'news_article_category'); ?>"><?php echo $this->translator()->widget('read_more'); ?></a>
+				</div>
+			</div>
+			
+			<div class="clear"></div>
+			<?php endif; ?>
+		</div>
+	</div>
+	<?php endforeach; ?>
+<?php endif; ?>	
+</div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+	/**
+	 * Loads latest articles from category
+	 * @since 2.0.8
+	 */
+	$('.t_news_categories h2').find('a').each(function(index) {
+		if ($(this).hasClass('rss')) {
+			return;
+		}
+		$(this).click(function() {
+			var self = this;
+			var id   = $(this).attr('id');
+			var data = $.toJSON({
+				'category_id': id, 
+				'limit': <?php echo $this->limit; ?>
+			});
+			var container = $(self).parent().parent().find('div:first');
+			$(container).css('opacity', '0.75').addClass('loading');
+			Tomato.Core.Widget.Loader.queueAction('news', 'categories', 'load', data, null, function(response) {
+				$(container).removeClass('loading').css('opacity', 1).html(response.content);
+			});
+			return false;
+		});
+	});
+});
+</script>

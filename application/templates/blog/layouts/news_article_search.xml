@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE layout SYSTEM "http://schemas.tomatocms.com/dtd/layout.dtd">
+<layout>
+	<container cols="12">
+		<container cols="8" position="first">
+			<defaultOutput />
+		</container>
+		<container cols="4" position="last">
+			<widget module="news" name="mostviewed" load="php">
+				<title><![CDATA[Most viewed]]></title>
+				<params>
+					<param name="category_id">
+						<value><![CDATA[]]></value>
+					</param>
+					<param name="limit">
+						<value><![CDATA[6]]></value>
+					</param>
+				</params>
+			</widget>
+		</container>
+	</container>
+</layout>

@@ -1,0 +1,178 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: list.phtml 4642 2010-08-15 16:09:28Z huuphuoc $
+ * @since		2.0.4
+ */
+?>
+<?php 
+$this->headTitle($this->translator('revision_list_page_title'));
+
+$this->headLink()
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.core.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.resizable.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.dialog.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.theme.css');
+
+$this->headScript()
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.core.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.draggable.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.resizable.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.dialog.js');
+?>
+
+<div class="grid_12 t_a_ui_breadcrumb">
+	<span><a href="<?php echo $this->url(array(), 'news_article_list'); ?>"><?php echo $this->translator('article_list_breadcrumb'); ?></a></span>
+	<span><?php echo $this->translator('revision_list_breadcrumb'); ?></span>
+</div>
+
+<div class="grid_12 t_a_bottom">
+	<div class="grid_12 alpha"><?php echo sprintf($this->translator('revision_list_guide'), $this->article->title); ?></div>
+</div>
+
+<?php if ($this->numRevisions == 0) : ?>
+<div class="grid_12 t_a_bottom"><?php echo $this->translator('revision_list_not_found'); ?></div>	
+<?php else : ?>
+	<div class="grid_12 t_a_ui_data_list_header">
+		<div class="grid_10 alpha">
+			<div><?php echo $this->translator('revision_main_title'); ?></div>
+		</div>
+		
+		<div class="grid_2 omega"><?php echo $this->translator('revision_article_id'); ?></div>
+	</div>
+	
+	<div class="grid_12 t_a_bottom">
+		<?php foreach ($this->revisions as $revision) : ?>
+		<div id="revisionRow_<?php echo $revision->revision_id; ?>" class="clearfix t_a_ui_data_list_content">
+			<div class="grid_10 alpha">
+				<div class="t_a_bottom"><a href="javascript: void(0);" class="detailsAction" rel="<?php echo $revision->revision_id; ?>"><?php echo $revision->title; ?></a></div>
+				
+				<div class="t_a_bottom"><?php echo sprintf($this->translator('revision_list_posted_by'), $revision->created_user_name, date('Y-m-d H:i:s', strtotime($revision->created_date))); ?></div>
+				
+				<div id="revisionContent_<?php echo $revision->revision_id; ?>" style="display: none; border: 1px solid #444; height: 200px; overflow: auto; padding: 5px">
+					<?php echo $revision->description; ?><br />
+					<?php echo $revision->content; ?><br />
+				</div>
+				
+				<div class="t_a_ui_helper_action">
+					<a class="detailsAction" rel="<?php echo $revision->revision_id; ?>" href="javascript: void(0);"><?php echo $this->translator('revision_list_action_details'); ?></a> |
+				
+					<?php if ($this->allow('delete')) : ?> 
+					<a class="deleteAction" rel="<?php echo $revision->revision_id; ?>" href="javascript: void(0);"><?php echo $this->translator('revision_list_action_delete'); ?></a> |
+					<?php endif; ?>
+					
+					<?php if ($this->allow('restore')) : ?>
+					<a class="restoreAction" rel="<?php echo $revision->revision_id; ?>" href="javascript: void(0);"><?php echo $this->translator('revision_list_action_restore'); ?></a>
+					<?php endif; ?>
+				</div>
+			</div>
+			
+			<div class="grid_2 omega"><a href="<?php echo $this->url(array('article_id' => $revision->article_id), 'news_article_edit'); ?>"><?php echo $revision->article_id; ?></a></div>
+		</div>
+		<?php endforeach; ?>
+	</div>
+	
+	<div class="grid_12 t_a_bottom t_a_ui_paginator">
+		<?php echo $this->paginator()->slide($this->paginator, $this->paginatorOptions); ?>
+	</div>
+<?php endif; ?>
+
+<div id="confirmDialog"></div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+	<?php if ($this->allow('delete')) : ?>
+	$('a.deleteAction').click(function() {
+		var self = this;
+		$('#confirmDialog').html('<?php echo addslashes($this->translator('revision_list_action_delete_confirm')); ?>')
+			.dialog({
+				title: '<?php echo addslashes($this->translator('common_dialog_confirm')); ?>',
+				dialogClass: 't_a_ui_dialog',
+				modal: true,
+				closeOnEscape: false,
+				resizable: false,
+				open: function(event, ui) {
+					$('.ui-dialog-titlebar-close').hide();
+					$(this).parent().find('.ui-dialog-buttonpane button').wrapInner('<span/>');
+				},
+				buttons: {
+					'<?php echo addslashes($this->translator('common_dialog_confirm_no')); ?>': function() {
+						$(this).dialog('destroy');
+					},
+					'<?php echo addslashes($this->translator('common_dialog_confirm_yes')); ?>': function() {
+						$(this).dialog('destroy');
+						$(self).html('').addClass('t_a_ui_helper_loading');
+						var id = $(self).attr('rel');
+						$.ajaxq('news_revision', {
+							type: 'POST',
+							url: "<?php echo $this->url(array(), 'news_revision_delete'); ?>",
+							data: { revision_id: id },
+							success: function(response) {
+								if ('RESULT_OK' == response) {
+									$('#revisionRow_' + id).fadeOut('slow');
+								}
+							}
+						});
+					}
+				}
+			});
+	});
+	<?php endif; ?>
+	
+	<?php if ($this->allow('restore')) : ?>
+	$('a.restoreAction').click(function() {
+		var self = this;
+
+		$('#confirmDialog').html('<?php echo addslashes($this->translator('revision_list_action_restore_confirm')); ?>')
+			.dialog({
+				title: '<?php echo addslashes($this->translator('common_dialog_confirm')); ?>',
+				dialogClass: 't_a_ui_dialog',
+				modal: true,
+				closeOnEscape: false,
+				resizable: false,
+				open: function(event, ui) {
+					$('.ui-dialog-titlebar-close').hide();
+					$(this).parent().find('.ui-dialog-buttonpane button').wrapInner('<span/>');
+				},
+				buttons: {
+					'<?php echo addslashes($this->translator('common_dialog_confirm_no')); ?>': function() {
+						$(this).dialog('destroy');
+					},
+					'<?php echo addslashes($this->translator('common_dialog_confirm_yes')); ?>': function() {
+						$(this).dialog('destroy');
+						var id = $(self).attr('rel');
+						$.ajaxq('news_revision', {
+							type: 'POST',
+							url: "<?php echo $this->url(array(), 'news_revision_restore'); ?>",
+							data: { revision_id: id },
+							success: function(response) {
+								if (response != 'RESULT_ERROR') {
+									window.location.href = response;
+								}
+							}
+						});
+					}
+				}
+			});
+	});
+	<?php endif; ?>
+
+	$('a.detailsAction').click(function() {
+		var id = $(this).attr('rel');
+		$('#revisionContent_' + id).toggle();
+	});
+});
+</script>

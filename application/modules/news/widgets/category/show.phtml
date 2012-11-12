@@ -1,0 +1,56 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: show.phtml 5399 2010-09-12 17:49:50Z huuphuoc $
+ * @since		2.0.9
+ */
+?>
+<?php if ($this->category && $this->articles && count($this->articles) > 0) : ?>
+<div class="t_news_cat">
+	<h2>
+		<a id="<?php echo $this->category->category_id; ?>" href="<?php echo $this->url($this->category->getProperties(), 'news_article_category'); ?>"><?php echo $this->category->name; ?></a>
+		<a class="rss" href="<?php echo $this->url($this->category->getProperties(), 'news_rss_category'); ?>">&nbsp;</a>
+	</h2>
+
+	<?php if ($this->articles[0]->image_small) : ?>
+	<div class="image">
+		<a href="<?php echo $this->url($this->articles[0]->getProperties(), 'news_article_details'); ?>">
+			<img src="<?php echo $this->articles[0]->image_small; ?>" />
+		</a>
+	</div>
+	<?php endif; ?>
+	
+	<h3>
+		<a href="<?php echo $this->url($this->articles[0]->getProperties(), 'news_article_details'); ?>">
+			<?php echo $this->articleIcons($this->articles[0]->icons); ?> <?php echo $this->articles[0]->title; ?>
+		</a>
+		<cite><?php echo $this->dateFormatter()->diff(strtotime($this->articles[0]->created_date), $this->dateFormat); ?></cite>
+	</h3>
+	
+	<ul>
+	<?php for ($i = 1; $i < count($this->articles); $i++) : ?>
+		<li>
+			<?php echo $this->articleIcons($this->articles[$i]->icons); ?><a href="<?php echo $this->url($this->articles[$i]->getProperties(), 'news_article_details'); ?>"><?php echo $this->articles[$i]->title; ?></a>
+			<cite><?php echo $this->dateFormatter()->diff(strtotime($this->articles[$i]->created_date), $this->dateFormat); ?></cite>
+		</li>
+	<?php endfor; ?>
+	</ul>
+	
+	<div class="more">
+		<a href="<?php echo $this->url($this->category->getProperties(), 'news_article_category'); ?>"><?php echo $this->translator()->widget('read_more'); ?></a>
+	</div>
+</div>
+<?php endif; ?>

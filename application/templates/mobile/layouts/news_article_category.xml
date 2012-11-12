@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE layout SYSTEM "http://schemas.tomatocms.com/dtd/layout.dtd">
+<layout>
+	<container>
+		<widget module="news" name="breadcrumb">
+			<params>
+				<param name="category_id" type="global" />
+			</params>
+		</widget>
+		<defaultOutput />
+	</container>
+</layout>

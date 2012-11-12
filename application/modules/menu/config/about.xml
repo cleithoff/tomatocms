@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version		$Id: about.xml 4962 2010-08-25 18:31:39Z huuphuoc $
+ * @since		2.0.2
+ */
+-->
+<!DOCTYPE module SYSTEM "http://schemas.tomatocms.com/dtd/module_about.dtd">
+<module>
+	<name>menu</name>
+	<description langKey="about_menu_description"><![CDATA[Manage menus]]></description>
+	<thumbnail></thumbnail>
+	<author>TomatoCMS Core Team</author>
+	<email>core@tomatocms.com</email>
+	<version>2.0.2</version>
+	<license>free</license>
+	
+	<requires>
+		<requiredModules>	
+		</requiredModules>		
+	</requires>
+	
+	<install>
+		<db adapter="mysql|pdo_mysql">
+			<query><![CDATA[DROP TABLE IF EXISTS `###menu`;]]></query>
+			<query><![CDATA[CREATE TABLE `###menu` (
+				  `menu_id` int(11) NOT NULL auto_increment,
+				  `name` varchar(255) default NULL,
+				  `description` text,
+				  `user_id` int(11) default NULL,
+				  `user_name` varchar(255) default NULL,
+				  `created_date` datetime default NULL,
+				  `language` varchar(10) default NULL,
+				  PRIMARY KEY  (`menu_id`),
+				  KEY `idx_language` (`language`)
+				) ENGINE=InnoDB DEFAULT CHARSET=utf8;]]>
+			</query>
+			<query><![CDATA[DROP TABLE IF EXISTS `###menu_item`;]]></query>
+			<query><![CDATA[CREATE TABLE `###menu_item` (
+				  `menu_item_id` int(10) unsigned NOT NULL auto_increment,
+				  `item_id` int(10) NOT NULL,
+				  `menu_id` int(11) NOT NULL,
+				  `label` varchar(200) NOT NULL,
+				  `link` text NOT NULL,
+				  `left_id` int(11) NOT NULL,
+				  `right_id` int(11) NOT NULL,
+				  `parent_id` int(11) NOT NULL,
+				  PRIMARY KEY  (`menu_item_id`)
+				) ENGINE=InnoDB DEFAULT CHARSET=utf8;]]>
+			</query>			
+		</db>
+		<db adapter="pgsql">
+			<query><![CDATA[DROP TABLE IF EXISTS ###menu;]]></query>
+			<query><![CDATA[CREATE TABLE ###menu (
+				    menu_id integer NOT NULL,
+				    name character varying(255) DEFAULT NULL::character varying,
+				    description text,
+				    user_id integer,
+				    user_name character varying(255) DEFAULT NULL::character varying,
+				    created_date time without time zone,
+				    language character varying(10) DEFAULT NULL::character varying
+				);
+				CREATE SEQUENCE menu_menu_id_seq
+				    START WITH 1
+				    INCREMENT BY 1
+				    NO MAXVALUE
+				    NO MINVALUE
+				    CACHE 1;
+				ALTER SEQUENCE menu_menu_id_seq OWNED BY ###menu.menu_id;
+				SELECT pg_catalog.setval('menu_menu_id_seq', 1, false);]]>
+			</query>
+			<query><![CDATA[DROP TABLE IF EXISTS ###menu_item;]]></query>
+			<query><![CDATA[CREATE TABLE ###menu_item (			
+					menu_item_id integer NOT NULL,
+					item_id integer NOT NULL,
+					menu_id integer NOT NULL,
+					label character varying(200) NOT NULL,
+					link text NOT NULL,
+					left_id integer NOT NULL,
+					right_id integer NOT NULL,
+					parent_id integer NOT NULL,
+				);
+				CREATE SEQUENCE menu_item_menu_item_id_seq
+				    START WITH 1
+				    INCREMENT BY 1
+				    NO MAXVALUE
+				    NO MINVALUE
+				    CACHE 1;
+				ALTER SEQUENCE menu_item_menu_item_id_seq OWNED BY ###menu_item.menu_item_id;
+				SELECT pg_catalog.setval('menu_menu_id_seq', 1, false);]]>
+			</query>	
+		</db>
+		<db adapter="sqlsrv">
+			<query><![CDATA[IF EXISTS (SELECT NAME FROM SYSOBJECTS WHERE NAME='###menu' AND TYPE='U') DROP TABLE ###menu;]]></query>
+			<query><![CDATA[CREATE TABLE ###menu(
+				menu_id int identity(1,1) NOT NULL,
+				name nvarchar(255) NULL,
+				description ntext NULL,
+				user_id int NULL,
+				user_name nvarchar(255) NULL,
+				created_date varchar(19) NULL,
+				language varchar(10) default NULL,
+				PRIMARY KEY (menu_id));]]>
+			</query>
+			<query><![CDATA[CREATE INDEX idx_language ON ###menu (language);]]></query>
+			
+			<query><![CDATA[IF EXISTS (SELECT NAME FROM SYSOBJECTS WHERE NAME='###menu_item' AND TYPE='U') DROP TABLE ###menu_item]]></query>
+			<query><![CDATA[CREATE TABLE ###menu_item (
+				  menu_item_id int identity(1,1) NOT NULL,
+				  item_id int NOT NULL,
+				  menu_id int NOT NULL,
+				  label nvarchar(200) NOT NULL,
+				  link text NOT NULL,
+				  left_id int NOT NULL,
+				  right_id int NOT NULL,
+				  parent_id int NOT NULL,
+				  PRIMARY KEY (menu_item_id);]]>
+			</query>	
+		</db>
+	</install>
+	
+	<uninstall>
+		<db adapter="mysql|pdo_mysql">
+			<query><![CDATA[DROP TABLE IF EXISTS `###menu`;]]></query>
+			<query><![CDATA[DROP TABLE IF EXISTS `###menu_item`;]]></query>
+		</db>
+		<db adapter="pgsql">
+			<query><![CDATA[DROP TABLE IF EXISTS ###menu;]]></query>
+			<query><![CDATA[DROP TABLE IF EXISTS ###menu_item;]]></query>
+		</db>
+		<db adapter="sqlsrv">
+			<query><![CDATA[IF EXISTS (SELECT NAME FROM SYSOBJECTS WHERE NAME='###menu' AND TYPE='U') DROP TABLE ###menu;]]></query>
+			<query><![CDATA[IF EXISTS (SELECT NAME FROM SYSOBJECTS WHERE NAME='###menu_item' AND TYPE='U') DROP TABLE ###menu_item;]]></query>
+		</db>
+	</uninstall>
+	
+	<admin>
+		<task langKey="task_list_menus" route="menu_menu_list" />
+		<task langKey="task_build_menu" route="menu_menu_build" />
+	</admin>
+</module>

@@ -1,0 +1,501 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: config.phtml 4821 2010-08-24 06:53:59Z huuphuoc $
+ * @since		2.0.1
+ */
+?>
+<?php 
+$this->headTitle('install' == $this->mode ? $this->translator('install_config_page_title') : $this->translator('config_app_page_title'));
+?>
+
+<div class="grid_12"><?php echo $this->flashMessenger(); ?></div>
+
+<?php if ('install' == $this->mode) : ?>
+<div class="t_a_install_step">
+	<ul>
+		<li class="grid_3 alpha">
+			<span>1</span>		
+			<h2><?php echo $this->translator('install_steps_language'); ?></h2>
+		</li>
+		<li class="grid_3">
+			<span>2</span>		
+			<h2><?php echo $this->translator('install_steps_requirements'); ?></h2>
+		</li>
+		<li class="t_a_install_step_active grid_3">
+			<span>3</span>		
+			<h2><?php echo $this->translator('install_steps_config'); ?></h2>
+		</li>
+		<li class="grid_3 omega">
+			<span>4</span>
+			<h2><?php echo $this->translator('install_steps_complete'); ?></h2>
+		</li>
+	</ul>
+</div>
+<?php else:?>
+<div class="grid_12 t_a_bottom">
+	<div class="t_a_ui_breadcrumb">
+		<span><?php echo $this->translator('install_steps_config'); ?></span>	
+	</div>
+</div>
+<?php endif; ?>
+
+<div<?php if ('install' == $this->mode) : ?> class="t_a_install_container"<?php endif; ?>>
+	<div class="grid_12 t_a_top">
+		<form method="post" action="<?php if ('install' == $this->mode) : ?><?php echo $this->url(array(), 'core_install_config'); ?><?php else : ?><?php echo $this->APP_URL; ?>/admin/core/config/app/<?php endif; ?>">
+		
+		<!-- Database settings -->
+		<?php if ('install' == $this->mode) : ?>
+		<div class="t_a_bottom">
+			<h3><?php echo $this->translator('install_config_database_conn'); ?></h3>
+			<hr />
+			<div class="prefix_1 suffix_1 t_a_top">
+				<?php
+				/**
+				 * Allows user to select database type
+				 * @since 2.0.5
+				 */
+				?>
+				<div class="t_a_bottom">
+					<label><?php echo $this->translator('install_config_database_type'); ?></label>
+					<select id="databaseSelector" name="databaseType" style="width: 200px">
+						<?php foreach ($this->databases as $db => $info) : ?>
+						<option value="<?php echo $db; ?>"<?php if ($db == $this->databaseType): ?> selected="selected"<?php endif; ?>><?php echo $info['name']; ?></option>
+						<?php endforeach; ?>
+					</select>
+				</div>
+				
+				<hr />
+				
+				<div class="t_a_bottom">
+					<div class="grid_2 alpha">
+						<label><?php echo $this->translator('install_config_database_host'); ?></label>
+					</div>
+					<div class="grid_8 omega">
+						<div class="t_a_bottom">
+							<input type="text" name="host" value="<?php echo $this->master['host']; ?>" style="width: 300px" />
+						</div>
+						<?php echo $this->translator('install_config_database_host_guide'); ?>
+					</div>
+				</div>
+				
+				<hr />
+				
+				<div class="t_a_bottom">
+					<div class="grid_2 alpha">
+						<label><?php echo $this->translator('install_config_database_port'); ?></label>
+					</div>
+					<div class="grid_8 omega">
+						<div class="t_a_bottom">
+							<input type="text" name="port" value="<?php echo $this->master['port']; ?>" style="width: 100px" />
+						</div>
+						<?php echo $this->translator('install_config_database_port_guide'); ?>
+					</div>
+				</div>
+				
+				<hr />
+				
+				<div class="t_a_bottom">
+					<div class="grid_2 alpha">
+						<label><?php echo $this->translator('install_config_database_username'); ?></label>
+					</div>
+					<div class="grid_8 omega">
+						<div class="t_a_bottom">
+							<input type="text" name="username" value="<?php echo $this->master['username']; ?>" style="width: 300px" />
+						</div>
+						<?php echo $this->translator('install_config_database_username_guide'); ?>
+					</div>
+				</div>
+				
+				<hr />
+				
+				<div class="t_a_bottom">
+					<div class="grid_2 alpha">
+						<label><?php echo $this->translator('install_config_database_password'); ?></label>
+					</div>
+					<div class="grid_8 omega">
+						<div class="t_a_bottom">
+							<input type="password" name="password" value="<?php echo $this->master['password']; ?>" style="width: 300px" />
+						</div>
+						<?php echo $this->translator('install_config_database_password_guide'); ?>
+					</div>
+				</div>
+				
+				<hr />
+				
+				<div class="t_a_bottom">
+					<div class="grid_2 alpha">
+						<label><?php echo $this->translator('install_config_database_name'); ?></label>
+					</div>
+					<div class="grid_8 omega">
+						<div class="t_a_bottom">
+							<input type="text" name="dbname" value="<?php echo $this->master['dbname']; ?>" style="width: 300px" />
+						</div>
+						<?php echo $this->translator('install_config_database_name_guide'); ?>
+					</div>
+				</div>
+				
+				<hr />
+				
+				<?php
+				/**
+				 * Allows user to set the database prefix
+				 * @since 2.0.3
+				 */
+				?>
+				<div class="t_a_bottom">
+					<label><?php echo $this->translator('install_config_database_prefix'); ?></label>
+					<input type="text" name="prefix" value="<?php echo $this->dbPrefix; ?>" style="width: 50px" />
+				</div>
+				
+				<?php
+				/**
+				 * Allows user to import sample data
+				 * @since 2.0.4
+				 */
+				?>
+				<div id="importSampleDataContainer">
+					<hr />					
+				
+					<div class="t_a_bottom">
+						<label>&nbsp;</label>
+						<input type="checkbox" name="importSampleData" id="importSampleData" />&nbsp;<?php echo $this->translator('install_config_import_sample_data'); ?>
+					</div>
+				</div>
+			</div>
+		</div>					
+		<?php endif; ?>
+		
+		<!-- Web settings -->
+		<div class="t_a_bottom">
+			<h3><?php echo $this->translator('install_config_web_settings'); ?></h3>
+			<hr />
+			<div class="prefix_1 suffix_1 t_a_top">
+				<div class="t_a_bottom">
+					<div class="grid_2 alpha">
+						<label><?php echo $this->translator('install_config_web_url'); ?></label>
+					</div>
+					<div class="grid_8 omega">
+						<div class="t_a_bottom">
+							<input type="text" name="url" value="<?php echo $this->url; ?>" style="width: 300px" />
+						</div>
+						<?php echo $this->translator('install_config_web_url_guide'); ?>
+					</div>
+				</div>
+				
+				<hr />
+				
+				<div class="t_a_bottom">
+					<div class="grid_2 alpha">
+						<label><?php echo $this->translator('install_config_web_name'); ?></label>
+					</div>
+					<div class="grid_8 omega">
+						<div class="t_a_bottom">
+							<input type="text" name="siteName" value="<?php echo $this->siteName; ?>" style="width: 300px" />
+						</div>
+						<?php echo $this->translator('install_config_web_name_guide'); ?>
+					</div>
+				</div>
+				
+				<hr />
+				
+				<div class="t_a_bottom">
+					<label><?php echo $this->translator('install_config_web_title'); ?></label>
+					<input type="text" name="title" value="<?php echo $this->defaultTitle; ?>" style="width: 300px" />
+				</div>
+				
+				<div class="t_a_bottom">
+					<label>&nbsp;</label>
+					<?php echo $this->translator('install_config_web_title_guide'); ?>
+				</div>
+				
+				<hr />
+				
+				<?php 
+				/**
+				 * List of all available languages
+				 * @since 2.0.7
+				 */
+				?>
+				<div class="t_a_bottom">
+					<label><?php echo $this->translator('install_config_web_language'); ?></label>
+					<select name="lang" style="width: 150px">
+						<?php foreach ($this->languages as $lang => $names) : ?>
+						<option value="<?php echo $lang; ?>"<?php if ($this->lang == $lang): ?> selected="selected"<?php endif; ?>><?php echo $names['localName']; ?> (<?php echo $names['englishName']; ?>)</option>
+						<?php endforeach; ?>
+					</select>
+				</div>
+				
+				<hr />
+				
+				<?php
+				/**
+				 * Allows user to set the language direction
+				 * @since 2.0.3
+				 */
+				?>
+				<div class="t_a_bottom">
+					<label><?php echo $this->translator('install_config_web_language_direction'); ?></label>
+					<select name="langDirection" style="width: 150px" >
+						<option value="ltr"<?php if ('ltr' == $this->langDirection) : ?> selected="selected"<?php endif; ?>><?php echo $this->translator('install_config_web_language_ltr'); ?></option>
+						<option value="rtl"<?php if ('rtl' == $this->langDirection) : ?> selected="selected"<?php endif; ?>><?php echo $this->translator('install_config_web_language_rtl'); ?></option>
+					</select>
+				</div>
+				
+				<hr />
+				
+				<div class="t_a_bottom">
+					<label><?php echo $this->translator('install_config_web_template'); ?></label>
+					<select id="templateSelect" name="template" style="width: 280px">
+						<?php foreach ($this->templates as $template => $value) : ?>
+						<option value="<?php echo $template; ?>"<?php if ($this->currentTemplate == $template) : ?> selected="selected"<?php endif; ?>><?php echo $template; ?></option>
+						<?php endforeach; ?>
+					</select>
+				</div>
+				
+				<hr />
+				
+				<div class="t_a_bottom">
+					<label><?php echo $this->translator('install_config_web_skin'); ?></label>
+					<select id="skinSelect" name="skin" style="width: 280px">
+						<option value="default" selected="selected">default</option>
+					</select>
+				</div>
+				
+				<hr />
+				
+				<?php
+				/**
+				 * Allows user to set the charset
+				 * @since 2.0.6
+				 */
+				?>
+				<div class="t_a_bottom">
+					<label><?php echo $this->translator('install_config_web_charset'); ?></label>
+					<select name="charset" style="width: 280px">
+						<?php foreach ($this->charsets as $name => $charset) : ?>
+						<option value="<?php echo $charset; ?>"<?php if ($this->currentCharset == $charset) : ?> selected="selected"<?php endif; ?>><?php echo $name; ?></option>
+						<?php endforeach; ?>
+					</select>
+				</div>
+				
+				<hr />
+				
+				<div class="t_a_bottom">
+					<div class="grid_2 alpha">
+						<label><?php echo $this->translator('install_config_web_keyword'); ?></label>
+					</div>
+					<div class="grid_8 omega">
+						<div class="t_a_bottom">
+							<textarea name="metaKeyword" style="width: 500px; height: 100px"><?php echo $this->metaKeyword; ?></textarea>
+						</div>
+						<?php echo $this->translator('install_config_web_keyword_guide'); ?>
+					</div>
+				</div>
+				
+				<hr />
+				
+				<div class="t_a_bottom">
+					<div class="grid_2 alpha">
+						<label><?php echo $this->translator('install_config_web_description'); ?></label>
+					</div>
+					<div class="grid_8 omega">
+						<div class="t_a_bottom">
+							<textarea name="metaDescription" style="width: 500px; height: 100px"><?php echo $this->metaDescription; ?></textarea>
+						</div>
+						<?php echo $this->translator('install_config_web_description_guide'); ?>
+					</div>
+				</div>
+				
+				<hr />
+				
+				<div class="t_a_bottom">
+					<label><?php echo $this->translator('install_config_web_offline_message'); ?>:</label>
+					<textarea style="width: 500px; height: 100px" name="offlineMessage"><?php if (null != $this->offlineMessage) : ?><?php echo $this->offlineMessage; ?><?php endif; ?></textarea>
+				</div>
+				
+				<?php
+				/**
+				 * Allows user to set the website in offline mode
+				 * @since 2.0.3
+				 */
+				?>
+				<div class="t_a_bottom">
+					<label>&nbsp;</label>
+					<input type="checkbox" name="offline" value="1" <?php if (null != $this->offline && 'true' == $this->offline) : ?>checked="checked"<?php endif; ?> />&nbsp;<?php echo $this->translator('install_config_web_offline'); ?>
+				</div>
+				
+				<hr />
+				
+				<?php
+				/**
+				 * Session lifetime setting
+				 * @since 2.0.5
+				 */
+				?>
+				<div class="t_a_bottom">
+					<div class="grid_2 alpha">
+						<label><?php echo $this->translator('install_config_session_lifetime'); ?></label>
+					</div>
+					<div class="grid_8 omega">
+						<div class="t_a_bottom">
+							<input type="text" name="sessionLifetime" value="<?php echo $this->sessionLifetime; ?>" style="width: 100px" />&nbsp;<?php echo $this->translator('install_config_session_lifetime_seconds'); ?>
+						</div>
+						<?php echo $this->translator('install_config_session_lifetime_guide'); ?>
+					</div>
+				</div>
+				
+				<hr />
+				
+				<?php
+				/**
+				 * Debug mode
+				 * @since 2.0.5
+				 */
+				?>
+				<div class="t_a_bottom">
+					<label>&nbsp;</label>
+					<input type="checkbox" name="debugMode" value="1" <?php if (null != $this->debugMode && 'true' == $this->debugMode) : ?>checked="checked"<?php endif; ?> />&nbsp;<?php echo $this->translator('install_config_debug_mode'); ?>
+				</div>
+			</div>
+		</div>
+		
+		<!-- Datetime settings -->
+		<div class="t_a_bottom">
+			<h3><?php echo $this->translator('install_config_date_time_settings'); ?></h3>
+			<hr />
+			<div class="prefix_1 suffix_1 t_a_top">
+				<div class="t_a_bottom">
+					<label><?php echo $this->translator('install_config_timezone'); ?></label>
+					<select name="timezone">
+					<?php foreach ($this->timeZones as $timeZone => $name) : ?>
+						<option value="<?php echo $timeZone; ?>"<?php if ($timeZone == $this->currentTimeZone): ?> selected="selected"<?php endif; ?>><?php echo $timeZone; ?> (<?php echo $name; ?>)</option>
+					<?php endforeach; ?>
+					</select>
+				</div>
+				
+				<hr />
+				
+				<div class="t_a_bottom">
+					<label><?php echo $this->translator('install_config_date_format'); ?></label>
+					<select name="dateFormat">
+					<?php foreach ($this->availableDateFormats as $format) : ?>
+						<option value="<?php echo $format; ?>"<?php if ($format == $this->dateFormat) : ?> selected="selected"<?php endif; ?>><?php echo date($format); ?></option>
+					<?php endforeach; ?>
+					</select>
+				</div>
+				
+				<hr />
+				
+				<div class="t_a_bottom">
+					<label><?php echo $this->translator('install_config_date_time_format'); ?></label>
+					<select name="datetimeFormat">
+					<?php foreach ($this->availableDateTimeFormats as $format) : ?>
+						<option value="<?php echo $format; ?>"<?php if ($format == $this->dateTimeFormat) : ?> selected="selected"<?php endif; ?>><?php echo date($format); ?></option>
+					<?php endforeach; ?>
+					</select>
+				</div>
+			</div>
+		</div>
+		
+		<?php
+		/**
+		 * Cache settings
+		 * @since 2.0.5
+		 */ 
+		?>
+		<div class="t_a_bottom">
+			<h3><?php echo $this->translator('install_config_cache_settings'); ?></h3>
+			<hr />
+			<div class="prefix_1 suffix_1 t_a_top">
+				<div class="t_a_bottom">
+					<label><?php echo $this->translator('install_config_cache_type'); ?></label>
+					<select id="cacheSelector" name="cacheType" style="width: 300px">
+						<option value=""><?php echo $this->translator('install_config_select_cache_type'); ?></option>
+						<?php foreach ($this->cacheTypes as $cache) : ?>
+						<option value="<?php echo $cache; ?>"<?php if ($cache == $this->currCacheType): ?> selected="selected"<?php endif; ?>><?php echo $cache; ?></option>
+						<?php endforeach; ?>
+					</select>
+				</div>
+				
+				<hr />
+				
+				<!-- Memcache settings -->
+				<div id="memcacheSettings" style="display: none">
+					<div class="t_a_bottom">
+						<label><?php echo $this->translator('install_config_memcache_host'); ?></label>
+						<input type="text" name="memcacheHost" value="<?php echo $this->memcacheHost; ?>" style="width: 300px" />
+					</div>
+					
+					<hr />
+					
+					<div class="t_a_bottom">
+						<label><?php echo $this->translator('install_config_memcache_port'); ?></label>
+						<input type="text" name="memcachePort" value="<?php echo $this->memcachePort; ?>" style="width: 100px" />
+					</div>
+					
+					<hr />
+				</div>
+				
+				<div class="t_a_bottom">
+					<label><?php echo $this->translator('install_config_cache_lifetime'); ?></label>
+					<input type="text" name="cacheLifetime" value="<?php echo $this->cacheLifetime; ?>" style="width: 100px" />&nbsp;<?php echo $this->translator('install_config_cache_lifetime_seconds'); ?>
+				</div>
+				
+				<hr />
+				
+				<div class="t_a_bottom">
+					<label><?php echo $this->translator('install_config_cache_prefix'); ?></label>
+					<input type="text" name="cachePrefix" value="<?php echo $this->cachePrefix; ?>" style="width: 100px" />
+				</div>
+			</div>
+		</div>
+		
+		<div class="t_a_bottom">
+			<input type="hidden" name="mode" value="<?php echo $this->mode; ?>" />
+			<button type="submit" class="t_a_right"><span><?php if ('install' == $this->mode) : ?><?php echo $this->translator('install_steps_next_button'); ?><?php else : ?><?php echo $this->translator('install_config_save_button'); ?><?php endif; ?></span></button>
+		</div>
+		
+		</form>
+	</div>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+	$('#databaseSelector').change(function() {
+		/**
+		 * Enable or disable import checkbox
+		 */
+		var dbs = $.evalJSON('<?php echo Zend_Json::encode($this->databases); ?>');
+		var current = $(this).val();
+		if (dbs[current].data == null) {
+			$('#importSampleData').attr('checked', false).attr('disabled', 'disabled');
+			$('#importSampleDataContainer').hide();
+		} else {
+			$('#importSampleData').removeAttr('disabled');
+			$('#importSampleDataContainer').show();
+		}
+	});
+
+	$('#cacheSelector').change(function() {
+		if ($(this).val() == 'Memcache') {
+			$('#memcacheSettings').show();	
+		} else {
+			$('#memcacheSettings').hide();
+		}
+	});
+});
+</script>

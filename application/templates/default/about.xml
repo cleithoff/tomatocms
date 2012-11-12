@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version		$Id: about.xml 4323 2010-08-04 02:39:27Z huuphuoc $
+ */
+-->
+<!DOCTYPE template SYSTEM "http://schemas.tomatocms.com/dtd/template_about.dtd">
+<template>
+	<name>default</name>
+	<description>Default template</description>
+	<thumbnail></thumbnail>
+	<author>TomatoCMS Core Team</author>
+	<email>core@tomatocms.com</email>
+	<version>2.0.1</version>
+	<license>free</license>
+	<selectable>true</selectable>
+	<skins>
+		<skin name="default">
+			<color>#F1F1F1</color>
+			<description>Default skin</description>
+		</skin>
+	</skins>
+	<install>
+		<db adapter="mysql|pdo_mysql">
+			<!-- since 2.0.0 -->
+			<query><![CDATA[DELETE FROM `###core_page` WHERE `route` = 'core_index_index';]]></query>
+			<query><![CDATA[INSERT INTO `###core_page`(route, title, ordering) VALUES ('core_index_index', 'Homepage', 0);]]></query>
+			<query><![CDATA[DELETE FROM `###core_page` WHERE `route` = 'news_article_category';]]></query>
+			<query><![CDATA[INSERT INTO `###core_page`(route, title, ordering) VALUES ('news_article_category', 'View articles in category', 1);]]></query>
+			<query><![CDATA[DELETE FROM `###core_page` WHERE `route` = 'news_article_details';]]></query>
+			<query><![CDATA[INSERT INTO `###core_page`(route, title, ordering) VALUES ('news_article_details', 2);]]></query>
+			<query><![CDATA[DELETE FROM `###core_page` WHERE `route` = 'news_article_search';]]></query>
+			<query><![CDATA[INSERT INTO `###core_page`(route, title, ordering) VALUES ('news_article_search', 'Search for articles', 3);]]></query>
+			
+			<!-- since 2.0.2 -->
+			<query><![CDATA[DELETE FROM `###core_page` WHERE `route` = 'multimedia_file_details';]]></query>
+			<query><![CDATA[INSERT INTO `###core_page`(route, title, ordering) VALUES ('multimedia_file_details', 'View multimedia file details', 4);]]></query>
+			<query><![CDATA[DELETE FROM `###core_page` WHERE `route` = 'multimedia_set_details';]]></query>
+			<query><![CDATA[INSERT INTO `###core_page`(route, title, ordering) VALUES ('multimedia_set_details', 'View set details', 5);]]></query>
+			
+			<!-- since 2.0.2 -->
+			<query><![CDATA[DELETE FROM `###core_page` WHERE `route` = 'tag_tag_details';]]></query>
+			<query><![CDATA[INSERT INTO `###core_page`(route, title, ordering) VALUES ('tag_tag_details', 'List of items tagged by given tag', 6);]]></query>
+			
+			<!-- since 2.0.7 -->
+			<query><![CDATA[DELETE FROM `###core_page` WHERE `route` = 'page_page_details';]]></query>
+			<query><![CDATA[INSERT INTO `###core_page`(route, title, ordering) VALUES ('page_page_details', 'View page details', 7);]]></query>
+		</db>
+		<db adapter="pgsql">
+			<!-- since 2.0.0 -->
+			<query><![CDATA[DELETE FROM ###core_page WHERE route = 'core_index_index';]]></query>
+			<query><![CDATA[INSERT INTO ###core_page(route, title, ordering) VALUES ('core_index_index', 'Homepage', '0');]]></query>
+			<query><![CDATA[DELETE FROM ###core_page WHERE route = 'news_article_category';]]></query>
+			<query><![CDATA[INSERT INTO ###core_page(route, title, ordering) VALUES ('news_article_category', 'View articles in category', '1');]]></query>
+			<query><![CDATA[DELETE FROM ###core_page WHERE route = 'news_article_details';]]></query>
+			<query><![CDATA[INSERT INTO ###core_page(route, title, ordering) VALUES ('news_article_details', 'View article details', '2');]]></query>
+			<query><![CDATA[DELETE FROM ###core_page WHERE route = 'news_article_search';]]></query>
+			<query><![CDATA[INSERT INTO ###core_page(route, title, ordering) VALUES ('news_article_search', 'Search for articles', '3');]]></query>
+			
+			<!-- since 2.0.2 -->
+			<query><![CDATA[DELETE FROM ###core_page WHERE route = 'multimedia_file_details';]]></query>
+			<query><![CDATA[INSERT INTO ###core_page(route, title, ordering) VALUES ('multimedia_file_details', 'View multimedia file details', '4');]]></query>
+			<query><![CDATA[DELETE FROM ###core_page WHERE route = 'multimedia_set_details';]]></query>
+			<query><![CDATA[INSERT INTO ###core_page(route, title, ordering) VALUES ('multimedia_set_details', 'View set details', '5');]]></query>
+
+			<!-- since 2.0.2 -->
+			<query><![CDATA[DELETE FROM ###core_page WHERE route = 'tag_tag_details';]]></query>
+			<query><![CDATA[INSERT INTO ###core_page(route, title, ordering) VALUES ('tag_tag_details', 'List of items tagged by given tag', '6');]]></query>
+			
+			<!-- since 2.0.7 -->
+			<query><![CDATA[DELETE FROM `###core_page` WHERE `route` = 'page_page_details';]]></query>
+			<query><![CDATA[INSERT INTO `###core_page`(route, title, ordering) VALUES ('page_page_details', 'View page details', 7);]]></query>
+		</db>
+		<db adapter="sqlsrv">
+			<!-- since 2.0.0 -->
+			<query><![CDATA[DELETE FROM ###core_page WHERE route = 'core_index_index';]]></query>
+			<query><![CDATA[INSERT INTO ###core_page(route, title, ordering) VALUES ('core_index_index', 'Homepage', 0);]]></query>
+			<query><![CDATA[DELETE FROM ###core_page WHERE route = 'news_article_category';]]></query>
+			<query><![CDATA[INSERT INTO ###core_page(route, title, ordering) VALUES ('news_article_category', 'View articles in category', 1);]]></query>
+			<query><![CDATA[DELETE FROM ###core_page WHERE route = 'news_article_details';]]></query>
+			<query><![CDATA[INSERT INTO ###core_page(route, title, ordering) VALUES ('news_article_details', 'View article details', 2);]]></query>
+			<query><![CDATA[DELETE FROM ###core_page WHERE route = 'news_article_search';]]></query>
+			<query><![CDATA[INSERT INTO ###core_page(route, title, ordering) VALUES ('news_article_search', 'Search for articles', 3);]]></query>
+			
+			<!-- since 2.0.2 -->
+			<query><![CDATA[DELETE FROM ###core_page WHERE route = 'multimedia_file_details';]]></query>
+			<query><![CDATA[INSERT INTO ###core_page(route, title, ordering) VALUES ('multimedia_file_details', 'View multimedia file details', 4);]]></query>
+			<query><![CDATA[DELETE FROM ###core_page WHERE route = 'multimedia_set_details';]]></query>
+			<query><![CDATA[INSERT INTO ###core_page(route, title, ordering) VALUES ('multimedia_set_details', 'View set details', 5);]]></query>
+			
+			<!-- since 2.0.2 -->
+			<query><![CDATA[DELETE FROM ###core_page WHERE route = 'tag_tag_details';]]></query>
+			<query><![CDATA[INSERT INTO ###core_page(route, title, ordering) VALUES ('tag_tag_details', 'List of items tagged by given tag', 6);]]></query>
+			
+			<!-- since 2.0.7 -->
+			<query><![CDATA[DELETE FROM `###core_page` WHERE `route` = 'page_page_details';]]></query>
+			<query><![CDATA[INSERT INTO `###core_page`(route, title, ordering) VALUES ('page_page_details', 'View page details', 7);]]></query>
+		</db>
+	</install>
+</template>

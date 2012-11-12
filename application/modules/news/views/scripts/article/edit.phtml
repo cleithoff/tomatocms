@@ -1,0 +1,507 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: edit.phtml 5433 2010-09-15 01:45:05Z huuphuoc $
+ * @since		2.0.0
+ */
+?>
+<?php 
+$this->headTitle($this->translator('article_edit_page_title'));
+
+$this->headLink()
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.core.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.tabs.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.theme.css');
+
+$this->headScript()
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.core.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.tabs.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.validate/jquery.validate.min.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/tomato/util.js');
+?>
+
+<script type="text/javascript" src="<?php echo $this->APP_STATIC_SERVER; ?>/js/tinymce/tiny_mce.js"></script>
+
+<?php $this->headStyle()->captureStart(); ?>
+.uploadifyQueueItem { width: 275px; }
+.photos { height: 250px; overflow: auto; border: 1px solid #444; padding: 5px; }
+.photos li { float: left; margin-right: 10px; margin-bottom: 15px; }
+<?php $this->headStyle()->captureEnd(); ?>
+
+<div class="grid_12 t_a_ui_breadcrumb">
+	<span><a href="<?php echo $this->url(array(), 'news_article_list'); ?>"><?php echo $this->translator('article_list_breadcrumb'); ?></a></span>
+	<span><?php echo $this->translator('article_edit_breadcrumb'); ?></span>	
+</div>
+
+<div class="grid_12"><?php echo $this->flashMessenger(); ?></div>
+
+<form action="<?php echo $this->url(array('article_id' => $this->article->article_id), 'news_article_edit'); ?>" method="post" name="editArticleForm" id="editArticleForm" enctype="multipart/form-data">
+<div class="grid_12">
+	<!-- Left column -->
+	<div class="grid_8 alpha">
+		<div class="t_a_ui_helper_line">
+			<h3><?php echo $this->translator('article_add_details'); ?></h3>
+		</div>
+		
+		<div>
+			<?php 
+			/**
+			 * Show language switcher
+			 * @since 2.0.8
+			 */
+			?>
+			<div class="clearfix t_a_bottom">
+				<label><?php echo $this->translator('article_language'); ?>:</label>
+				<?php 
+				echo $this->languageSelector(array(
+												'id'       => 'languageSelector', 
+												'name'     => 'languageSelector', 
+												'selected' => $this->article->language,
+											));
+				?>
+			</div>
+			
+			<hr />
+			
+			<div class="clearfix t_a_bottom">
+				<div class="grid_2 alpha">
+					<label><?php echo $this->translator('article_source_item'); ?>:</label>
+				</div>
+				<div class="grid_5 omega">
+					<div class="translatable translationSourceItems">
+						<?php 
+						echo $this->translatableArticle(array(
+										'id'       => 'sourceItem',
+										'name'     => 'sourceItem',
+										'selected' => (null == $this->sourceArticle) ? null : $this->sourceArticle->article_id,
+										'disabled' => null,
+									), $this->article->language);
+						?>
+					</div>
+				</div>
+			</div>
+		
+			<hr />
+			
+			<div class="clearfix t_a_bottom">
+				<label><?php echo $this->translator('article_main_title'); ?>:</label>
+				<input type="text" name="title" id="title" style="width: 440px" value="<?php if (null != $this->article->title) : ?><?php echo $this->escape($this->article->title); ?><?php endif; ?>" />
+			</div>
+			
+			<hr />
+		
+			<div class="clearfix t_a_bottom">
+				<label><?php echo $this->translator('article_sub_title'); ?>:</label>
+				<input type="text" name="subTitle" id="subTitle" style="width: 440px" value="<?php if (null != $this->article->sub_title) : ?><?php echo $this->escape($this->article->sub_title); ?><?php endif; ?>" />
+			</div>
+			
+			<hr />
+			
+			<div class="clearfix t_a_bottom">
+				<label><?php echo $this->translator('article_slug'); ?>:</label>
+				<input type="text" name="slug" id="slug" style="width: 440px" value="<?php if (null != $this->article->slug) : ?><?php echo $this->article->slug; ?><?php endif; ?>" />
+			</div>
+			
+			<hr />
+			
+			<div class="clearfix t_a_bottom">
+				<label><?php echo $this->translator('article_description'); ?>:</label>
+				<textarea name="description" id="description" class="tinymce" style="width: 440px; height: 200px"><?php if (null != $this->article->description) : ?><?php echo $this->article->description; ?><?php endif; ?></textarea>
+			</div>
+			
+			<hr />
+			
+			<div class="clearfix t_a_bottom">
+				<label><?php echo $this->translator('article_content'); ?>:</label>
+				<textarea name="content" id="content" class="tinymce" style="width: 440px; height: 1000px"><?php if (null != $this->article->content) : ?><?php echo htmlspecialchars($this->article->content, ENT_NOQUOTES); ?><?php endif; ?></textarea>
+			</div>
+			
+			<hr />
+			
+			<div class="t_a_bottom">
+				<label><?php echo $this->translator('article_author'); ?>:</label>
+				<input type="text" name="author" id="author" style="width: 300px" value="<?php if (null != $this->article->author) : ?><?php echo $this->article->author; ?><?php endif; ?>" />
+			</div>
+			
+			<hr />
+			
+			<div class="t_a_bottom">
+				<label>&nbsp;</label>
+				<input type="checkbox" name="allowComment" value="1"<?php if ($this->article->allow_comment == 1) : ?> checked="checked"<?php endif; ?> /> <?php echo $this->translator('article_allow_comment'); ?>
+			</div>
+			
+			<hr />
+			
+			<div class="t_a_bottom">
+				<label>&nbsp;</label>
+				<input type="checkbox" name="hotArticle" value="1"<?php if ($this->hotArticle == true) : ?> checked="checked"<?php endif; ?> /> <?php echo $this->translator('article_hot'); ?>
+			</div>
+		</div>
+	</div>
+	
+	<!-- Right column -->
+	<div class="grid_4 omega">
+		<div class="t_a_bottom">
+			<div class="t_a_ui_helper_line">
+				<h3><?php echo $this->translator('article_category'); ?></h3>
+			</div>
+			<div>
+				<div class="t_a_bottom"><?php echo $this->translator('article_category_guide'); ?></div>
+				
+				<div class="t_a_bottom">
+					<div class="translatable">
+						<?php 
+						echo $this->helperLoader('category')->categorySelect(array(
+																'id'       => 'category', 
+																'name'     => 'category', 
+																'selected' => $this->article->category_id,
+															), $this->article->language);
+						?>
+					</div>
+				</div>
+				
+				<div class="t_a_bottom">
+					<input type="checkbox" name="stickyCategory" value="1" <?php if ($this->article->sticky == 1) : ?> checked="checked" <?php endif; ?> /> <?php echo $this->translator('article_sticky_category_guide'); ?>
+				</div>
+				
+				<div class="t_a_bottom"><?php echo $this->translator('article_category_multiple_categories_guide'); ?></div>
+				
+				<div style="width: 100%; height: 200px; overflow: auto; border: 1px solid #444">
+					<div class="translatable" style="padding: 5px">
+						<?php 
+						echo $this->helperLoader('category')->categoryCheckbox(array(
+																'id'       => 'categoriesCheckbox', 
+																'name'     => 'categories[]', 
+																'selected' => $this->categories,
+															), $this->article->language); 
+						?>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="t_a_bottom t_a_ui_tabs">
+			<div class="t_a_ui_helper_line">
+				<h3><?php echo $this->translator('article_multimedia'); ?></h3>
+			</div>
+			
+			<div id="multimediaTabs">
+				<ul>
+					<li><a href="#imageTab"><span><?php echo $this->translator('article_upload'); ?></span></a></li>
+					<li><a href="#clipTab"><span><?php echo $this->translator('article_clip'); ?></span></a></li>
+					<li><a href="#libraryTab"><span><?php echo $this->translator('article_multimedia_library'); ?></span></a></li>
+				</ul>
+				
+				<div id="imageTab">
+					<div class="t_a_bottom"><?php echo sprintf($this->translator('article_upload_guide'), ini_get('upload_max_filesize')); ?></div>
+					<?php echo
+					$this->helperLoader('upload')->uploader('news', 
+						array('extension' => '*.jpg;*.jpeg;*.png;*.gif', 'multi' => true, 'auto' => true, 'simUploadLimit' => 5, 'sizeLimit' => 1024 * 1024 * 5), 
+						array('onComplete' => 'onUploadComplete')); 
+					?>
+					<div class="photos"><ul id="photos"></ul></div>					
+				</div>
+				
+				<div id="clipTab">
+					<div class="t_a_bottom">
+						<?php echo $this->translator('article_clip_image_url'); ?>:<br />
+						<input type="text" name="fileImage" id="fileImage" style="width: 300px" /><br />
+						<?php echo $this->translator('article_clip_upload_image'); ?>:<br />
+						<?php echo $this->helperLoader('upload')->uploader('multimedia', 
+							array('extension' => '*.jpg;*.jpeg;*.png;*.gif', 'multi' => false, 'auto' => true, 'simUploadLimit' =>1, 'sizeLimit' => 1024 * 1024 * 5, 'thumbnails' => 'none'), 
+							array('onComplete' => 'onUploadCompleteFileImage')); 
+						?>
+					</div>
+					
+					<div class="t_a_bottom">
+						<?php echo $this->translator('article_clip_url'); ?>:<br />
+						<input type="text" name="fileUrl" id="fileUrl" style="width: 300px" /><br />
+						<?php echo $this->translator('article_clip_upload_clip'); ?>:<br />
+						<?php echo $this->helperLoader('upload')->uploader('multimedia', 
+							array('extension' => '*.flv;*.swf', 'multi' => false, 'auto' => true, 'simUploadLimit' => 1, 'sizeLimit' => 1024 * 1024 * 10, 'thumbnails' => 'none'), 
+							array('onComplete' => 'onUploadCompleteFile')); 
+						?>
+					</div>
+					
+					<hr />
+					
+					<div class="t_a_bottom">
+						<?php echo $this->translator('article_clip_html_code'); ?>:<br />
+						<textarea name="fileHtmlCode" id="fileHtmlCode" style="width: 295px; height: 100px"></textarea>
+					</div>
+					
+					<div class="t_a_bottom">
+						<?php echo $this->translator('article_clip_dimensions'); ?>: <input type="text" name="fileWidth" id="fileWidth" value="450" style="width: 40px" /> x <input type="text" name="fileHeight" value="337" id="fileHeight" style="width: 40px" />
+					</div>
+					
+					<div class="t_a_bottom">
+						<a href="javascript: void(0);" class="t_a_ui_button_link" onclick="javascript: insertFile();"><span><?php echo $this->translator('article_clip_insert_button'); ?></span></a>
+					</div>
+				</div>
+				
+				<div id="libraryTab">
+					<?php
+					/**
+					 * Allows user to browse uploaded file
+					 * @since 2.0.4
+					 */ 
+					echo $this->browser('/upload/news/' . Zend_Auth::getInstance()->getIdentity()->user_name . '/' . date('Y') . '/' . date('m'), 'jpg,gif,png', 'insertImage(%s)');
+					?>
+				</div>
+			</div>
+		</div>
+		
+		<div class="t_a_bottom">
+			<div class="t_a_ui_helper_line">
+				<h3><?php echo $this->translator('article_icon'); ?></h3>
+			</div>
+			<div>
+				<input type="checkbox" name="icons[]" value="image" <?php if (null != $this->article->icons && stripos($this->article->icons, "image") == true) : ?>checked="checked"<?php endif; ?>/> <span class="t_news_image"><?php echo $this->translator('article_icon_image'); ?></span><br />
+				<input type="checkbox" name="icons[]" value="video" <?php if (null != $this->article->icons && stripos($this->article->icons, "video") == true) : ?>checked="checked"<?php endif; ?>/> <span class="t_news_video"><?php echo $this->translator('article_icon_video'); ?></span><br />
+				<br /><?php echo $this->translator('article_select_image_guide'); ?>
+				<input type="hidden" id="articleImage" name="articleImage" value='<?php echo $this->articleImages; ?>' />
+				<div id="articleImageContainer" style="width: 298px; height: 223px; line-height: 223px; border: 1px solid #444; text-align: center">
+					<?php if (null != $this->article->image_crop) : ?><img src="<?php echo $this->article->image_crop; ?>" /><?php  else: ?><?php echo $this->translator('article_no_image'); ?><?php endif; ?>
+				</div>
+			</div>
+		</div>
+		
+		<?php Tomato_Hook_Registry::getInstance()->executeAction('News_Article_Edit_ShowSidebar', array($this->article->article_id)); ?>
+	</div>
+</div>
+
+<div class="grid_12 t_a_bottom"><hr /></div>
+
+<div class="grid_12 t_a_bottom">
+	<label>&nbsp;</label>
+	
+	<button type="button" id="saveButton" onclick="javascript: $('#editArticleForm').submit();"><span><?php echo $this->translator('article_save_button'); ?></span></button>
+	
+	<?php if ($this->allow('preivew')) : ?>
+	<button type="button" id="previewButton"><span><?php echo $this->translator('article_preview_button'); ?></span></button>
+	<?php endif; ?>
+	
+	<?php if ($this->allow('list', 'revision')) : ?>
+	<a style="padding-left: 5px" href="<?php echo $this->url(array('article_id' => $this->article->article_id), 'news_revision_list'); ?>"><?php echo $this->translator('article_edit_revision_list_button'); ?></a>
+	<?php endif; ?>
+</div>
+</form>
+
+<div id="messageDialog"></div>
+
+<script type="text/javascript">
+/**
+ * Upload handlers
+ */
+function onUploadComplete(event, ID, fileObj, response, data) {
+	var images = $.evalJSON(response);
+
+	var presentImage = $('<img/>');
+	$(presentImage).attr('src', images.thumbnail.url)
+		.attr('width', '100').attr('height', '100')
+		.attr('style', 'cursor: pointer')
+		.click(function() {
+			selectImage(images);
+		});
+	var select = $('<select/>');
+	$(select).attr('width', '100');
+	$('<option/>').attr('value', '').html('---').appendTo(select);
+
+	for (var thumb in images) {
+		$('<option/>').attr('value', images[thumb].url).html(images[thumb].size).appendTo(select);
+	}
+	$(select).change(function() {
+		if ($(this).val() != '') {
+			insertImage($(this).val());
+		}
+	});
+
+	$('<li/>').append(presentImage).append($('<br/>')).append(select).appendTo($('#photos'));
+};
+
+function selectImage(images) {
+	var urls = {};
+	for (var thumb in images) {
+		urls[thumb] = images[thumb].url; 
+	}
+	$('#articleImage').val($.toJSON(urls));
+	$('#articleImageContainer').html('<img src="' + images.crop.url + '" />');	
+};
+
+/**
+ * Insert image to TinyMCE editor at current position
+ * @param string url The image url
+ */
+function insertImage(url) {
+	tinyMCE.getInstanceById('content').execCommand('mceInsertContent', false, '<img src="' + url + '" />');
+};
+
+/**
+ * Init TinyMCE instances
+ */
+tinyMCE.init({
+	theme: 'advanced',
+	theme_advanced_toolbar_location: 'top',
+	theme_advanced_toolbar_align: 'left',
+	width: '440',
+	height: '225',
+	mode: 'exact',
+	elements: 'description',
+	content_css: '<?php echo $this->APP_STATIC_SERVER; ?>/skins/<?php echo $this->APP_TEMPLATE; ?>/<?php echo $this->APP_SKIN; ?>/default.css',
+	relative_urls: false,
+	remove_script_host: false
+});
+
+tinyMCE.init({
+	theme: 'advanced',
+	plugins: 'safari,spellchecker,pagebreak,style,layer,table,save,advhr,advimage,advlink,emotions,iespell,inlinepopups,insertdatetime,preview,media,searchreplace,print,contextmenu,paste,directionality,fullscreen,noneditable,visualchars,nonbreaking,xhtmlxtras,template,imagemanager,filemanager,preelementfix',
+	theme_advanced_buttons2: 'cut,copy,paste,pastetext,pasteword,|,search,replace,|,bullist,numlist,|,outdent,indent,blockquote,|,undo,redo',
+	theme_advanced_buttons3: 'link,unlink,anchor,image,cleanup,code,|,preview,|,forecolor,backcolor',
+	theme_advanced_buttons4: 'tablecontrols,ltr,rtl,', //"tablecontrols,|,hr,removeformat,visualaid,|,sub,sup,|,charmap,emotions,iespell,media,advhr,|,print,|,ltr,rtl,|,fullscreen",
+	theme_advanced_toolbar_location: 'top',
+	theme_advanced_toolbar_align: 'left',
+	width: '440',
+	mode: 'exact',
+	elements: 'content',
+	content_css: '<?php echo $this->APP_STATIC_SERVER; ?>/skins/<?php echo $this->APP_TEMPLATE; ?>/<?php echo $this->APP_SKIN; ?>/default.css',
+	relative_urls: false,
+	remove_script_host: false,
+	onchange_callback: function(editor) {
+		tinyMCE.triggerSave();
+		$('#' + editor.id).valid();
+	}
+});
+
+/**
+ * Insert clip to TinyMCE editor at current position
+ */
+function insertFile() {
+	var htmlCode = $('#fileHtmlCode').attr('value');
+	if (null != htmlCode && '' != htmlCode) {
+		tinyMCE.getInstanceById('content').execCommand('mceInsertContent', false, '<div class="clearfix" style="text-align: center">' + htmlCode + '</div>');
+	} else {
+		var file   = ($('#fileUrl').attr('value') != null) ? $('#fileUrl').attr('value') : null;
+		var image  = ($('#fileImage').attr('value') != null) ? $('#fileImage').attr('value') : null;
+		var width  = ($('#fileWidth').attr('value') != null) ? $('#fileWidth').attr('value') : '450';
+		var height = ($('#fileHeight').attr('value') != null) ? $('#fileHeight').attr('value') : '337';
+		tinyMCE.getInstanceById('content').execCommand('mceInsertContent', false, '<div class="clearfix" style="text-align: center"><object width="' + width + '" height="' + height + '" type="application/x-shockwave-flash" data="<?php echo $this->APP_STATIC_SERVER; ?>/js/jwplayer/player.swf" style="visibility: visible"><param name="allowfullscreen" value="true" /><param name="allowscriptaccess" value="always" /><param name="menu" value="false" /><param name="flashvars" value="play=true&repeat=true&autostart=false&file=' + file + '&image=' + image + '" /></object></div>');
+	}
+};
+
+function onUploadCompleteFile(event, ID, fileObj, response, data) {
+	var res = $.evalJSON(response);
+	$('#fileUrl').attr('value', res.original.url);
+};
+
+function onUploadCompleteFileImage(event, ID, fileObj, response, data) {
+	var res = $.evalJSON(response);
+	$('#fileImage').attr('value', res.original.url);
+};
+
+$(document).ready(function() {
+	/**
+	 * Create tabs
+	 */
+	$('#multimediaTabs').tabs();
+
+	/**
+	 * Validate form
+	 */
+	$.validator.addMethod('slug', function(value) {
+		value = value.replace(/^\s+|\s+$/g, '');
+		var regex = new RegExp(/^[a-z0-9\-]+$/);
+		if (value == '' || value.match(regex)) {
+			return true;
+		} else {
+			return false;
+		}
+	});
+	$('#editArticleForm').validate({
+		rules: {
+			subTitle: {
+				maxlength: 80
+			},
+			title: {
+				required: true,
+		  		minlength: 5,
+		  		maxlength: 80
+			},
+			slug: {
+		  		slug: true,
+		  		maxlength: 255
+			},
+			content: {
+				required: true,
+				minlength: 5
+			},
+			category: {
+				required: true
+			}
+	    },
+	    messages: {
+	    	subTitle: { 
+	    		maxlength: "<?php echo $this->translator('article_subtitle_maxlength'); ?>"
+	    	},
+			title: {
+	        	required: "<?php echo $this->translator('article_title_required'); ?>",
+	    		minlength: "<?php echo $this->translator('article_title_minlength'); ?>",
+		  		maxlength: "<?php echo $this->translator('article_title_maxlength'); ?>"
+			},
+			slug: { 
+	        	slug: "<?php echo $this->translator('article_slug_validate'); ?>",
+	        	maxlength: "<?php echo $this->translator('article_slug_maxlength'); ?>"
+	    	},
+			content: { 
+				required: "<?php echo $this->translator('article_content_required'); ?>",
+				minlength: "<?php echo $this->translator('article_content_minlength'); ?>"
+	    	},
+	    	category: { 
+				required: "<?php echo $this->translator('article_category_required'); ?>"
+	    	}
+		}
+	});
+
+	/**
+	 * Automatically create slug once user enter the title
+	 */
+	$('#title').bind('change', function() {
+		$('#slug').val(Tomato.Util.generateSlug($(this).val()));
+	});
+
+	/**
+	 * @since 2.0.4
+	 */
+	$('#saveButton').bind('click', function() {
+		$('#preview').attr('value', 'false');
+		$('#editArticleForm').attr('action', "<?php echo $this->url($this->article->getProperties(), 'news_article_edit'); ?>")
+			.removeAttr('target').submit();
+	});
+	
+	/**
+	 * @since 2.0.4	
+	 */
+	<?php if ($this->allow('preview')) : ?>
+	$('#previewButton').bind('click', function() {
+		if ($('#editArticleForm').valid() == false) {
+			return false;
+		}
+		$('#editArticleForm').attr('target', '_blank')
+			.attr('action', "<?php echo $this->url(array(), 'news_revision_add'); ?>")
+			.submit();
+	});
+	<?php endif; ?>
+});
+</script>

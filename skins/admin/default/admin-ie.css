@@ -1,0 +1,47 @@
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: admin-ie.css 4413 2010-08-10 07:52:43Z dinhchieu $
+ * @since		2.0.3
+ */
+
+/* ========== Common ======================================================== */
+/**
+ * Box
+ */
+ /*
+.t_a_box { margin-left: 0px; margin-right: 0px; }
+.t_a_box .grid_5 { width: 378px; }
+.t_a_box .grid_3 { width: 158px; }
+*/ 
+
+/**
+ * Header
+ */
+
+#t_a_header .container_12 { z-index: 999999; }
+
+/**
+ * Container
+ */
+#t_a_body_container .grid_1, #t_a_body_container .grid_2, #t_a_body_container .grid_3, #t_a_body_container .grid_4, 
+#t_a_body_container .grid_5, #t_a_body_container .grid_6, #t_a_body_container .grid_7, #t_a_body_container .grid_8, 
+#t_a_body_container .grid_9, #t_a_body_container .grid_10, #t_a_body_container .grid_11, #t_a_body_container .grid_12, 
+#t_a_body_container .grid_13, #t_a_body_container .grid_14, #t_a_body_container .grid_15, #t_a_body_container .grid_16 { z-index: 99; position: static; }
+
+/**
+ * Clearfix
+ */
+.clearfix { clear: both; }

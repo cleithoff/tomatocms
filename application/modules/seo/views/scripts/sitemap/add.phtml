@@ -1,0 +1,188 @@
+<?php
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: add.phtml 5348 2010-09-07 18:38:53Z huuphuoc $
+ * @since		2.0.7
+ */
+?>
+<?php
+$this->headTitle($this->translator('sitemap_add_page_title'));
+
+$this->headLink()
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.all.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.slider.css');
+
+$this->headScript()
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.core.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.slider.js');
+?>
+
+<?php $this->headStyle()->captureStart(); ?>
+.t_seo_slider { position: relative; height: 20px; margin-bottom: 10px; }
+.t_seo_slider span { position: absolute; top: 0px; }
+<?php $this->headStyle()->captureEnd(); ?>
+
+<div class="grid_12 t_a_ui_breadcrumb">
+	<span><?php echo $this->translator('breadcump'); ?></span>
+	<span><a href="<?php echo $this->url(array(), 'seo_sitemap_index'); ?>"><?php echo $this->translator('sitemap_index_breadcrumb'); ?></a></span>
+	<span><?php echo $this->translator('sitemap_add_breadcrumb'); ?></span>
+</div>
+
+<div class="grid_12"><?php echo $this->flashMessenger(); ?></div>
+
+<form method="post" action="<?php echo $this->url(array(), 'seo_sitemap_add'); ?>">
+<div class="grid_12 t_a_bottom">
+	<div class="prefix_1 suffix_1">
+		<div class="clearfix t_a_bottom">
+			<label><?php echo $this->translator('sitemap_url'); ?>:</label>
+			<input type="text" name="url" id="url" style="width: 400px"<?php if ($this->url) : ?> value="<?php echo $this->url; ?>"<?php endif; ?> />
+		</div>
+		
+		<!-- Link Provider -->
+		<div class="clearfix t_a_bottom">
+			<div class="grid_2 alpha">&nbsp;</div>
+			<div class="grid_8 omega">
+				<a href="javascript: void(0);" id="linkProviderToggle"><?php echo $this->translator('sitemap_link_provider_guide'); ?></a>
+			</div>
+		</div>
+		
+		<div class="clearfix t_a_bottom" id="linkProvider" style="display: none">
+			<?php 
+			/**
+			 * Add language switcher
+			 * @since 2.0.8
+			 */
+			?>
+			<div class="clearfix t_a_bottom">
+				<div class="grid_2 alpha">
+					<label><?php echo $this->translator('sitemap_language'); ?>:</label>
+				</div>
+				<div class="grid_8 omega">
+					<?php echo $this->languageSelector(); ?>
+				</div>
+			</div>
+			
+			<div class="clearfix t_a_bottom">
+				<div class="grid_2 alpha">&nbsp;</div>
+				<div class="grid_8 omega">
+					<div class="translatable">
+						<?php echo $this->linkProvider(array('jsCallback' => 'selectLink')); ?>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<hr />
+		
+		<div class="clearfix t_a_bottom">
+			<div class="grid_2 alpha"><label><?php echo $this->translator('sitemap_frequency'); ?>:</label></div>
+			<div class="grid_8 omega">
+				<div class="t_seo_slider">
+                	<span style="left: 20px"><?php echo $this->translator('sitemap_frequency_always'); ?></span>
+                	<span style="left: 120px"><?php echo $this->translator('sitemap_frequency_hourly'); ?></span>                      
+                	<span style="left: 220px"><?php echo $this->translator('sitemap_frequency_daily'); ?></span>                       
+                	<span style="left: 320px"><?php echo $this->translator('sitemap_frequency_monthly'); ?></span>                      
+                	<span style="left: 420px"><?php echo $this->translator('sitemap_frequency_yearly'); ?></span>                 
+                	<span style="left: 520px"><?php echo $this->translator('sitemap_frequency_never'); ?></span>
+                </div>
+                
+				<div id="frequencySlider" class="t_a_ui_slider clearfix" style="margin-left: 20px; width: 520px"></div>
+				<input type="hidden" name="frequency" id="frequency" value="0" />
+			</div>
+		</div>
+		
+		<hr />
+		
+		<div class="clearfix t_a_bottom">
+			<div class="grid_2 alpha"><label><?php echo $this->translator('sitemap_priority'); ?>:</label></div>
+			<div class="grid_8 omega">
+				<div class="t_seo_slider">
+                	<span style="left: 20px">0</span>
+                	<span style="left: 70px">0.1</span>                      
+                	<span style="left: 120px">0.2</span>                       
+                	<span style="left: 170px">0.3</span>                      
+                	<span style="left: 220px">0.4</span>                 
+                	<span style="left: 270px">0.5</span>
+                	<span style="left: 320px">0.6</span>
+                	<span style="left: 370px">0.7</span>
+                	<span style="left: 420px">0.8</span>
+                	<span style="left: 470px">0.9</span>
+                	<span style="left: 520px">1.0</span>
+				</div>
+				
+				<div id="prioritySlider" class="t_a_ui_slider" style="margin-left: 20px; width: 520px"></div>	
+				<input type="hidden" name="priority" id="priority" value="0.5" />
+			</div>
+		</div>
+		
+		<hr />
+		
+		<div class="clearfix t_a_bottom">
+			<label>&nbsp;</label>
+			<button type="submit"><span><?php echo $this->translator('sitemap_add_submit_button'); ?></span></button>
+		</div>
+	</div>
+</div>
+</form>
+
+<script type="text/javascript">
+/**
+ * Handle selecting the link from Link Provider
+ */
+function selectLink(route, href, title) {
+	$('#url').val(href);
+};
+
+$(document).ready(function() {
+	/**
+	 * Toggle link provider section
+	 */
+	$('#linkProviderToggle').click(function() {
+		$('#linkProvider').toggle();
+	});
+	
+	/**
+	 * Create frequency slider
+	 */
+	var fequencies = ['always', 'hourly', 'daily', 'monthy', 'yearly', 'never'];
+	$('#frequencySlider').slider({
+		range: 'max',
+		min: 0,
+		max: 5,
+		value: 1,
+		slide: function(event, ui) {
+			$('#frequency').val(fequencies[ui.value]);
+		}
+	});
+	$('#frequency').val(fequencies[$('#frequencySlider').slider('value')]);
+
+	/**
+	 * Create priority slider
+	 * Default priority is 0.5
+	 */
+	var priorities = ['0', '0.1', '0.2', '0.3', '0.4', '0.5', '0.6', '0.7', '0.8', '0.9', '1'];
+	$('#prioritySlider').slider({
+		range: 'max',
+		min: 0,
+		max: 10,
+		value: 5,
+		slide: function(event, ui) {
+			$('#priority').val(priorities[ui.value]);
+		}
+	});
+	$('#priority').val(priorities[$('#prioritySlider').slider('value')]);
+});
+</script>

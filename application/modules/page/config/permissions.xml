@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version		$Id: permissions.xml 4046 2010-07-28 08:04:02Z huuphuoc $
+ * @since		2.0.7
+ */
+-->
+<!DOCTYPE permissions SYSTEM "http://schemas.tomatocms.com/dtd/module_permission.dtd">
+<permissions>
+	<resource name="page" description="Manage pages" langKey="permission_page">
+		<privilege name="add" description="Add new page" langKey="permission_page_add" />
+		<privilege name="delete" description="Delete a page" langKey="permission_page_delete" />
+		<privilege name="edit" description="Edit a page" langKey="permission_page_edit" />
+		<privilege name="list" description="List pages" langKey="permission_page_list" />
+		<privilege name="order" description="Order pages" langKey="permission_page_order" />
+	</resource>
+</permissions>

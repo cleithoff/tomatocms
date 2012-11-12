@@ -1,0 +1,359 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: edit.phtml 4980 2010-08-26 03:48:34Z huuphuoc $
+ * @since		2.0.0
+ */
+?>
+<?php 
+$this->headTitle($this->translator('set_edit_page_title'));
+
+$this->headScript()
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.validate/jquery.validate.min.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/phpjs/php.full.min.js');
+?>
+
+<script type="text/javascript" src="<?php echo $this->APP_STATIC_SERVER; ?>/js/tinymce/tiny_mce.js"></script>
+
+<?php $this->headStyle()->captureStart(); ?>
+.photos { width: 290px; height: 300px; overflow: auto; border: 1px solid #222; }
+.photos li { float: left; margin-right: 5px; position: relative; height: 80px; margin-bottom: 5px; }
+.photos li img { border: 1px solid #999; cursor: pointer; }
+.photos li a { position: absolute; left: 0; top: 65px; }
+.uploadifyQueueItem { width: 270px; }
+<?php $this->headStyle()->captureEnd(); ?>
+
+<div class="grid_12 t_a_ui_breadcrumb">
+	<span><a href="<?php echo $this->url(array(), 'multimedia_set_list'); ?>"><?php echo $this->translator('set_list_breadcrumb'); ?></a></span>
+	<span><?php echo $this->translator('set_edit_breadcrumb'); ?></span>
+</div>
+
+<div class="grid_12"><?php echo $this->flashMessenger(); ?></div>
+
+<form method="post" action="<?php echo $this->url(array('set_id' => $this->set->set_id), 'multimedia_set_edit'); ?>" id="editSetForm">
+<div class="grid_12 t_a_bottom"><?php echo $this->translator('set_edit_guide'); ?></div>
+
+<div class="grid_12 t_a_bottom">
+	<!-- Left column -->
+	<div class="grid_8 alpha">
+		<div class="t_a_bottom">
+			<div class="t_a_ui_helper_line">
+				<h3><?php echo $this->translator('set_details'); ?></h3>
+			</div>
+			
+			<div>
+				<div class="clearfix t_a_bottom">
+					<label><?php echo $this->translator('set_title'); ?>:</label>
+					<input type="text" id="title" name="title" style="width: 420px" value="<?php if (null != $this->set->title) : ?><?php echo $this->set->title; ?><?php endif; ?>" />
+				</div>
+				
+				<hr />
+				
+				<div class="clearfix t_a_bottom">
+					<label><?php echo $this->translator('set_description'); ?>:</label>
+					<textarea name="description" id="description" style="width: 420px; height: 250px"><?php if (null != $this->set->description) : ?><?php echo $this->set->description; ?><?php endif; ?></textarea>
+				</div>
+			</div>
+		</div>
+		
+		<div class="t_a_bottom">
+			<div class="t_a_ui_helper_line">
+				<h3><?php echo $this->translator('set_files'); ?></h3>
+			</div>
+			
+			<div>
+				<div class="t_a_bottom">
+					<div style="float: left; width: 280px">
+						<?php echo $this->translator('set_files_upload_guide'); ?><br />	
+						<?php 
+						echo $this->helperLoader('upload')->uploader('multimedia', 
+							array('extension' => '*.jpg;*.jpeg;*.png;*.gif', 'multi' => true, 'auto' => true, 'simUploadLimit' => 5, 'sizeLimit' => 1024 * 1024 * 5), 
+							array('onComplete' => 'onUploadComplete')); 
+						?>
+					</div>
+					
+					<div style="float: left; width: 60px">
+						<div class="t_a_ui_helper_line_ver">
+							<div><?php echo $this->translator('set_files_or'); ?></div>
+							<div></div>
+						</div>
+					</div>
+					
+					<div style="float: left; width: 280px">
+						<div class="t_a_bottom"><?php echo $this->translator('set_files_select_existing_guide'); ?></div>
+						
+						<div class="t_a_bottom">
+							<?php echo $this->translator('set_search_photo_keyword'); ?>:<br />
+							<input type="text" style="width: 220px" name="keyword" id="keyword" /><br />
+							<input type="checkbox" name="findImage" id="findImage" checked="checked" /> <?php echo $this->translator('set_search_file_type_image'); ?><br />
+							<input type="checkbox" name="findClip" id="findClip" checked="checked" /> <?php echo $this->translator('set_search_file_type_clip'); ?><br />
+							<input type="checkbox" name="findMyPhotos" id="findMyPhotos" checked="checked" /> <?php echo $this->translator('set_search_my_photos'); ?>
+						</div>
+						
+						<a href="javascript: void(0);" class="t_a_ui_button_link" id="tSearchButton"><span><?php echo $this->translator('set_search_photo_button'); ?></span></a>
+					</div>
+				</div>
+				
+				<div class="clearfix"></div>
+				
+				<div class="t_a_bottom">
+					<div class="grid_4 alpha">
+						<div class="photos">
+							<ul id="filesSet">
+								<?php if (null != $this->oldPhotos) : ?>
+								<?php foreach ($this->oldPhotos as $photo) : ?>								
+								<li>
+									<img src="<?php echo $photo->image_square; ?>" onclick='javascript: setCoverForSet({"file_id": "<?php echo $photo->file_id; ?>", "original": "<?php echo $photo->image_original; ?>", "square": "<?php echo $photo->image_square; ?>", "thumbnail": "<?php echo $photo->image_thumbnail; ?>", "small": "<?php echo $photo->image_small; ?>", "crop": "<?php echo $photo->image_crop; ?>", "medium": "<?php echo $photo->image_medium; ?>", "large": "<?php echo $photo->image_large; ?>"});'/>
+									<input type="hidden" value='{"file_id": "<?php echo $photo->file_id; ?>", "original": "<?php echo $photo->image_original; ?>", "square": "<?php echo $photo->image_square; ?>", "thumbnail": "<?php echo $photo->image_thumbnail; ?>", "small": "<?php echo $photo->image_small; ?>", "crop": "<?php echo $photo->image_crop; ?>", "medium": "<?php echo $photo->image_medium; ?>", "large": "<?php echo $photo->image_large; ?>"}' name="photos[]" />
+									<a href="javascript: void(0);" onclick="javascript: removeImageFromSet(this);">[-]</a>
+								</li>									
+								<?php endforeach; ?>
+								<?php endif; ?>
+							</ul>
+						</div>
+					</div>
+					
+					<div class="grid_4 omega">
+						<div class="t_a_bottom photos">				
+							<ul id="uploadedPhotos"></ul>
+							<ul id="searchPhotos"></ul>
+						</div>
+						<div class="clearfix"></div>
+						<div class="clearfix t_a_bottom t_a_ui_paginator" id="searchPager">
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<!-- Right column -->
+	<div class="grid_4 omega">
+		<div class="t_a_ui_helper_line">
+			<h3><?php echo $this->translator('set_cover'); ?></h3>
+		</div>
+		
+		<div>
+			<?php echo $this->translator('set_cover_guide'); ?><br />
+			<div id="setCoverContainer" style="width: 300px; height: 225px; line-height: 225px; border: 1px solid #222; text-align: center; overflow: hidden">
+				<?php if (null != $this->set && null != $this->set->image_crop) : ?><img src='<?php echo $this->set->image_crop; ?>' /><?php else: ?><?php echo $this->translator('set_cover_not_available'); ?><?php endif; ?>
+			</div>
+			<input type="hidden" id="setImage" name="setImage" value='<?php if (null != $this->set && null != $this->set->image_square) : ?>{"file_id": "<?php echo $this->set->file_id; ?>", "original": "<?php echo $this->set->image_original; ?>", "square":"<?php echo $this->set->image_square; ?>","thumbnail":"<?php echo $this->set->image_thumbnail; ?>","small":"<?php echo $this->set->image_small; ?>","crop":"<?php echo $this->set->image_crop; ?>","medium":"<?php echo $this->set->image_medium; ?>","large":"<?php echo $this->set->image_large; ?>"}<?php endif; ?>'/>
+		</div>
+		
+		<?php
+		/**
+		 * User can customize the sidebar of this form via hooks
+		 * @since 2.0.2
+		 */
+		Tomato_Hook_Registry::getInstance()->executeAction('Multimedia_Set_Edit_ShowSidebar'); 
+		?>
+	</div>
+</div>
+
+<div class="grid_12 t_a_bottom"><hr /></div>
+
+<div class="grid_12 t_a_bottom">
+	<button type="submit"><span><?php echo $this->translator('set_edit_save_button'); ?></span></button>
+</div>
+</form>
+
+<script type="text/javascript">
+/**
+ * Search for photos
+ * @param string url The url which returns the result in JSON format
+ */
+function searchFiles(url) {
+	$.ajax({
+		url: url,
+		type: 'GET',
+		/**
+		 * NOTE that I use processData param and 
+		 * set data param as string instead of object
+		 */ 
+		//processData: false,
+		success: function(response) {
+			var res = $.evalJSON(response);
+			var files = res.files;
+			$('#searchPhotos').html('');
+			/**
+			 * Be careful with loop.
+			 * DO NOT work if I use the normal javascript loop like:
+			 * for (var i in files)
+			 * But $(files).each() work fine
+			 */
+			$(files).each(function(i) {
+				var li = $('<li/>');
+				var coverImages = files[i];
+				$('<img/>').attr('src', files[i].square).click(function() {
+						/**
+						 * Set cover
+						 */		
+						setCoverForSet(coverImages);
+					}).appendTo(li);
+				$('<a/>').attr('href', 'javascript: void(0);').html('[+]')
+					.css('text-decoration', 'none')
+					.click(function() {
+						addImageToSet($(this));
+					}).appendTo(li);
+
+				/**
+				 * Add input element to indicate which files will be added to set later
+				 */
+				var urls = {};
+				for (var thumb in files[i]) {
+					urls[thumb] = files[i][thumb]; 
+				}
+				$(li).append($('<input/>').attr('type', 'hidden').val($.toJSON(urls)))
+					.prependTo($('#searchPhotos'));
+			});
+
+			$('#searchPager').html(res.paginator).find('a').each(function() {
+				var link = $(this).attr('href');				
+				$(this).attr('href', 'javascript: void(0);').click(function() {
+					searchFiles(link);
+				});
+			});
+		}
+	});	
+};
+
+/**
+ * Add image to set when user click on + link
+ * @param link The HTML link
+ */
+function addImageToSet(link) {
+	var li = $(link).parent().clone(true);
+	$(li).find('a:first').remove();
+	var cloneLink = $(link).clone();
+	$(cloneLink).html('[-]').unbind('click').bind('click', function() {
+		removeImageFromSet($(this));
+	});
+	$(li).find('input').attr('name', 'photos[]');
+	$(li).append(cloneLink).appendTo($('#filesSet'));
+	$(link).parent().remove();	
+};
+
+/**
+ * Remove image from set when user click on - link
+ * @param link The HTML link
+ */
+function removeImageFromSet(link) {
+	var li = $(link).parent().clone(true);
+	$(li).find('a:first').remove();
+	var cloneLink = $(link).clone();
+	$(cloneLink).removeAttr("onclick");
+	$(cloneLink).html('[+]').unbind('click').bind('click', function() {
+		addImageToSet($(this));
+	});
+	$(li).find('input').attr('name', '');
+	$(li).append(cloneLink).appendTo($('#uploadedPhotos'));	
+	$(link).parent().remove();
+};
+
+/**
+ * Set cover for set
+ * @param images The image with various thumbnail sizes
+ */
+function setCoverForSet(images) {
+	var urls = {};
+	for (var thumb in images) {
+		urls[thumb] = (images['file_id']) ? images[thumb] : images[thumb].url;
+	} 
+	var cropImage = (images['file_id']) ? images.crop : images.crop.url;
+	$('#setImage').val($.toJSON(urls));
+	$('#setCoverContainer').html($('<img/>').attr('src', cropImage));	
+};
+
+/**
+ * Upload handlers
+ */
+function onUploadComplete(event, ID, fileObj, response, data) {
+	var images = $.evalJSON(response);
+
+	/**
+	 * Add image to files container
+	 */
+	var li = $('<li/>');
+	$('<img/>').attr('src', images.square.url).click(function() {
+			setCoverForSet(images);
+		}).appendTo(li);
+	$('<a/>').attr('href', 'javascript: void(0);').html('[-]')
+		.css('text-decoration', 'none')
+		.click(function() {
+			removeImageFromSet($(this));
+		}).appendTo(li);
+
+	/**
+	 * Add input element to indicate the file have just uploaded
+	 */
+	var urls = {};
+	for (var thumb in images) {
+		urls[thumb] = images[thumb].url; 
+	}
+	$(li).append($('<input/>').attr('type', 'hidden').attr('name', 'photos[]').val($.toJSON(urls)))
+		.appendTo($('#filesSet'));
+};
+
+/**
+ * Add TinyMCE Editor for set description input 
+ * @since 2.0.2
+ */
+tinyMCE.init({
+	plugins: 'safari,spellchecker,pagebreak,style,layer,table,save,advhr,advimage,advlink,emotions,iespell,inlinepopups,insertdatetime,preview,media,searchreplace,print,contextmenu,paste,directionality,fullscreen,noneditable,visualchars,nonbreaking,xhtmlxtras,template,imagemanager,filemanager,preelementfix',
+	theme: 'simple',
+	theme_simple_toolbar_location : 'top',
+	theme_simple_toolbar_align : 'left',
+	width: '420',
+	mode: 'exact',
+	elements: 'description',
+	relative_urls: false,
+	remove_script_host: false
+});
+
+$(document).ready(function() {
+	/**
+	 * Search handler
+	 */
+	$('#tSearchButton').click(function() {
+		var exp = {
+			keyword: $('#keyword').attr('value'),
+			findMyPhotos: $('#findMyPhotos').attr('checked') ? 1 : 0,
+			photo: $('#findImage').attr('checked') ? 1 : 0,
+			clip: $('#findClip').attr('checked') ? 1 : 0,
+			format: 'JSON'
+		};
+		var q = rawurlencode(base64_encode($.toJSON(exp)));
+		searchFiles('<?php echo $this->url(array(), 'multimedia_file_list'); ?>?q=' + q);
+	});
+
+	/**
+	 * Form validator
+	 */
+	$('#editSetForm').validate({
+		rules: {
+			title: {
+		  		required: true
+			}
+	    },
+	    messages: {
+	    	title: {
+	        	required: '<?php echo $this->translator('set_title_required'); ?>'
+			}
+		}
+	});
+});
+</script>

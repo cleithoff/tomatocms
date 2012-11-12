@@ -1,0 +1,89 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: _tagger.phtml 4193 2010-08-01 16:33:56Z huuphuoc $
+ * @since		2.0.2
+ */
+?>
+<?php
+$this->headLink()->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.autocomplete/jquery.autocomplete.css');
+
+$this->headScript()
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.bgiframe/jquery.bgiframe.min.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.autocomplete/jquery.autocomplete.js');
+?>
+
+<div class="t_a_bottom">
+	<div class="t_a_ui_helper_line">
+		<h3><?php echo $this->translator('tag_tagger', 'tag'); ?></h3>
+	</div>
+	
+	<div>
+		<div class="t_a_bottom">
+			<?php echo $this->translator('tag_tagger_enter_tag', 'tag'); ?><br />
+			<input type="text" style="width: 100%" id="tagInput" class="tagInput" />
+		</div>
+		
+		<div class="t_a_bottom">
+			<?php echo $this->translator('tag_tagger_list_of_selected_tags', 'tag'); ?>
+			<br />
+			
+			<div id="tagsList" class="t_a_tags" style="height: 200px; overflow: auto">
+				<?php if ($this->tags) : ?>
+				<?php foreach ($this->tags as $tag) : ?>
+				<span><?php echo $tag->tag_text; ?><input type="hidden" name="tagIds[]" value="<?php echo $tag->tag_id; ?>" /></span>
+				<?php endforeach; ?>
+				
+				<div class="clearfix"></div>
+				<?php endif; ?>
+			</div>
+			
+			<div class="clearfix"></div>
+			
+			<input type="hidden" name="tagItemName" value="<?php echo $this->tagItemName; ?>" />
+			<input type="hidden" name="tagItemRouteName" value="<?php echo $this->tagItemRouteName; ?>" />
+			<input type="hidden" name="tagDetailsRouteName" value="<?php echo $this->tagDetailsRouteName; ?>" />
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+	/**
+	 * Remove tag handler
+	 */
+	$('#tagsList').find('span').click(function() {
+		$(this).remove();
+	});
+
+	/**
+	 * Make list tags autocomplete
+	 */
+	$('#tagInput').autocomplete('<?php echo $this->url(array(), 'tag_tag_suggest'); ?>', {
+		extraParams: { limit: 10 }
+	}).result(function(event, item) {
+		$('#tagInput').val('');
+		if ($('#tagsList').find('input[type="hidden"][value="' + item[1] + '"]').length == 0) {
+			$('<span/>')
+				.html(item[0])
+				.append($('<input/>').attr('type', 'hidden').attr('name', 'tagIds[]').val(item[1]))
+				.click(function() {
+					$(this).remove();
+				}).appendTo($('#tagsList'));
+		}
+	});
+});
+</script>

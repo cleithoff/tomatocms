@@ -1,0 +1,60 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version		$Id: auth.phtml 4791 2010-08-23 17:38:56Z huuphuoc $
+ * @since		2.0.0
+ */
+?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=<?php echo $this->CHARSET; ?>" />
+    <meta name="robots" content="noindex, nofollow" />
+    <?php echo $this->headMeta(); ?>
+	<?php echo $this->headTitle(); ?>
+    <link rel="shortcut icon" type="image/x-icon" href="<?php echo $this->APP_STATIC_SERVER; ?>/skins/<?php echo $this->APP_TEMPLATE; ?>/<?php echo $this->APP_SKIN; ?>/images/favicon.ico" />
+    
+	<?php
+    $this->headLink()
+		->prependStylesheet($this->APP_STATIC_SERVER . '/css/960/' . ($this->APP_LANG_RTL ? 'all-rtl.min.css' : 'all.min.css'))
+    	->appendStylesheet($this->APP_STATIC_SERVER . '/skins/admin/default/' . ($this->APP_LANG_RTL ? 'admin-rtl.css' : 'admin.css'))
+    	->appendStylesheet($this->APP_STATIC_SERVER . '/skins/admin/default/admin-ie.css', 'screen', 'lte IE 7');
+	
+    $this->headScript()
+    	->prependFile($this->APP_STATIC_SERVER . '/js/tomato/namespace.js')
+    	->prependFile($this->APP_STATIC_SERVER . '/js/jquery/jquery.min.js')
+    	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ajaxq/jquery.ajaxq.min.js')
+    	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.json/jquery.json.min.js');
+    ?>
+    <?php echo $this->headScript(); ?>
+	<?php echo $this->headLink(); ?>
+</head>
+<body id="t_a_auth">
+	<!-- Content -->
+	<div id="t_a_body_wrapper" class="container_12">
+		<div id="t_a_auth_container">
+			<?php echo $this->layout()->content; ?>
+		</div>
+	</div>
+	
+	<div class="clear"></div>
+    
+    <!-- Footer -->
+    <div id="t_a_auth_footer">
+      	<div>Powered by <a href="http://www.tomatocms.com">TomatoCMS</a> v<?php echo Tomato_Version::getVersion(); ?></div>
+    </div>
+</body>
+</html>

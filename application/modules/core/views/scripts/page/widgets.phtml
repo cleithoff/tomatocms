@@ -1,0 +1,51 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: widgets.phtml 3971 2010-07-25 10:26:42Z huuphuoc $
+ * @since		2.0.0
+ */
+?>
+<div class="clearfix">
+	<ul id="widgets">
+	<?php foreach ($this->widgets as $index => $widget) : ?>
+		<li class="grid_3 t_a_bottom<?php if ($index % 3 == 0) : ?> alpha<?php elseif ($index % 3 == 2) : ?> omega<?php endif; ?>">
+			<h3><?php echo $widget->name; ?></h3>
+			<img class="t_a_image t_widget_draggable" title="<?php echo $this->escape($widget->title); ?>" id="<?php echo $widget->module;?>_<?php echo $widget->name; ?>" src="<?php echo $this->APP_STATIC_SERVER; ?>/skins/admin/<?php echo $this->APP_SKIN; ?>/images/a_image_none.jpg" />
+			<br />
+			<span><?php echo $widget->description; ?></span>
+		</li>
+		<?php if ($index % 3 == 2) : ?>
+		<li class="clearfix"></li>
+		<?php endif; ?>
+	<?php endforeach; ?>
+	</ul>
+	
+	<div class="clearfix"></div>
+</div>
+
+<div class="t_a_bottom t_a_ui_paginator">
+	<?php echo $this->paginator()->slide($this->paginator, $this->paginatorOptions); ?>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+	$('#widgets .t_widget_draggable').css('cursor', 'move').draggable({
+		zIndex: 1000,
+		cursor: 'pointer',
+		helper: 'clone'
+	}).disableSelection();
+});
+</script>

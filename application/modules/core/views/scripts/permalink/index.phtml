@@ -1,0 +1,119 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: index.phtml 5286 2010-09-03 08:08:44Z huuphuoc $
+ * @since		2.0.7
+ */
+?>
+<?php 
+$this->headTitle($this->translator('permalink_index_page_title'));
+
+$this->headLink()->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.autocomplete/jquery.autocomplete.css');
+
+$this->headScript()
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.bgiframe/jquery.bgiframe.min.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.autocomplete/jquery.autocomplete.js');
+?>
+<div class="grid_12 t_a_ui_breadcrumb">
+	<span><?php echo $this->translator('permalink_index_breadcrumb'); ?></span>	
+</div>
+
+<div class="grid_12"><?php echo $this->flashMessenger(); ?></div>
+
+<form method="post" action="<?php echo $this->url(array(), 'core_permalink_index'); ?>" id="configForm">
+<?php foreach ($this->permalinks as $name => $route) : ?>
+<div class="grid_12 t_a_bottom routeConfig" id="<?php echo $name; ?>_Route">
+	<h3><?php echo $route['description']; ?></h3>
+	<hr />
+	<div class="t_a_bottom"><?php echo $this->translator('permalink_index_params_guide'); ?>:</div>
+	
+	<!-- List of parameters -->
+	<div class="t_a_bottom">
+	<?php foreach ($route['params'] as $paramName => $settings) : ?>
+		{<?php echo $settings['name']; ?>}<?php if ('true' == $settings['required']) : ?> *<?php endif; ?>,
+	<?php endforeach; ?>
+	</div>
+	
+	<div class="prefix_1 suffix_1">
+		<!-- Default URL -->
+		<div class="clearfix t_a_bottom">
+			<div class="grid_4 alpha t_a_textright"><?php echo $this->translator('permalink_index_select_default_url'); ?>:</div>
+			<div class="grid_5 omega"><input type="radio" name="urlType[<?php echo $name; ?>]" value="default"<?php if (!isset($this->usedPemalinks[$name]) || (isset($this->usedPemalinks[$name]) && $this->usedPemalinks[$name]['url'] == $route['default'])) : ?> checked="checked"<?php endif; ?> /> <input name="url[<?php echo $name; ?>][]" type="text" style="width: 350px" readonly="readonly" disabled="disabled" value="<?php echo $route['default']; ?>" /></div>
+		</div>
+		
+		<hr />
+	
+		<!-- List of pre-defined URLs -->
+		<div class="clearfix t_a_bottom">
+			<div class="grid_4 alpha t_a_textright"><?php echo $this->translator('permalink_index_select_predefined_url'); ?>:</div>
+			<div class="grid_5 omega">
+				<?php foreach ($route['predefined'] as $url) : ?>
+				<div class="t_a_bottom">
+					<input type="radio" name="urlType[<?php echo $name; ?>]" value="predefined"<?php if (isset($this->usedPemalinks[$name]) && $this->usedPemalinks[$name]['url'] == $url) : ?> checked="checked"<?php endif; ?> /> <input name="url[<?php echo $name; ?>][]" type="text" style="width: 350px" value="<?php echo $url; ?>" readonly="readonly" disabled="disabled" />
+				</div>
+				<?php endforeach; ?>
+			</div>
+		</div>
+		
+		<hr />
+		
+		<!-- Custom URL -->
+		<div class="clearfix t_a_bottom">
+			<div class="grid_4 alpha t_a_textright"><?php echo $this->translator('permalink_index_cutome_url'); ?>:</div>
+			<div class="grid_5 omega">
+				<input type="radio" name="urlType[<?php echo $name; ?>]" value="custom"<?php if (isset($this->usedPemalinks[$name]) && $this->usedPemalinks[$name]['type'] == 'custom') : ?> checked="checked"<?php endif; ?> /> 
+				<input id="customUrl_<?php echo $name; ?>" name="url[<?php echo $name; ?>][]" type="text" style="width: 350px" 
+					<?php if (isset($this->usedPemalinks[$name]) && $this->usedPemalinks[$name]['type'] == 'custom') : ?>
+					value="<?php echo $this->usedPemalinks[$name]['url']; ?>"
+					<?php else : ?>
+					disabled="disabled"
+					<?php endif; ?> />
+			</div>
+			<input type="hidden" name="routeNames[]" value="<?php echo $name; ?>" />
+		</div>
+	</div>
+</div>
+<?php endforeach; ?>
+
+<div class="grid_12 t_a_bottom">
+	<div class="prefix_5 alpha">
+		<button type="submit"><span><?php echo $this->translator('permalink_index_save_button'); ?></span></button>
+	</div>
+</div>
+</form>
+
+<script type="text/javascript">
+$(document).ready(function() {
+	/**
+	 * Disbable/enable text boxes
+	 */
+	$('#configForm').find('input[type="radio"]').change(function() {
+		$(this).parents('.routeConfig').find('input[type="text"]').attr('disabled', 'disabled');
+		$(this).parent().find('input[type="text"]').removeAttr('disabled');
+	});
+
+	/**
+	 * Show available parameters based on user's input
+	 */
+	<?php foreach ($this->permalinks as $name => $route) : ?>
+	$('#customUrl_<?php echo $name; ?>').autocomplete([<?php foreach (array_keys($route['params']) as $index => $paramName) : ?><?php if ($index > 0) : ?>,<?php endif; ?>'{<?php echo $paramName; ?>}'<?php endforeach; ?>], {
+		multiple: true,
+		multipleSeparator: ''
+	}); 
+	<?php endforeach; ?>
+});
+</script>
+

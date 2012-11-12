@@ -1,0 +1,151 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: config.phtml 5496 2010-09-21 17:02:25Z huuphuoc $
+ * @since		2.0.9
+ */
+?>
+
+<link href="<?php echo $this->APP_STATIC_SERVER; ?>/js/jquery.ui/themes/base/ui.core.css" media="screen" rel="stylesheet" type="text/css" />
+<link href="<?php echo $this->APP_STATIC_SERVER; ?>/js/jquery.ui/themes/base/ui.accordion.css" media="screen" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="<?php echo $this->APP_STATIC_SERVER; ?>/js/jquery.ui/ui.core.js"></script>
+<script type="text/javascript" src="<?php echo $this->APP_STATIC_SERVER; ?>/js/jquery.ui/ui.accordion.js"></script>
+
+<div class="t_utility_links">
+	<div class="t_a_bottom"><?php echo $this->translator()->widget('config_title'); ?></div>
+	<div class="t_a_bottom">
+		<input type="text" class="t_widget_input" name="title" style="width: 200px" />
+	</div>
+	
+	<hr />
+	
+	<div class="t_a_bottom"><?php echo $this->translator()->widget('config_label'); ?>:</div>
+	<div class="t_a_bottom">
+		<input type="text" style="width: 200px" class="utilityLinksLabel" />
+	</div>
+	
+	<div class="t_a_bottom"><?php echo $this->translator()->widget('config_url'); ?>:</div>
+	<div class="t_a_bottom">
+		<input type="text" style="width: 200px" class="utilityLinksUrl" />
+	</div>
+	
+	<div class="t_a_bottom">
+		<button class="t_a_ui_button_link"><span><?php echo $this->translator()->widget('config_add_button'); ?></span></button>
+	</div>
+	
+	<div class="clearfix t_a_bottom"></div>
+	
+	<!-- Link Provider -->
+	<div class="t_a_bottom">
+		<a href="javascript: void(0);" class="linkProviderToggle"><?php echo $this->translator()->widget('config_use_link_provider'); ?></a>
+	</div>
+	<div class="t_a_bottom linkProvider" style="display: none">
+		<?php echo $this->linkProvider(array('jsCallback' => 'Utility.Widgets.Links.addLink')); ?>
+	</div>
+	
+	<div class="t_a_top">
+		<table class="t_a_ui_table">
+			<thead>
+				<tr>
+					<th style="width: 200px"><?php echo $this->translator()->widget('config_url'); ?></th>
+				</tr>
+			</thead>
+			<tbody>
+				<?php if ($this->ultilyLinks) : ?>
+				<?php foreach ($this->ultilyLinks as $link) : ?>
+				<tr>
+					<td><a href="<?php echo $link['url']; ?>" onclick="javascript: return Utility.Widgets.Links.removeLink($(this));"><?php echo $link['label']; ?></a></td>
+				</tr>
+				<?php endforeach; ?>
+				<?php endif; ?>
+			</tbody>
+		</table>
+	</div>
+	
+	<hr />
+	
+	<input type="hidden" class="utilityLinks" name="links" class="t_widget_input" />
+</div>
+
+<script type="text/javascript">
+'Utility.Widgets.Links'.namespace();
+
+if (!'Utility.Widgets.Links'.isClassExist()) {
+	Utility.Widgets.Links = function() {};
+	
+	Utility.Widgets.Links.addLink = function(route, url, title, link) {
+		var tr = $('<tr/>');
+		var td = $('<td/>');
+		var a  = $('<a/>').attr('href', url).html(title).click(function() {
+					return Utility.Widgets.Links.removeLink($(this));
+				});
+	
+		var root = $(link).parents('.t_utility_links');
+		$(td).append($(a));
+		$(tr).append($(td)).appendTo($(root).find('tbody'));
+	
+		$(root).find('.utilityLinks').val($.toJSON(Utility.Widgets.Links.getLinks(root)));
+	};
+	
+	Utility.Widgets.Links.removeLink = function(link) {
+		var root = $(link).parents('.t_utility_links');
+		
+		$(link).parents('tr').remove();
+		$(root).find('.utilityLinks').val($.toJSON(Utility.Widgets.Links.getLinks(root)));
+		return false;
+	};
+	
+	Utility.Widgets.Links.getLinks = function(root) {
+		var utilityLinks = Array();
+		$(root).find('tbody a').each(function() {
+			utilityLinks.push({
+				'label': $(this).html(),
+				'url': $(this).attr('href')
+			});
+		});
+		return utilityLinks;
+	};
+}
+
+$(document).ready(function() {
+	/**
+	 * Toggle Link Provider
+	 */
+	$(document).find('.t_utility_links').each(function() {
+		var root = $(this);
+
+		$(root).find('.linkProviderToggle').click(function() {
+			$(root).find('.linkProvider').toggle();
+		});
+
+		$(root).find('button.t_a_ui_button_link').click(function() {
+			var label = $(root).find('input.utilityLinksLabel').val();
+			var url   = $(root).find('input.utilityLinksUrl').val();
+
+			var tr = $('<tr/>');
+			var td = $('<td/>');
+			var a  = $('<a/>').attr('href', url).html(label).click(function() {
+						return Utility.Widgets.Links.removeLink($(this));
+					});
+
+			$(td).append($(a));
+			$(tr).append($(td)).appendTo($(root).find('tbody'));
+
+			$(root).find('.utilityLinks').val($.toJSON(Utility.Widgets.Links.getLinks(root)));	
+		});
+	});
+});
+</script>

@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version		$Id: about.xml 4964 2010-08-25 18:37:45Z huuphuoc $
+ * @since		2.0.0
+ */
+-->
+<!DOCTYPE module SYSTEM "http://schemas.tomatocms.com/dtd/module_about.dtd">
+<module>
+	<name>news</name>
+	<description langKey="about_news_description"><![CDATA[Manage articles]]></description>
+	<thumbnail></thumbnail>
+	<author>TomatoCMS Core Team</author>
+	<email>core@tomatocms.com</email>
+	<version>2.0.0</version>
+	<license>free</license>
+	
+	<requires>
+		<requiredModules>
+			<requiredModule name="category" />
+			<requiredModule name="comment" />
+			<requiredModule name="tag" />
+			<requiredModule name="upload" />				
+		</requiredModules>	
+	</requires>
+	
+	<install>
+		<db adapter="mysql|pdo_mysql">
+			<query><![CDATA[DROP TABLE IF EXISTS `###news_article`;]]></query>
+			<query><![CDATA[CREATE TABLE `###news_article` (
+				  `article_id` int(11) NOT NULL auto_increment,
+				  `category_id` smallint(6) default NULL,
+				  `title` varchar(255) default NULL,
+				  `sub_title` varchar(255) default NULL,
+				  `slug` varchar(255) default NULL,
+				  `description` text,
+				  `content` mediumtext,
+				  `author` varchar(255) default NULL,
+				  `icons` varchar(255) default NULL,
+				  `image_square` varchar(255) default NULL,
+				  `image_thumbnail` varchar(255) default NULL,
+				  `image_small` varchar(255) default NULL,
+				  `image_crop` varchar(255) default NULL,
+				  `image_medium` varchar(255) default NULL,
+				  `image_large` varchar(255) default NULL,
+				  `status` enum('deleted','draft','inactive','active') default 'inactive',
+				  `num_views` int(11) default '0',
+				  `created_date` datetime default NULL,
+				  `created_user_id` int(11) default NULL,
+				  `created_user_name` varchar(255) default NULL,
+				  `updated_date` datetime default NULL,
+				  `updated_user_id` int(11) default NULL,
+				  `updated_user_name` varchar(255) default NULL,
+				  `activate_user_id` int(11) default NULL,
+				  `activate_user_name` varchar(50) default NULL,
+				  `activate_date` datetime default NULL,
+				  `allow_comment` tinyint(4) default NULL,
+				  `num_comments` int(11) default '0',
+				  `is_hot` tinyint(4) default '0',
+				  `ordering` int(11) default '0',
+				  `show_date` date default NULL,
+				  `sticky` tinyint(1) NOT NULL default '0',
+				  `language` varchar(10) DEFAULT NULL,
+				  PRIMARY KEY  (`article_id`),
+				  KEY `idx_latest` (`status`,`activate_date`),
+				  KEY `idx_latest_category` (`category_id`,`status`,`activate_date`),
+				  KEY `idx_most_commented` (`category_id`,`status`,`num_comments`),
+				  KEY `idx_most_viewed` (`category_id`,`status`,`num_views`),
+				  KEY `idx_most_viewed_2` (`status`,`num_views`),
+				  KEY `idx_created_user` (`created_user_id`,`article_id`),
+				  KEY `idx_language` (`language`)
+				) ENGINE=InnoDB DEFAULT CHARSET=utf8;]]>
+			</query>
+			<query><![CDATA[DROP TABLE IF EXISTS `###news_article_category_assoc`;]]></query>
+			<query><![CDATA[CREATE TABLE `###news_article_category_assoc` (
+				  `article_id` int(11) NOT NULL,
+				  `category_id` int(11) NOT NULL,
+				  PRIMARY KEY  (`article_id`,`category_id`),
+				  KEY `idx_category` (`category_id`)
+				) ENGINE=InnoDB DEFAULT CHARSET=utf8;]]>
+			</query>
+			<query><![CDATA[DROP TABLE IF EXISTS `###news_article_hot`;]]></query>
+			<query><![CDATA[CREATE TABLE `###news_article_hot` (
+				  `article_id` int(11) NOT NULL,
+				  `created_date` datetime default NULL,
+				  `ordering` smallint(6) default NULL,
+				  PRIMARY KEY  (`article_id`),
+				  KEY `idx_ordering` (`ordering`)
+				) ENGINE=InnoDB DEFAULT CHARSET=utf8;]]>
+			</query>
+			<query><![CDATA[DROP TABLE IF EXISTS `###news_article_revision`;]]></query>
+			<query><![CDATA[CREATE TABLE IF NOT EXISTS `###news_article_revision` (
+				  `revision_id` int(11) NOT NULL auto_increment,
+				  `article_id` int(11) NOT NULL,
+				  `category_id` smallint(6) default NULL,
+				  `title` varchar(255) default NULL,
+				  `sub_title` varchar(255) default NULL,
+				  `slug` varchar(255) default NULL,
+				  `description` text,
+				  `content` mediumtext,
+				  `author` varchar(255) default NULL,
+				  `icons` varchar(255) default NULL,
+				  `created_date` datetime default NULL,
+				  `created_user_id` int(11) default NULL,
+				  `created_user_name` varchar(255) default NULL,
+				  PRIMARY KEY  (`revision_id`),
+				  KEY `idx_article_id` (`article_id`)
+				) ENGINE=InnoDB DEFAULT CHARSET=utf8;]]>
+			</query>
+		</db>
+		<db adapter="pgsql">
+			<query><![CDATA[DROP TABLE IF EXISTS ###news_article;]]></query>
+			<query><![CDATA[CREATE TABLE ###news_article (
+				    article_id integer NOT NULL,
+				    category_id smallint,
+				    title character varying(255) DEFAULT NULL::character varying,
+				    sub_title character varying(255) DEFAULT NULL::character varying,
+				    slug character varying(255) DEFAULT NULL::character varying,
+				    description text,
+				    content text,
+				    author character varying(255) DEFAULT NULL::character varying,
+				    icons character varying(255) DEFAULT NULL::character varying,
+				    image_square character varying(255) DEFAULT NULL::character varying,
+				    image_thumbnail character varying(255) DEFAULT NULL::character varying,
+				    image_small character varying(255) DEFAULT NULL::character varying,
+				    image_crop character varying(255) DEFAULT NULL::character varying,
+				    image_medium character varying(255) DEFAULT NULL::character varying,
+				    image_large character varying(255) DEFAULT NULL::character varying,
+				    status character varying(15) DEFAULT 'inactive'::character varying,
+				    num_views integer DEFAULT 0,
+				    created_date time without time zone,
+				    created_user_id integer,
+				    created_user_name character varying(255) DEFAULT NULL::character varying,
+				    updated_date time without time zone,
+				    updated_user_id integer,
+				    updated_user_name character varying(255) DEFAULT NULL::character varying,
+				    activate_user_id integer,
+				    activate_user_name character varying(50) DEFAULT NULL::character varying,
+				    activate_date time without time zone,
+				    allow_comment smallint,
+				    num_comments integer DEFAULT 0,
+				    is_hot smallint DEFAULT 0::smallint,
+				    ordering integer DEFAULT 0,
+				    show_date date,
+				    sticky smallint DEFAULT 0::smallint NOT NULL,
+				    language character varying(10) DEFAULT NULL::character varying,
+				    CONSTRAINT news_article_status_check CHECK (((status)::text = ANY ((ARRAY['deleted'::character varying, 'draft'::character varying, 'inactive'::character varying, 'active'::character varying])::text[])))
+				);
+				CREATE SEQUENCE news_article_article_id_seq
+				    START WITH 1
+				    INCREMENT BY 1
+				    NO MAXVALUE
+				    NO MINVALUE
+				    CACHE 1;
+				ALTER SEQUENCE news_article_article_id_seq OWNED BY ###news_article.article_id;
+				SELECT pg_catalog.setval('news_article_article_id_seq', 1, false);]]>
+			</query>
+			<query><![CDATA[DROP TABLE IF EXISTS ###news_article_category_assoc;]]></query>
+			<query><![CDATA[CREATE TABLE ###news_article_category_assoc (
+				    article_id integer NOT NULL,
+				    category_id integer NOT NULL);]]>
+			</query>
+			<query><![CDATA[DROP TABLE IF EXISTS ###news_article_hot;]]></query>
+			<query><![CDATA[CREATE TABLE ###news_article_hot (
+				    article_id integer NOT NULL,
+				    created_date time without time zone,
+				    ordering smallint);]]>
+			</query>
+			<query><![CDATA[DROP TABLE IF EXISTS ###news_article_revision;]]></query>
+			<query><![CDATA[CREATE TABLE ###news_article_revision (
+				    revision_id integer NOT NULL,
+				    article_id integer NOT NULL,
+				    category_id smallint,
+				    title character varying(255) DEFAULT NULL::character varying,
+				    sub_title character varying(255) DEFAULT NULL::character varying,
+				    slug character varying(255) DEFAULT NULL::character varying,
+				    description text,
+				    content text,
+				    author character varying(255) DEFAULT NULL::character varying,
+				    icons character varying(255) DEFAULT NULL::character varying,
+				    created_date time without time zone,
+				    created_user_id integer,
+				    created_user_name character varying(255) DEFAULT NULL::character varying
+				);
+				CREATE SEQUENCE news_article_revision_revision_id_seq
+				    START WITH 1
+				    INCREMENT BY 1
+				    NO MAXVALUE
+				    NO MINVALUE
+				    CACHE 1;
+				ALTER SEQUENCE news_article_revision_revision_id_seq OWNED BY ###news_article_revision.revision_id;
+				SELECT pg_catalog.setval('news_article_revision_revision_id_seq', 1, false);]]>
+			</query>
+		</db>
+		<db adapter="sqlsrv">
+			<query><![CDATA[IF EXISTS (SELECT NAME FROM SYSOBJECTS WHERE NAME='###news_article' AND TYPE='U') DROP TABLE ###news_article;]]></query>
+			<query><![CDATA[CREATE TABLE ###news_article(
+					article_id int identity(1,1) NOT NULL,
+					category_id smallint NULL,
+					title nvarchar(255) NULL,
+					sub_title nvarchar(255) NULL,
+					slug nvarchar(255) NULL,
+					description ntext NULL,
+					content ntext NULL,
+					author nvarchar(255) NULL,
+					icons nvarchar(255) NULL,
+					image_square nvarchar(255) NULL,
+					image_thumbnail nvarchar(255) NULL,
+					image_small nvarchar(255) NULL,
+					image_crop nvarchar(255) NULL,
+					image_medium nvarchar(255) NULL,
+					image_large nvarchar(255) NULL,
+					status nvarchar(8) check(status in ('deleted','draft','inactive','active')) default 'inactive',
+					num_views int NULL,
+					created_date varchar(19) NULL,
+					created_user_id int NULL,
+					created_user_name nvarchar(255) NULL,
+					updated_date varchar(19) NULL,
+					updated_user_id int NULL,
+					updated_user_name nvarchar(255) NULL,
+					activate_user_id int NULL,
+					activate_user_name nvarchar(50) NULL,
+					activate_date varchar(19) NULL,
+					allow_comment numeric(3, 0) NULL,
+					num_comments int default 0,
+					is_hot bit default 0,
+					ordering int default 0,
+					show_date varchar(19) NULL,
+					sticky bit NOT NULL default 0,
+					[language] varchar(10) default NULL,
+					PRIMARY KEY (article_id));]]>
+			</query>
+			<query><![CDATA[CREATE INDEX idx_latest ON ###news_article (status,activate_date);]]></query>
+			<query><![CDATA[CREATE INDEX idx_latest_category ON ###news_article (category_id,status,activate_date);]]></query>
+			<query><![CDATA[CREATE INDEX idx_most_commented ON ###news_article (category_id,status,num_comments);]]></query>
+			<query><![CDATA[CREATE INDEX idx_most_viewed ON ###news_article (category_id,status,num_views);]]></query>
+			<query><![CDATA[CREATE INDEX idx_most_viewed_2 ON ###news_article (status,num_views);]]></query>
+			<query><![CDATA[CREATE INDEX idx_created_user ON ###news_article (created_user_id,article_id);]]></query>
+			<query><![CDATA[CREATE INDEX idx_language ON ###news_article ([language],article_id);]]></query>
+			
+			<query><![CDATA[IF EXISTS (SELECT NAME FROM SYSOBJECTS WHERE NAME='###news_article_category_assoc' AND TYPE='U') DROP TABLE ###news_article_category_assoc;]]></query>
+			<query><![CDATA[CREATE TABLE ###news_article_category_assoc(
+					article_id int NOT NULL,
+					category_id int NOT NULL,
+					PRIMARY KEY (article_id,category_id));]]>
+			</query>
+			<query><![CDATA[CREATE INDEX idx_category ON ###news_article_category_assoc (category_id);]]></query>
+			
+			<query><![CDATA[IF EXISTS (SELECT NAME FROM SYSOBJECTS WHERE NAME='###news_article_hot' AND TYPE='U') DROP TABLE ###news_article_hot;]]></query>
+			<query><![CDATA[CREATE TABLE ###news_article_hot(
+					article_id int NOT NULL,
+					created_date varchar(19) NULL,
+					ordering smallint NULL,
+					PRIMARY KEY (article_id));]]>
+			</query>
+			<query><![CDATA[CREATE INDEX idx_ordering ON ###news_article_hot (ordering);]]></query>
+			
+			<query><![CDATA[IF EXISTS (SELECT NAME FROM SYSOBJECTS WHERE NAME='###news_article_revision' AND TYPE='U') DROP TABLE ###news_article_revision;]]></query>
+			<query><![CDATA[CREATE TABLE ###news_article_revision(
+					revision_id int identity(1,1) NOT NULL,
+					article_id int NOT NULL,
+					category_id smallint NULL,
+					title nvarchar(255) NULL,
+					sub_title nvarchar(255) NULL,
+					slug nvarchar(255) NULL,
+					description ntext NULL,
+					content ntext NULL,
+					author nvarchar(255) NULL,
+					icons nvarchar(255) NULL,
+					created_date varchar(19) NULL,
+					created_user_id int NULL,
+					created_user_name nvarchar(255) NULL,
+					PRIMARY KEY (revision_id));]]>
+			</query>
+			<query><![CDATA[CREATE INDEX idx_article_id ON ###news_article_revision (article_id);]]></query>
+		</db>
+	</install>
+	
+	<uninstall>
+		<db adapter="mysql|pdo_mysql">
+			<query><![CDATA[DROP TABLE IF EXISTS `###news_article`;]]></query>
+			<query><![CDATA[DROP TABLE IF EXISTS `###news_article_category_assoc`;]]></query>
+			<query><![CDATA[DROP TABLE IF EXISTS `###news_article_hot`;]]></query>
+			<query><![CDATA[DROP TABLE IF EXISTS `###news_article_revision`;]]></query>
+		</db>
+		<db adapter="pgsql">
+			<query><![CDATA[DROP TABLE IF EXISTS ###news_article;]]></query>
+			<query><![CDATA[DROP TABLE IF EXISTS ###news_article_category_assoc;]]></query>
+			<query><![CDATA[DROP TABLE IF EXISTS ###news_article_hot;]]></query>
+			<query><![CDATA[DROP TABLE IF EXISTS ###news_article_revision;]]></query>
+		</db>
+		<db adapter="sqlsrv">
+			<query><![CDATA[IF EXISTS (SELECT NAME FROM SYSOBJECTS WHERE NAME='###news_article' AND TYPE='U') DROP TABLE ###news_article;]]></query>
+			<query><![CDATA[IF EXISTS (SELECT NAME FROM SYSOBJECTS WHERE NAME='###news_article_category_assoc' AND TYPE='U') DROP TABLE ###news_article_category_assoc;]]></query>
+			<query><![CDATA[IF EXISTS (SELECT NAME FROM SYSOBJECTS WHERE NAME='###news_article_hot' AND TYPE='U') DROP TABLE ###news_article_hot;]]></query>
+			<query><![CDATA[IF EXISTS (SELECT NAME FROM SYSOBJECTS WHERE NAME='###news_article_revision' AND TYPE='U') DROP TABLE ###news_article_revision;]]></query>
+		</db>
+	</uninstall>
+	
+	<admin>
+		<task langKey="task_list_articles" route="news_article_list" />
+		<task langKey="task_add_article" route="news_article_add" />
+		<task langKey="task_list_hot_articles" route="news_article_hot" />
+	</admin>
+</module>

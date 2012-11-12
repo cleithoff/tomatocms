@@ -1,0 +1,263 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version		$Id: admin.phtml 5189 2010-08-30 12:12:06Z huuphuoc $
+ * @since		2.0.0
+ */
+?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $this->CHARSET; ?>" />
+    <meta name="robots" content="noindex, nofollow" />
+    <?php echo $this->headTitle(); ?>
+    <?php echo $this->headMeta(); ?>
+    <link rel="shortcut icon" type="image/x-icon" href="<?php echo $this->APP_STATIC_SERVER; ?>/skins/<?php echo $this->APP_TEMPLATE; ?>/<?php echo $this->APP_SKIN; ?>/images/favicon.ico" />
+    
+    <?php
+    $this->headLink()
+    	->appendStylesheet($this->APP_STATIC_SERVER . '/skins/admin/default/' . ($this->APP_LANG_RTL ? 'admin-rtl.css' : 'admin.css'))
+    	->prependStylesheet($this->APP_STATIC_SERVER . '/css/960/' . ($this->APP_LANG_RTL ? 'all-rtl.min.css' : 'all.min.css'));
+    
+    $this->headScript()
+    	->prependFile($this->APP_STATIC_SERVER . '/js/tomato/namespace.js')
+    	->prependFile($this->APP_STATIC_SERVER . '/js/jquery/jquery.min.js')
+    	->appendFile($this->APP_STATIC_SERVER . '/js/tomato/core/widget.loader.js')
+    	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.json/jquery.json.min.js')
+    	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ajaxq/jquery.ajaxq.min.js')
+    	->appendFile($this->APP_STATIC_SERVER . '/js/phpjs/php.full.min.js')
+    	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.hoverIntent/jquery.hoverIntent.minified.js')
+    	->appendFile($this->APP_STATIC_SERVER . '/js/megamenu/megamenu.js');
+    ?>
+	<?php echo $this->compressor('css'); ?>
+    <?php echo $this->compressor('js'); ?>
+    
+    <!--[if lte IE 7]>
+	<link href="<?php echo $this->APP_STATIC_SERVER; ?>/skins/admin/default/admin-ie.css" media="screen" rel="stylesheet" type="text/css" />
+	<?php if ($this->APP_LANG_RTL) : ?>
+	<link href="<?php echo $this->APP_STATIC_SERVER; ?>/skins/admin/default/admin-rtl-ie.css" media="screen" rel="stylesheet" type="text/css" />
+	<?php endif; ?>
+	<![endif]-->
+    
+	<script type="text/javascript">
+    //<![CDATA[
+	Tomato.Core.Widget.Loader.baseUrl = '<?php echo $this->baseUrl(); ?>';    
+	//]]>
+	</script>
+</head>
+<body>
+	<div id="t_a_body_wrapper" class="container_12">
+		<div id="t_a_body_container">
+			<!-- Header -->
+			<div id="t_a_header">
+				<div id="t_a_header_welcome">
+					<?php if (Zend_Auth::getInstance()->hasIdentity()) : ?>
+						<?php echo sprintf($this->translator('menu_welcome', 'core'), Zend_Auth::getInstance()->getIdentity()->user_name); ?> / <a href="<?php echo $this->baseUrl(); ?>"><?php echo $this->translator('menu_homepage', 'core'); ?></a> / <a href="<?php echo $this->url(array(), 'core_auth_logout'); ?>"><?php echo $this->translator('menu_logout', 'core'); ?></a>
+					<?php endif; ?>
+	             </div>
+				<div id="t_a_header_box_search">
+				</div>		
+			</div>
+			
+			<!-- Menu -->
+			<div id="menu">
+				<ul class="t_a_ui_mega_menu">
+					<li><a href="<?php echo $this->url(array(), 'core_dashboard_index'); ?>"><?php echo $this->translator('menu_admin', 'core'); ?></a></li>
+					
+					<li>
+						<a href="#"><?php echo $this->translator('menu_system', 'core'); ?></a>
+						
+						<div class="sub">
+							<div class="row">
+		                     	<ul>
+									<li><span><?php echo $this->translator('menu_system_user', 'core'); ?></span></li>
+									
+									<?php if ($this->routeAccessor('core_role_list')) : ?>
+									<li><a href="<?php echo $this->url(array(), 'core_role_list'); ?>"><?php echo $this->translator('menu_role', 'core'); ?></a></li>
+									<?php endif; ?>
+									
+					                <?php if ($this->routeAccessor('core_user_list')) : ?>
+									<li><a href="<?php echo $this->url(array(), 'core_user_list'); ?>"><?php echo $this->translator('menu_user', 'core'); ?></a></li>
+									<?php endif; ?>
+									
+									<?php if ($this->routeAccessor('core_privilege_list')) : ?>
+									<li><a href="<?php echo $this->url(array(), 'core_privilege_list'); ?>"><?php echo $this->translator('menu_privilege', 'core'); ?></a></li>
+									<?php endif; ?>
+					            </ul>
+					            
+					            <ul>
+					                <li><span><?php echo $this->translator('menu_system_config', 'core'); ?></span></li>
+					                
+					                <?php if ($this->routeAccessor('core_language_list')) : ?>
+									<li><a href="<?php echo $this->url(array(), 'core_language_list'); ?>"><?php echo $this->translator('menu_language', 'core'); ?></a></li>
+									<?php endif; ?>
+									
+									<?php 
+									/**
+									 * @since 2.0.8
+									 */
+									?>
+									<?php if ($this->routeAccessor('core_locale_config')) : ?>
+									<li><a href="<?php echo $this->url(array(), 'core_locale_config'); ?>"><?php echo $this->translator('menu_locale', 'core'); ?></a></li>
+									<?php endif; ?>
+					                
+					                <?php if ($this->routeAccessor('core_config_app')) : ?>
+									<li><a href="<?php echo $this->url(array(), 'core_config_app'); ?>"><?php echo $this->translator('menu_config_app', 'core'); ?></a></li>
+									<?php endif; ?>
+					                
+					                <?php if ($this->routeAccessor('core_config_list')) : ?>
+									<li><a href="<?php echo $this->url(array(), 'core_config_list'); ?>"><?php echo $this->translator('menu_config', 'core'); ?></a></li>
+									<?php endif; ?>
+									
+									<?php if ($this->routeAccessor('core_cache_list')) : ?>
+									<li><a href="<?php echo $this->url(array(), 'core_cache_list'); ?>"><?php echo $this->translator('menu_cache', 'core'); ?></a></li>
+									<?php endif; ?>
+					                
+					                <?php if ($this->routeAccessor('core_cache_config')) : ?>
+									<li><a href="<?php echo $this->url(array(), 'core_cache_config'); ?>"><?php echo $this->translator('menu_cache_config', 'core'); ?></a></li>
+									<?php endif; ?>
+					            </ul>
+					            
+					            <ul>
+					                <li><span><?php echo $this->translator('menu_custome', 'core'); ?></span></li>
+					                
+					                <?php if ($this->routeAccessor('core_template_list')) : ?>
+									<li><a href="<?php echo $this->url(array(), 'core_template_list'); ?>"><?php echo $this->translator('menu_template', 'core'); ?></a></li>
+									<?php endif; ?>
+									
+									<?php 
+									/**
+									 * Customize permalink
+									 * @since 2.0.7
+									 */
+									?>
+									<?php if ($this->routeAccessor('core_permalink_index')) : ?>
+									<li><a href="<?php echo $this->url(array(), 'core_permalink_index'); ?>"><?php echo $this->translator('menu_permalink', 'core'); ?></a></li>
+									<?php endif; ?>
+					            </ul>
+					            
+					            <ul>
+					                <li><span><?php echo $this->translator('menu_extend', 'core'); ?></span></li>
+					                
+					                <?php if ($this->routeAccessor('core_module_list')) : ?>
+									<li><a href="<?php echo $this->url(array(), 'core_module_list'); ?>"><?php echo $this->translator('menu_module', 'core'); ?></a></li>
+									<?php endif; ?>
+									
+					                <?php if ($this->routeAccessor('core_plugin_list')) : ?>
+									<li><a href="<?php echo $this->url(array(), 'core_plugin_list'); ?>"><?php echo $this->translator('menu_plugin', 'core'); ?></a></li>
+									<?php endif; ?>
+					                
+					                <?php if ($this->routeAccessor('core_widget_list')) : ?>
+									<li><a href="<?php echo $this->url(array(), 'core_widget_list'); ?>"><?php echo $this->translator('menu_widget', 'core'); ?></a></li>
+									<?php endif; ?>
+					                
+					                <?php if ($this->routeAccessor('core_hook_list')) : ?>
+									<li><a href="<?php echo $this->url(array(), 'core_hook_list'); ?>"><?php echo $this->translator('menu_hook', 'core'); ?></a></li>
+									<?php endif; ?>
+					                
+					                <?php if ($this->routeAccessor('core_target_list')) : ?>
+									<li><a href="<?php echo $this->url(array(), 'core_target_list'); ?>"><?php echo $this->translator('menu_target', 'core'); ?></a></li>
+									<?php endif; ?>
+					            </ul>
+					            
+					            <div class="clearfix"><hr /></div>
+					            
+					            <ul>
+					            	<li><span><?php echo $this->translator('menu_report', 'core'); ?></span></li>
+					            	
+					            	<?php 
+					            	/**
+					            	 * Errors log
+					            	 * @since 2.0.7
+					            	 */
+					            	?>
+					            	<?php if ($this->routeAccessor('core_log_list')) : ?>
+					            	<li><a href="<?php echo $this->url(array(), 'core_log_list'); ?>"><?php echo $this->translator('menu_log', 'core'); ?></a></li>
+					            	<?php endif; ?>
+					            </ul>
+				         	</div>
+						</div>
+					</li>
+					
+					<?php 
+					/**
+					 * Move all module administrator tasks to top menu
+					 * @since 2.0.7
+					 */ 
+					 ?>
+					<li>
+						<a href="#"><?php echo $this->translator('menu_modules', 'core'); ?></a>
+						
+						<div class="sub">
+							<div class="row">
+								<?php foreach (($modules = $this->moduleTask()) as $index => $module) : ?>
+								<?php if ($index % 4 == 0 & $index > 0) : ?><div class="clearfix"><hr /></div><?php endif; ?>
+								<ul>
+									<li><span><?php echo $module['description']; ?></span></li>
+									
+									<?php foreach ($module['tasks'] as $task) : ?>
+									<li><a href="<?php echo $task['link']; ?>"><?php echo $task['label']; ?></a></li>
+									<?php endforeach; ?>
+								</ul>
+								<?php endforeach; ?>
+		                	</div>
+		                </div>    
+					</li>
+					
+					<li>
+						<a href="#"><?php echo $this->translator('menu_account', 'core'); ?></a>
+						
+						<div class="sub" style="width: 140px !important; left: 0px">
+							<div class="row">
+		                     	<ul>
+									<li><a href="<?php echo $this->url(array(), 'core_user_changepass'); ?>"><?php echo $this->translator('menu_changepass', 'core'); ?></a></li>
+								</ul>
+							</div>
+						</div>
+					</li>
+				</ul>
+			</div>		
+		
+			<!-- Content -->
+			<div class="clearfix">
+				<?php echo $this->layout()->content; ?>
+			</div>
+			<div class="clearfix"></div>	
+		</div>
+		
+		<!-- Footer -->
+		<div id="t_a_footer" class="container_12">
+      		<div class="grid_12">Powered by <a href="http://www.tomatocms.com">TomatoCMS</a> v<?php echo Tomato_Version::getVersion(); ?></div>
+    	</div>	
+	</div>
+	
+<script type="text/javascript"> 
+$(document).ready(function() {
+	/** 
+	 * Build menu 
+	 */
+	$('ul.t_a_ui_mega_menu li.sub').css({'opacity':'0'});
+	$('ul.t_a_ui_mega_menu li').hoverIntent({    
+		sensitivity: 2,
+		interval: 100,
+		over: megaHoverOver,    
+		timeout: 200,
+		out: megaHoverOut
+	});
+}); 
+</script>	
+</body>
+</html>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE layout SYSTEM "http://schemas.tomatocms.com/dtd/layout.dtd">
+<layout>
+	<container cols="12">
+		<container cols="8" position="first">
+			<widget module="news" name="breadcrumb">
+				<title><![CDATA[Breadcrumb]]></title>
+				<resources></resources>
+				<params>
+					<param name="category_id" type="global" />
+				</params>
+			</widget>
+			<defaultOutput />
+		</container>
+		<container cols="4" position="last">
+			<widget module="page" name="pagetree" load="php">
+				<title><![CDATA[Page Tree]]></title>
+				<resources>
+				</resources>
+				<params>
+				</params>
+			</widget>
+			<widget module="news" name="categorytree" load="php">
+				<title><![CDATA[Category]]></title>
+				<resources>
+				</resources>
+				<params>
+				</params>
+			</widget>			
+		</container>
+	</container>
+</layout>

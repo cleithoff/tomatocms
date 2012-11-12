@@ -1,0 +1,112 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: show.phtml 5012 2010-08-26 08:39:21Z hoangninh $
+ * @sicne		2.0.7
+ */
+?>
+<div class="t_a_ui_dashboard_widget" id="widgetDashboardComment">
+	<div class="t_a_ui_dashboard_widget_head">
+		<h3><?php echo $this->translator()->widget('latest_comments'); ?></h3>
+	</div>
+	<div class="t_a_ui_dashboard_widget_content">
+	<?php if (0 == count($this->comments)) : ?>
+		<?php echo $this->translator()->widget('not_found'); ?>
+	<?php else : ?>
+		<?php foreach ($this->comments as $index => $comment) : ?>
+		<div class="clearfix t_a_ui_data_list_content">
+			<div class="t_a_bottom">
+				<div class="t_a_left">
+					<img class="t_a_image" src="<?php echo $this->helper()->gravatar($comment->email, 60); ?>" title="<?php echo $comment->full_name; ?>" alt="<?php echo $comment->full_name; ?>" />
+				</div>
+				
+				<a target="_blank" title="<?php echo $this->escape($comment->title); ?>" href="<?php echo $this->APP_URL; ?><?php echo $comment->page_url; ?>"><?php echo $this->escape($comment->title); ?></a>
+				<br />
+				<?php echo sprintf($this->translator()->widget('posted_by'), $comment->full_name, date($this->globalConfig('web')->datetime->format->datetime, strtotime($comment->created_date))); ?>
+				<br />
+				<?php echo $this->subString($comment->content, 200); ?>
+			</div>
+			
+			<div class="t_a_ui_helper_action t_a_textright">
+				<?php if ($this->routeAccessor('comment_edit')) : ?>
+				<a href="<?php echo $this->url(array('comment_id' => $comment->comment_id), 'comment_edit'); ?>"><?php echo $this->translator()->widget('action_edit'); ?></a> |
+				<?php endif; ?>
+				
+				<?php if ($this->routeAccessor('comment_delete')) : ?>
+				<a href="javascript: void(0);" class="deleteAction" rel="<?php echo $comment->comment_id; ?>"><?php echo $this->translator()->widget('action_delete'); ?></a> |
+				<?php endif; ?>
+				
+				<?php if ($this->routeAccessor('comment_activate')) : ?>
+				<a href="javascript: void(0);" class="activateAction" rel="<?php echo $comment->comment_id; ?>_<?php echo $comment->is_active; ?>"><?php if ($comment->is_active == 1) : ?><?php echo $this->translator()->widget('action_deactivate'); ?><?php else : ?><?php echo $this->translator()->widget('action_activate'); ?><?php endif; ?></a>
+				<?php endif; ?>
+			</div>
+		</div>
+		<?php endforeach; ?>
+	<?php endif; ?>
+	</div>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+	<?php if ($this->routeAccessor('comment_delete')) : ?>
+	/**
+	 * Delete comment handler
+	 */
+	$('#widgetDashboardComment a.deleteAction').click(function() {
+		var self = $(this);
+		var id   = $(self).attr('rel');
+		$(this).html('').addClass('t_a_ui_helper_loading');
+		
+		$.ajaxq('widget_dashboardcomment', {
+			type: 'POST',
+			url: '<?php echo $this->url(array(), 'comment_delete'); ?>',
+			data: { id: id },
+			success: function(response) {
+				if (response == 'RESULT_OK') {
+					$(self).parents('.t_a_ui_data_list_content').fadeOut('slow');
+				}
+			}
+		});
+	});
+	<?php endif; ?>
+
+	<?php if ($this->routeAccessor('comment_activate')) : ?>
+	/**
+	 * Activate/Deactivate comment handler
+	 */
+	$('#widgetDashboardComment a.activateAction').click(function() {
+		var self = $(this);
+		var arr  = $(this).attr('rel').split('_');
+		$(this).html('').addClass('t_a_ui_helper_loading');
+				
+		$.ajaxq('widget_dashboardcomment', {
+			url: '<?php echo $this->url(array(), 'comment_activate'); ?>',
+			type: 'POST',
+			data: { id: arr[0], status: arr[1] },
+			success: function(response) {
+				response = $.evalJSON(response);
+				if (response == 1) {
+					$(self).html("<?php echo $this->translator()->widget('action_deactivate'); ?>");
+				} else {
+					$(self).html("<?php echo $this->translator()->widget('action_activate'); ?>");
+				}
+				$(self).removeClass('t_a_ui_helper_loading');
+			}
+		});
+	});
+	<?php endif; ?>
+});
+</script>

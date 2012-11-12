@@ -1,0 +1,487 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: edit.phtml 5254 2010-08-31 09:36:19Z huuphuoc $
+ * @since		2.0.0
+ */
+?>
+<?php 
+$this->headTitle($this->translator('banner_edit_page_title'));
+
+$this->headLink()
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.all.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.datepicker.css');
+
+$this->headScript()
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.validate/jquery.validate.min.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.datepicker.js');
+?>
+
+<?php $this->headStyle()->captureStart(); ?>
+.uploadifyQueueItem { margin-left: 170px; }
+<?php $this->headStyle()->captureEnd(); ?>
+
+<div class="grid_12 t_a_ui_breadcrumb">
+	<span><a href="<?php echo $this->url(array(), 'ad_banner_list'); ?>"><?php echo $this->translator('banner_list_breadcrumb'); ?></a></span>
+	<span><?php echo $this->translator('banner_edit_breadcrumb'); ?></span>
+</div>
+
+<div class="grid_12"><?php echo $this->flashMessenger(); ?></div>
+
+<form method="post" action="<?php echo $this->url(array('banner_id' => $this->banner->banner_id), 'ad_banner_edit'); ?>" id="editBannerForm" name="editBannerForm">
+<div class="grid_12 t_a_bottom"><?php echo $this->translator('banner_edit_guide'); ?></div>
+
+<div class="grid_12 t_a_bottom">
+	<!-- Banner information -->
+	<div class="prefix_1 suffix_1">
+		<div class="clearfix t_a_bottom">
+			<label><?php echo $this->translator('banner_name'); ?>:</label>
+			<input type="text" id="name" name="name" style="width: 300px" value="<?php echo $this->banner->name; ?>" />
+		</div>
+		
+		<hr />
+
+		<div class="clearfix t_a_bottom">
+			<label><?php echo $this->translator('banner_mode'); ?>:</label>
+			<select id="mode" name="mode" style="width: 300px">
+				<option value="">---</option>
+				<option value="unique" <?php if ('unique' == $this->banner->mode) : ?>selected="selected"<?php endif; ?> ><?php echo $this->translator('banner_mode_unique'); ?></option>
+				<option value="share" <?php if ('share' == $this->banner->mode) : ?>selected="selected"<?php endif; ?> ><?php echo $this->translator('banner_mode_share'); ?></option>
+				<option value="alternate" <?php if ('alternate' == $this->banner->mode) : ?>selected="selected"<?php endif; ?> ><?php echo $this->translator('banner_mode_alternative'); ?></option>
+			</select>		
+		</div>
+
+
+		<hr />
+		
+		<div id="timeoutContainer" style="display: none">
+			<div class="clearfix t_a_bottom">
+				<label><?php echo $this->translator('banner_timeout'); ?>:</label>
+				<input type="text" id="timeout" name="timeout" style="width: 90px" value="<?php if (null != $this->banner->timeout) : ?><?php echo $this->banner->timeout; ?><?php endif; ?>" />
+			</div>
+			
+			<hr />
+		</div>
+
+		<div class="clearfix t_a_bottom">
+			<label><?php echo $this->translator('banner_format'); ?>:</label>
+			<select id="format" name="format" style="width: 250px">
+				<option value="">---</option>
+				<option value="image" <?php if ('image' == $this->banner->format) : ?>selected="selected"<?php endif; ?> ><?php echo $this->translator('banner_format_image'); ?></option>
+				<option value="flash" <?php if ('flash' == $this->banner->format) : ?>selected="selected"<?php endif; ?> ><?php echo $this->translator('banner_format_flash'); ?></option>
+				<option value="text" <?php if ('text' == $this->banner->format) : ?>selected="selected"<?php endif; ?> ><?php echo $this->translator('banner_format_text'); ?></option>
+				<option value="html" <?php if ('html' == $this->banner->format) : ?>selected="selected"<?php endif; ?> ><?php echo $this->translator('banner_format_html'); ?></option>
+			</select>
+		</div>
+		
+		<hr />
+
+		<div id="fileFormat" style="display: none">
+			<div class="clearfix t_a_bottom">
+				<div class="grid_2 alpha"><label><?php echo $this->translator('banner_image'); ?>:</label></div>
+				<div class="grid_8 omega">
+					<div class="t_a_bottom">
+						<input type="text" name="imageUrl" id="imageUrl" style="width: 300px" value="<?php if (null != $this->banner && null != $this->banner->image_url) : ?><?php echo $this->banner->image_url; ?><?php endif; ?>" />
+					</div>
+					<?php 
+					echo $this->helperLoader('upload')->uploader('ad', 
+							array('extension' => '*.jpg;*.jpeg;*.png;*.gif;*swf', 'multi' => false, 'auto' => true, 'simUploadLimit' => 1, 'sizeLimit' => 1024 * 1024 * 5, 'thumbnails' => 'none'), 
+							array('onComplete' => 'onUploadComplete')); 
+					?>
+				</div>
+			</div>
+			
+			<hr />
+		</div>
+
+		<div id="htmlFormat" style="display: none">
+			<div class="clearfix t_a_bottom">
+				<label><?php echo $this->translator('banner_code'); ?>:</label>
+				<textarea name="code" id="code" style="width: 300px; height: 100px"><?php if (null != $this->banner->code) : ?><?php echo $this->banner->code; ?><?php endif; ?></textarea>
+			</div>
+			
+			<hr />
+		</div>
+
+		<div class="clearfix t_a_bottom">
+			<label><?php echo $this->translator('banner_text'); ?>:</label>
+			<textarea name="text" id="text" style="width: 300px; height: 100px"><?php if (null != $this->banner->text) : ?><?php echo $this->banner->text; ?><?php endif; ?></textarea>
+		</div>
+		
+		<hr />
+
+		<div class="clearfix t_a_bottom">
+			<label><?php echo $this->translator('banner_click_url'); ?>:</label>
+			<input type="text" id="clickUrl" name="clickUrl" style="width: 300px" value="<?php if (null != $this->banner->click_url) : ?><?php echo $this->banner->click_url; ?><?php endif; ?>" />
+		</div>
+		
+		<hr />
+
+		<div class="clearfix t_a_bottom">
+			<label><?php echo $this->translator('banner_status'); ?>:</label>
+			<select name="status" style="width: 250px">
+				<option value="">---</option>
+				<option value="active"<?php if ('active' == $this->banner->status) : ?> selected="selected"<?php endif; ?>><?php echo $this->translator('banner_status_activated'); ?></option>
+				<option value="inactive"<?php if ('inactive' == $this->banner->status) : ?> selected="selected"<?php endif; ?>><?php echo $this->translator('banner_status_not_activated'); ?></option>
+			</select>
+		</div>				
+		
+		<hr />
+
+		<div class="clearfix t_a_bottom">
+			<label><?php echo $this->translator('banner_target'); ?>:</label>
+			<select name="target" style="width: 250px">
+				<option value="">---</option>
+				<option value="new_tab"<?php if ('new_tab' == $this->banner->target) : ?> selected="selected"<?php endif; ?>><?php echo $this->translator('banner_target_new_tab'); ?></option>
+				<option value="new_window"<?php if ('new_window' == $this->banner->target) : ?> selected="selected"<?php endif; ?>><?php echo $this->translator('banner_target_new_window'); ?></option>
+				<option value="same_window"<?php if ('same_window' == $this->banner->target) : ?> selected="selected"<?php endif; ?>><?php echo $this->translator('banner_target_same_window'); ?></option>
+			</select>
+		</div>
+		
+		<hr />
+
+		<div class="clearfix t_a_bottom">
+			<label><?php echo $this->translator('banner_start_date'); ?>:</label>
+			<input type="text" id="startDate" name="startDate" style="width: 100px" value="<?php if (null != $this->banner->start_date) : ?><?php echo date('m/d/Y', strtotime($this->banner->start_date)); ?><?php endif; ?>" />
+		</div>
+		
+		<hr />
+		
+		<div class="clearfix t_a_bottom">
+			<label><?php echo $this->translator('banner_end_date'); ?>:</label>
+			<input type="text" id="expiredDate" name="expiredDate" style="width: 100px" value="<?php if (null != $this->banner->expired_date) : ?><?php echo date('m/d/Y', strtotime($this->banner->expired_date)); ?><?php endif; ?>" />
+		</div>
+		
+		<hr />
+
+		<div class="clearfix t_a_bottom">
+			<label><?php echo $this->translator('banner_client'); ?>:</label>
+			<select name="client" style="width: 300px">
+				<option value="">---</option>
+				<?php if (null != $this->clients) : ?>
+					<?php foreach ($this->clients as $client) : ?>
+					<option value="<?php echo $client->client_id; ?>"<?php if ($this->banner->client_id == $client->client_id) : ?> selected="selected"<?php endif; ?>><?php echo $client->name; ?></option>
+					<?php endforeach; ?>
+				<?php endif; ?>
+			</select>
+		</div>
+		
+		<hr />
+	</div>
+</div>
+
+<!-- Pages -->
+<div class="grid_12 t_a_bottom">
+	<h3><?php echo $this->translator('banner_pages'); ?></h3>
+	<hr />
+	
+	<div class="prefix_1 suffix_1 t_a_top">
+		<!-- Links container -->
+		<div class="clearfix t_a_bottom">
+			<div class="t_a_ui_data_list_header">
+				<div class="grid_7 alpha">
+					<div><?php echo $this->translator('banner_link'); ?></div>
+				</div>
+				<div class="grid_3 omega"><?php echo $this->translator('banner_zone'); ?></div>
+			</div>
+			<div id="links">
+				<?php if ($this->linkItems != null) : ?>
+				<?php foreach ($this->linkItems as $link) : ?>
+				<div class="clearfix t_a_ui_data_list_content">
+					<div class="grid_7 alpha">
+						<a href="<?php echo $link->page_url ;?>" route="<?php echo $link->route ;?>"><?php echo $link->page_title ;?></a>
+					</div>
+					<div class="grid_2">
+						<span zoneid="<?php echo $link->zone_id ;?>"><?php echo $this->zones[$link->zone_id];?></span>
+					</div>
+					<div class="grid_1 omega">
+						<a href="javascript: void(0);" class="t_a_ui_helper_action" onclick="javascript: $(this).parent().parent().remove();"><?php echo $this->translator('banner_remove_link'); ?></a>
+					</div>
+				</div>
+				<?php endforeach; ?>
+				<?php endif; ?>
+			</div>
+		</div>
+		
+		<!-- Add link -->
+		<div class="clearfix t_a_bottom">
+			<label><?php echo $this->translator('banner_link'); ?>:</label>
+			<input type="text" id="link" name="link" style="width: 300px" />
+		</div>
+		
+		<div class="clearfix t_a_bottom">
+			<label><?php echo $this->translator('banner_zone'); ?>:</label>
+			<select name="zone" id="zone" style="width: 200px">
+				<option value="">---</option>
+				<?php foreach ($this->zones as $zone => $name) : ?>
+				<option value="<?php echo $zone; ?>"><?php echo $name ?></option>
+				<?php endforeach; ?>				
+			</select>
+		</div>
+		
+		<div class="clearfix t_a_bottom">
+			<label>&nbsp;</label>
+			<a href="javascript: void(0);" id="addNewLink" class="t_a_ui_button_link"><span><?php echo $this->translator('banner_add_link'); ?></span></a>
+		</div>
+		
+		<!-- Link Provider -->
+		<?php 
+		/**
+		 * User can insert the link quickly by using Link Provider
+		 * @since 2.0.7
+		 */
+		?>
+		<div class="clearfix t_a_bottom">
+			<div class="grid_2 alpha">&nbsp;</div>
+			<div class="grid_8 omega">
+				<a href="javascript: void(0);" id="linkProviderToggle"><?php echo $this->translator('banner_link_provider_guide'); ?></a>
+			</div>
+		</div>
+		
+		<div class="clearfix t_a_bottom" id="linkProvider" style="display: none">
+			<?php 
+			/**
+			 * Add language switcher
+			 * @since 2.0.8
+			 */
+			?>
+			<div class="clearfix t_a_bottom">
+				<div class="grid_2 alpha">
+					<label><?php echo $this->translator('banner_language'); ?>:</label>
+				</div>
+				<div class="grid_8 omega">
+					<?php echo $this->languageSelector(array('jsCallback' => 'onSelectLanguage')); ?>
+				</div>
+			</div>
+			
+			<div class="clearfix t_a_bottom">
+				<div class="translatable">
+					<?php echo $this->linkProvider(array('jsCallback' => 'selectLink')); ?>
+				</div>
+			</div>
+		</div>
+		
+		<!-- Submit button -->
+		<div class="grid_12 t_a_bottom">
+			<label>&nbsp;</label>
+			<button type="button" id="saveButton"><span><?php echo $this->translator('banner_add_save_button'); ?></span></button>
+			<input type="hidden" name="linkItems" id="linkItems" />
+		</div>
+	</div>
+</div>
+</form>
+
+<script type="text/javascript">
+/**
+ * Upload handlers
+ */
+function onUploadComplete(event, ID, fileObj, response, data) {
+	var res = $.evalJSON(response);
+	$('#imageUrl').attr('value', res.original.url);
+};
+
+/**
+ * Handle selecting the link from Link Provider
+ */
+function selectLink(route, href, title) {
+	$('#link').val(href);
+};
+
+/**
+ * Handle selecting language event
+ * @since 2.0.8
+ */
+function onSelectLanguage(language, label) {
+	addZoneToLinkProvider();
+};
+
+/**
+ * Show the zone selector inside Link Provider
+ */
+function addZoneToLinkProvider() {
+	$('#linkProvider').find('li').each(function() {
+		var li   = $(this);
+		var link = $(li).find('a:first');
+		$(link).wrap($('<div/>').addClass('grid_7 alpha'));
+
+		/**
+		 * Create a clone of zone selector
+		 */
+		var zoneSelector = $('#zone').clone().change(function() {
+			if ($(this).val() != '') {
+				addLink($(link).attr('route'), $(link).attr('href'), $(link).html(), {
+					id: $(this).val(),
+					name: $(this).find('option:selected').html() 
+				});
+			}
+		});
+		$('<div/>').addClass('grid_3 omega').append($(zoneSelector)).appendTo(li);
+	});	
+};
+
+/**
+ * Handle selecting the zone inside Link Provider
+ */
+function addLink(route, href, title, zone) {
+	var div = $('<div/>').addClass('clearfix t_a_ui_data_list_content');
+
+	$('<div/>').addClass('grid_7 alpha').append($('<a/>').attr('href', href).attr('route', route).html(title)).appendTo($(div));
+	$('<div/>').addClass('grid_2').append($('<span/>').attr('zoneId', zone.id).html(zone.name)).appendTo($(div));
+	$('<div/>').addClass('grid_1 omega').append($('<a/>').attr('href', 'javascript: void(0);').addClass('t_a_ui_helper_action').html('<?php echo addslashes($this->translator('banner_remove_link')); ?>').hide().click(function() {
+		$(div).remove();
+	})).appendTo($(div));
+
+	$(div).hover(function() {
+		$(div).find('a.t_a_ui_helper_action').show();
+	}, function() {
+		$(div).find('a.t_a_ui_helper_action').hide();
+	});
+	
+	$('#links').append($(div));
+};
+
+$(document).ready(function() {
+	/**
+	 * Create datepicker instances
+	 */
+	$('#startDate').datepicker();
+	$('#expiredDate').datepicker();
+
+	/**
+	 * Switch mode handler
+	 */
+	$('#mode').change(function() {
+		if ($(this).val() == 'share') {
+			$('#timeoutContainer').show();
+		} else {
+			$('#timeoutContainer').hide();
+		}		
+	});
+
+	/**
+	 * Switch format handler
+	 */
+	$('#format').change(function() {
+		$('#fileFormat, #htmlFormat').hide();		
+
+		switch ($(this).val()) {
+			case 'image': 
+			case 'flash':				
+				$('#fileFormat').show();
+				break;
+			case 'text': 
+			case 'html':
+				$('#htmlFormat').show();
+				break;
+		}	
+	});
+	
+	/**
+	 * Toggle Link Provider
+	 */
+	$('#linkProviderToggle').click(function() {
+		$('#linkProvider').toggle();
+	});
+
+	addZoneToLinkProvider();
+
+	/**
+	 * Add new link
+	 */
+	$('#addNewLink').click(function() {	
+		if ($('#link').val() != '' && $('#zone').val() != '') {
+			addLink('', $('#link').val(), $('#link').val(), {
+				id: $('#zone').val(),
+				name: $('#zone').find('option:selected').html() 
+			});
+		}	
+	});
+
+	/**
+	 * Validate form
+	 */
+	$.validator.addMethod('endDate', function() {
+		var startDate = $('#startDate').val();
+		var endDate = $('#expiredDate').val();
+		return startDate == '' || endDate == '' || Date.parse(startDate) <= Date.parse(endDate);
+	});
+	$('#editBannerForm').validate({
+		rules: {
+			name: {
+		  		required: true
+			},
+			format: {
+		  		required: true
+			},
+			mode: {
+				required: true
+			},
+			timeout: {
+		  		number: true
+			},
+			expiredDate: {
+				endDate: true
+			},
+			target: {
+		  		required: true
+			}
+	    },
+	    messages: {
+	    	name: {
+	        	required: "<?php echo $this->translator('banner_name_required'); ?>"
+			},
+			format: {
+		  		required: "<?php echo $this->translator('banner_format_required'); ?>"
+			},
+			mode: {
+		  		required: "<?php echo $this->translator('banner_mode_required'); ?>"
+			},
+			timeout: {
+				number: "<?php echo $this->translator('banner_timeout_number'); ?>"
+			},
+			expiredDate: {
+				endDate: "<?php echo $this->translator('banner_end_date_greater_than_start_date'); ?>"
+			},
+			target: {
+		  		required: "<?php echo $this->translator('banner_target_required'); ?>"
+			}
+		}
+	});
+
+	/**
+	 * Submit form handler
+	 */
+	$('#saveButton').click(function() {
+		/**
+		 * Assign value for hidden items
+		 */
+		var items = new Array();
+		$('#links .t_a_ui_data_list_content').each(function() {
+			var link = $(this).find('a:first');
+			items.push({
+				route: $(link).attr('route'),
+				page_title: $(link).html(),
+				page_url: $(link).attr('href'),
+				zone_id: $(this).find('span:last').attr('zoneid')
+			});
+		});
+
+		$('#linkItems').val($.toJSON(items));
+
+		$('#editBannerForm').submit();
+	});	 
+});
+</script>

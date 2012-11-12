@@ -1,0 +1,99 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: add.phtml 4182 2010-08-01 16:27:10Z huuphuoc $
+ * @since		2.0.0
+ */
+?>
+<?php 
+$this->headTitle($this->translator('client_add_page_title'));
+
+$this->headScript()->appendFile($this->APP_STATIC_SERVER . '/js/jquery.validate/jquery.validate.min.js');
+?>
+
+<div class="grid_12 t_a_ui_breadcrumb">
+	<span><a href="<?php echo $this->url(array(), 'ad_client_list'); ?>"><?php echo $this->translator('client_list_breadcrumb'); ?></a></span>
+	<span><?php echo $this->translator('client_add_breadcrumb'); ?></span>
+</div>
+
+<div class="grid_12"><?php echo $this->flashMessenger(); ?></div>
+
+<form method="post" action="<?php echo $this->url(array(), 'ad_client_add'); ?>" id="addClientForm">
+<div class="grid_12 t_a_bottom"><?php echo $this->translator('client_add_guide'); ?></div>
+
+<div class="grid_12 t_a_bottom">
+	<div class="prefix_1 suffix_1">
+		<div class="clearfix t_a_bottom">
+			<label><?php echo $this->translator('client_name'); ?>:</label>
+			<input type="text" id="name" name="name" style="width: 400px" />
+		</div>
+		
+		<hr />
+		
+		<div class="clearfix t_a_bottom">
+			<label><?php echo $this->translator('client_email'); ?>:</label>
+			<input type="text" id="email" name="email" style="width: 200px" />
+		</div>
+		
+		<hr />
+		
+		<div class="clearfix t_a_bottom">
+			<label><?php echo $this->translator('client_telephone'); ?>:</label>
+			<input type="text" id="telephone" name="telephone" style="width: 200px" />
+		</div>
+		
+		<hr />
+		
+		<div class="clearfix t_a_bottom">
+			<label><?php echo $this->translator('client_address'); ?>:</label>
+			<textarea name="address" id="address" style="width: 400px; height: 100px"></textarea>
+		</div>
+		
+		<hr />
+		
+		<div class="clearfix t_a_bottom">
+			<label>&nbsp;</label>
+			<button type="submit"><span><?php echo $this->translator('client_add_save_button'); ?></span></button>
+		</div>
+	</div>
+</div>
+</form>
+
+<script type="text/javascript">
+$(document).ready(function() {
+	/**
+	 * Validate form
+	 */
+	$('#addClientForm').validate({
+		rules: {
+			name: {
+		  		required: true
+			},
+			email: {
+				email: true
+			}
+	    },
+	    messages: {
+	    	name: {
+	        	required: "<?php echo $this->translator('client_name_required'); ?>"
+			},
+			email: { 
+	        	email: "<?php echo $this->translator('client_email_invalid'); ?>"
+	    	}
+		}
+	});
+});
+</script>

@@ -1,0 +1,81 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: _translatableArticle.phtml 4971 2010-08-26 01:43:15Z huuphuoc $
+ * @since		2.0.8
+ */
+?>
+<select name="<?php echo $this->attributes['name']; ?>" id="<?php echo $this->attributes['id']; ?>" 
+	viewHelperClass="News_View_Helper_TranslatableArticle" 
+	viewHelperAttributes='<?php echo Zend_Json::encode($this->attributes); ?>' style="width: 440px">
+	
+	<option value='{"id": "", "language": ""}'>---</option>
+	<?php foreach ($this->articles as $article) : ?>
+	<option value='<?php echo Zend_Json::encode(array('id' => $article->article_id, 'language' => $this->defaultLang)); ?>'
+		<?php if ($disabled = (0 == (int)$article->translatable 
+								&& ((0 == (int)$this->attributes['disabled'] && $article->article_id != (int)$this->attributes['selected'])
+									||
+									((int)$this->attributes['disabled'] == (int)$this->attributes['selected'])
+									))) : ?> disabled="disabled"<?php endif; ?>
+		<?php if ($selected = (!$disabled
+								&& $article->article_id == (int)$this->attributes['selected'])) : ?> selected="selected"<?php endif; ?>>
+		<?php echo $article->title; ?>
+	</option>
+	<?php endforeach; ?>
+	
+	<option value=""><?php echo $this->translator('helper_translatable_article_more', 'news'); ?></option>
+</select>
+
+<script type="text/javascript">
+$(document).ready(function() {
+	$('#<?php echo $this->attributes['id']; ?>').change(function() {
+		if ($(this).val() != '') {
+			return;
+		}
+
+		/**
+		 * Load more articles
+		 */
+		var self   = this;
+		var parent = $(self).parent(); 
+		$(parent).html('').addClass('t_a_ui_helper_loading');
+		
+		$.ajaxq('Core_View_Helper_LanguageSelector', {
+			url: '<?php echo $this->url(array(), 'core_locale_viewhelper'); ?>',
+			type: 'POST',
+			data: {
+				id: $(self).attr('id'), 
+				name: $(self).attr('name'), 
+				language: '<?php echo $this->lang; ?>',
+				viewHelperClass: $(self).attr('viewHelperClass'), 
+				viewHelperAttributes: $(self).attr('viewHelperAttributes') 
+			},
+			success: function(response) {
+				$(parent).html(response).removeClass('t_a_ui_helper_loading');
+
+				/**
+				 * Disable source items element if user select the default language
+				 */
+				if ('<?php echo $this->lang; ?>' == '<?php echo $this->defaultLang; ?>') {
+					$(self).attr('disabled', 'disabled').find('option:selected').removeAttr('selected');
+				} else {
+					$(self).removeAttr('disabled');
+				}
+			}
+		});
+	});
+});
+</script>

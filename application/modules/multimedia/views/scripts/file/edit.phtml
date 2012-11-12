@@ -1,0 +1,250 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: edit.phtml 5250 2010-08-31 08:49:09Z huuphuoc $
+ * @since		2.0.0
+ */
+?>
+<?php 
+$this->headTitle($this->translator('file_edit_page_title'));
+
+$this->headLink()
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.core.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.resizable.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.dialog.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.theme.css');
+
+$this->headScript()
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.core.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.draggable.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.resizable.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.dialog.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.validate/jquery.validate.min.js');
+?>
+
+<script type="text/javascript" src="<?php echo $this->APP_STATIC_SERVER; ?>/js/tinymce/tiny_mce.js"></script>
+
+<?php $this->headStyle()->captureStart(); ?>
+.uploadifyQueueItem { clear:both; width: 250px; }
+<?php $this->headStyle()->captureEnd(); ?>
+
+<div class="grid_12 t_a_ui_breadcrumb">
+	<span><a href="<?php echo $this->url(array(), 'multimedia_file_list'); ?>"><?php echo $this->translator('file_list_breadcrumb'); ?></a></span>
+	<span><?php echo $this->translator('file_edit_breadcrumb'); ?></span>
+</div>
+
+<div class="grid_12"><?php echo $this->flashMessenger(); ?></div>
+
+<form method="post" action="<?php echo $this->url(array('file_id' => $this->file->file_id), 'multimedia_file_edit'); ?>" id="editFileForm">
+<div class="grid_12 t_a_bottom"><?php echo $this->translator('file_edit_guide'); ?></div>
+
+<div class="grid_12">
+	<div class="grid_8 alpha">
+		<div class="t_a_ui_helper_line">
+			<h3><?php echo $this->translator('file_add_details'); ?></h3>
+		</div>
+		
+		<div>
+			<div class="clearfix t_a_bottom">
+				<label><?php echo $this->translator('file_title'); ?>:</label>
+				<input type="text" id="title" name="title" style="width: 420px" value="<?php if (null != $this->file->title) : ?><?php echo $this->file->title; ?><?php endif; ?>" />
+			</div>
+			
+			<hr />
+			
+			<div class="clearfix t_a_bottom">
+				<label><?php echo $this->translator('file_description'); ?>:</label>
+				<textarea name="description" id="description" style="width: 420px; height: 250px"><?php if (null != $this->file->description) : ?><?php echo $this->file->description; ?><?php endif; ?></textarea>
+			</div>
+			
+			<hr />
+			
+			<div class="clearfix t_a_bottom">
+				<label><?php echo $this->translator('file_file_type'); ?>:</label>
+				<select name="file_type" id="fileType" style="width: 200px">
+					<option value="image"<?php if (null != $this->file->file_type && 'image' == $this->file->file_type) : ?> selected="selected"<?php endif; ?>><?php echo $this->translator('file_photo'); ?></option>
+					<option value="video"<?php if (null != $this->file->file_type && 'video' == $this->file->file_type) : ?> selected="selected"<?php endif; ?>><?php echo $this->translator('file_clip'); ?></option>
+				</select>
+			</div>
+			
+			<hr />
+			
+			<!-- Upload photo -->
+			<div class="clearfix t_a_bottom">
+				<div class="clearfix t_a_bottom">
+					<label><?php echo $this->translator('file_upload_image_guide'); ?>:</label>
+					<?php
+					echo $this->helperLoader('upload')->uploader('multimedia', 
+							array('extension' => '*.jpg;*.jpeg;*.png;*.gif', 'multi' => false, 'auto' => true, 'simUploadLimit' => 1, 'sizeLimit' => 1024 * 1024 * 5), 
+							array('onComplete' => 'onUploadCompleteThumbnail'));
+					?>
+				</div>
+				
+				<div class="clearfix t_a_bottom">
+					<label>&nbsp;</label>
+					<div>
+						<input type="hidden" id="image" name="image" value='<?php if (null != $this->file->image_crop) : ?>{"square":"<?php echo $this->file->image_square; ?>","thumbnail":"<?php echo $this->file->image_thumbnail; ?>","small":"<?php echo $this->file->image_small; ?>","crop":"<?php echo $this->file->image_crop; ?>","medium":"<?php echo $this->file->image_medium; ?>","large":"<?php echo $this->file->image_large; ?>"}<?php endif; ?>'/>
+						<div id="fileImage" style="width: 270px; height: 200px; line-height: 200px; border: 1px solid #222; text-align: center; overflow: hidden"><?php if (null != $this->file && null != $this->file->image_crop) : ?><img src='<?php echo $this->file->image_crop; ?>' /><?php else: ?><?php echo $this->translator('file_no_image'); ?><?php endif; ?></div>
+					</div>
+				</div>
+				
+				<?php 
+				/**
+				 * Load image editor
+				 * @since 2.0.4
+				 */
+				?>
+				<?php if ($this->allow('editor')) : ?>
+				<div class="clearfix t_a_bottom">
+					<label>&nbsp;</label>
+					<div>
+						<a href="javascript: void(0);" id="editorLoader"><?php echo $this->translator('file_image_edit'); ?></a>
+						<div id="editorDialog"></div>
+						<script type="text/javascript">
+						$(document).ready(function() {
+							var editorDialogOptions = {
+						        title: "<?php echo $this->escape($this->translator('file_image_editor')); ?>",
+						        modal: true,
+						        autoOpen: false,
+						        height: 450,
+						        width: 670,
+						        open: function() {
+							        $("#editorDialog").load('<?php echo $this->url(array('file_id' => $this->file->file_id), 'multimedia_file_editor'); ?>');
+						        },
+						        close: function(event, ui) {
+						        	$('#imgSource').imgAreaSelect({ remove: true });
+							       	$(this).dialog('destroy');
+						        }
+							};
+							$('#editorLoader').click(function() {
+								$("#editorDialog").dialog(editorDialogOptions).dialog('open');	
+							});
+						});
+						</script>
+					</div>
+				</div>
+				<?php endif; ?>
+			</div>
+			
+			<!-- Upload clip -->
+			<div class="clearfix t_a_bottom" id="videoFile"<?php if ($this->file->file_type == 'image') : ?> style="display: none"<?php endif; ?>>
+				<hr />
+				
+				<div class="clearfix t_a_bottom">
+					<label><?php echo $this->translator('file_video_url'); ?>:</label>
+					<input type="text" name="url" id="url" style="width: 300px" value="<?php if (null != $this->file->url) : ?><?php echo $this->file->url; ?><?php endif; ?>" /><br />
+				</div>
+				
+				<div class="clearfix t_a_bottom">
+					<label><?php echo $this->translator('file_upload_video_guide'); ?>:</label>
+					<div>
+						<?php 
+						echo $this->helperLoader('upload')->uploader('multimedia', 
+								array('extension' => '*.flv;*.swf', 'multi' => false, 'auto' => true, 'simUploadLimit' => 1, 'sizeLimit' => 1024 * 1024 * 10, 'thumbnails' => 'none'), 
+								array('onComplete' => 'onUploadCompleteUrl'));
+						?>
+					</div>
+				</div>
+				
+				<hr />
+				
+				<div class="clearfix t_a_bottom">
+					<label><?php echo $this->translator('file_html_code'); ?>:</label>
+					<textarea name="html_code" id="html_code" style="width: 400px; height: 150px"><?php if (null != $this->file->html_code) : ?><?php echo $this->file->html_code; ?><?php endif; ?></textarea>
+				</div>
+			</div>
+		</div>
+	</div>	
+		
+	<div class="grid_4 omega">
+		<?php Tomato_Hook_Registry::getInstance()->executeAction('Multimedia_File_Edit_ShowSidebar', array($this->file->file_id)); ?>
+	</div>
+</div>
+
+<div class="grid_12 t_a_bottom"><hr /></div>
+
+<div class="grid_12 t_a_bottom">
+	<label>&nbsp;</label>
+	<button type="submit"><span><?php echo $this->translator('file_edit_save_button'); ?></span></button>
+</div>
+</form>
+
+<div id="messageDialog" style="z-index: 0"></div>
+
+<script type="text/javascript">
+/**
+ * Add TinyMCE Editor for set description input 
+ * @since 2.0.2
+ */
+tinyMCE.init({
+	plugins: 'safari,spellchecker,pagebreak,style,layer,table,save,advhr,advimage,advlink,emotions,iespell,inlinepopups,insertdatetime,preview,media,searchreplace,print,contextmenu,paste,directionality,fullscreen,noneditable,visualchars,nonbreaking,xhtmlxtras,template,imagemanager,filemanager,preelementfix',
+	theme: 'simple', // 'advanced'
+	theme_simple_toolbar_location : "top",
+	theme_simple_toolbar_align : "left",
+	width: '420',
+	mode: 'exact',
+	elements: 'description',
+	relative_urls: false,
+	remove_script_host: false
+});
+
+/**
+ * Upload handlers
+ */
+function onUploadCompleteThumbnail(event, ID, fileObj, response, data) {
+	var images = $.evalJSON(response);
+	var res = response;
+	$('#fileImage').html('');
+	$('<img src="' + images.crop.url + '" />').appendTo($('#fileImage'));
+
+	var urls = {};
+	for (var thumb in images) {
+		urls[thumb] = images[thumb].url; 
+	}
+	$('#image').val($.toJSON(urls));
+};
+
+function onUploadCompleteUrl(event, ID, fileObj, response, data) {
+	var res = $.evalJSON(response);
+	$('#url').attr('value', res.original.url);
+};
+
+$(document).ready(function() {
+	/**
+	 * Select file type handler
+	 */
+	$('#fileType').change(function() {
+		$('#videoFile').hide();
+		$('#' + $(this).val() + 'File').show();
+	});
+	
+	/**
+	 * Validate form
+	 */
+	$('#editFileForm').validate({
+		rules: {
+			title: {
+		  		required: true
+			}
+	    },
+	    messages: {
+	    	title: {
+	        	required: "<?php echo $this->translator('file_title_required'); ?>"
+			}
+		}
+	});
+});
+</script>

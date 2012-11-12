@@ -1,0 +1,166 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: config.phtml 5373 2010-09-10 02:22:07Z huuphuoc $
+ * @since		2.0.9
+ */
+?>
+<div class="t_news_article">
+	<div class="t_a_bottom">
+		<select name="category_id" class="t_widget_input">
+			<option value=""><?php echo $this->translator()->widget('config_select_category'); ?></option>
+			
+			<?php foreach ($this->categories as $category) : ?>
+			<option value="<?php echo $category->category_id; ?>"><?php echo str_repeat('---', $category->depth) . $category->name; ?></option>
+			<?php endforeach; ?>
+		</select>
+	</div>
+	
+	<div class="t_a_bottom">
+		<input type="checkbox" class="t_widget_input_global" name="global_category_id" /> <?php echo $this->translator()->widget('config_category_from_request'); ?>
+	</div>
+	
+	<hr />
+	
+	<div class="t_a_bottom">
+		<input type="checkbox" name="show_latest"<?php if ($this->article == null) : ?> checked="checked"<?php endif; ?> /> <?php echo $this->translator()->widget('config_show_latest'); ?>
+	</div>
+	
+	<div class="t_a_bottom">
+		<select name="article_id" class="t_widget_input">
+			<option value=""><?php echo $this->translator()->widget('config_select_article'); ?></option>
+			<?php if ($this->article) : ?>
+			<option value="<?php echo $this->article->article_id; ?>"><?php echo $this->article->title; ?></option>
+			<?php endif; ?>
+			
+			<?php if ($this->articles): ?>
+			<?php foreach ($this->articles as $article) : ?>
+			<option value="<?php echo $article->article_id; ?>"><?php echo $article->title; ?></option>
+			<?php endforeach; ?>
+			<?php endif; ?>
+		</select>
+	</div>
+	
+	<hr />
+</div>
+
+
+<script type="text/javascript">
+'News.Widgets.Article'.namespace();
+
+News.Widgets.Article = function() {};
+News.Widgets.Article.STEP = 10;
+
+News.Widgets.Article.selected = null;
+<?php if ($this->article) : ?>
+News.Widgets.Article.selected = {
+	'articleId': <?php echo $this->article->article_id; ?>,
+	'title': '<?php echo addslashes($this->article->title); ?>',
+	'categoryId': <?php echo $this->article->category_id; ?>
+};
+<?php endif; ?>
+
+News.Widgets.Article.loadArticles = function(root, categoryId, limit) {
+	var data = $.toJSON({
+		'categoryId': categoryId,
+		'limit': limit
+	});
+
+	var selectContainer = $(root).find('select[name="article_id"]').parent();
+	$(selectContainer).html('').addClass('t_a_ui_helper_loading');
+	
+	Tomato.Core.Widget.Loader.queueAction('news', 'article', 'load', data, null, function(response) {
+		var articles = $.evalJSON(response.content);
+		
+		$(selectContainer).removeClass('t_a_ui_helper_loading');
+		var select = $('<select/>').attr('name', 'article_id').addClass('t_widget_input');
+
+		$('<option/>').attr('value', '').html('<?php echo $this->translator()->widget('config_select_article'); ?>').appendTo($(select));
+		if (News.Widgets.Article.selected) {
+			$('<option/>').attr('value', News.Widgets.Article.selected.articleId)
+						.attr('categoryId', News.Widgets.Article.selected.categoryId)
+						.html(News.Widgets.Article.selected.title)
+						.appendTo($(select));
+		}
+
+		$('<option/>').attr('value', '').html('---').appendTo($(select));
+		
+		for (var i in articles) {
+			$('<option/>').attr('value', articles[i].article_id)
+						.attr('categoryId', articles[i].category_id)
+						.html(articles[i].title).appendTo($(select));
+		}
+
+		/**
+		 * The option element for loading more articles
+		 */
+		var more = $('<option/>').attr('value', '')
+					.addClass('more')
+					.html('<?php echo $this->translator()->widget('config_select_more'); ?>')
+					.appendTo($(select));
+		
+		$(select).change(function() {
+			var selected = $(this).find('option:selected');
+
+			if ($(this).val() != '') {
+				$(root).find('select[name="category_id"]').val($(selected).attr('categoryId'));
+				$(root).find('input[name="show_latest"]').removeAttr('checked');
+			}
+			
+			if ($(selected).hasClass('more')) {
+				News.Widgets.Article.loadArticles(root, categoryId, limit + News.Widgets.Article.STEP);
+			}
+		});
+
+		$(selectContainer).append($(select));
+	});
+};
+
+$(document).ready(function() {
+	$('.t_news_article').each(function() {
+		var root = $(this);
+
+		$(root).find('input[name="global_category_id"]').click(function() {
+			if ($(this).is(':checked')) {
+				$(root).find('input[name="show_latest"]').attr('checked', 'checked');
+				$(root).find('select[name="article_id"]').val('').attr('disabled', 'disabled');
+			} else {
+				$(root).find('select[name="article_id"]').removeAttr('disabled');
+			}
+		});
+
+		$(root).find('input[name="show_latest"]').change(function() {
+			if ($(this).is(':checked')) {
+				$(root).find('select[name="article_id"]').val('').attr('disabled', 'disabled');
+			} else {
+				$(root).find('select[name="article_id"]').removeAttr('disabled');
+			}
+		});
+
+		$(root).find('select[name="category_id"]').change(function() {
+			if ($(this).val() != '') {
+				News.Widgets.Article.loadArticles(root, $(this).val(), News.Widgets.Article.STEP);
+			}
+		});
+
+		$(root).find('select[name="article_id"]').change(function() {
+			if ($(this).val() != '') {
+				$(root).find('input[name="show_latest"]').removeAttr('checked');
+			}
+		});
+	});
+});
+</script>

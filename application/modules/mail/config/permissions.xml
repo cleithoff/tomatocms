@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version		$Id: permissions.xml 3973 2010-07-25 10:33:12Z huuphuoc $
+ * @since		2.0.6
+ */
+-->
+<!DOCTYPE permissions SYSTEM "http://schemas.tomatocms.com/dtd/module_permission.dtd">
+<permissions>
+	<resource name="config" description="Config mail server" langKey="permission_config">
+		<privilege name="server" description="Config mail server" langKey="permission_config_server" />
+	</resource>
+	<resource name="template" description="Manage mail templates" langKey="permission_template">
+		<privilege name="add" description="Add new mail template" langKey="permission_template_add" />
+		<privilege name="delete" description="Delete the mail template" langKey="permission_template_delete" />
+		<privilege name="edit" description="Edit the mail template" langKey="permission_template_edit" />
+		<privilege name="list" description="View the list of templates" langKey="permission_template_list" />
+	</resource>
+	<resource name="mail" description="Manage mails" langKey="permission_mail">
+		<privilege name="list" description="View the list of mails" langKey="permission_mail_list" />
+		<privilege name="send" description="Send mails" langKey="permission_mail_send" />
+	</resource>
+</permissions>

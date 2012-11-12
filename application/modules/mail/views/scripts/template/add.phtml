@@ -1,0 +1,143 @@
+<?php
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: add.phtml 4186 2010-08-01 16:31:52Z huuphuoc $
+ * @since		2.0.6
+ */
+?>
+<?php 
+$this->headTitle($this->translator('template_add_page_title'));
+
+$this->headScript()->appendFile($this->APP_STATIC_SERVER . '/js/jquery.validate/jquery.validate.min.js');
+?>
+
+<div class="grid_12 t_a_ui_breadcrumb">
+	<span><a href="<?php echo $this->url(array(), 'mail_template_list'); ?>"><?php echo $this->translator('template_list_breadcrumb'); ?></a></span>
+	<span><?php echo $this->translator('template_add_breadcrumb'); ?></span>
+</div>
+
+<div class="grid_12"><?php echo $this->flashMessenger(); ?></div>
+
+<form method="post" action="<?php echo $this->url(array(), 'mail_template_add'); ?>" id="addTemplateForm">
+<div class="grid_12 t_a_bottom"><?php echo $this->translator('template_add_guide'); ?></div>
+
+<div class="grid_12 t_a_bottom">
+	<div class="prefix_1 suffix_1">
+		<div class="clearfix t_a_bottom">
+			<label><?php echo $this->translator('template_name'); ?>:</label>
+			<input type="text" id="name" name="name" style="width: 200px" />
+		</div>
+		
+		<hr />
+		
+		<div class="clearfix t_a_bottom">
+			<label><?php echo $this->translator('template_title'); ?>:</label>
+			<input type="text" id="title" name="title" style="width: 400px" />
+		</div>
+		
+		<hr />
+		
+		<div class="clearfix t_a_bottom">
+			<label><?php echo $this->translator('template_subject'); ?>:</label>
+			<input type="text" id="subject" name="subject" style="width: 400px" />
+		</div>
+		
+		<hr />
+		
+		<div class="clearfix t_a_bottom">
+			<label><?php echo $this->translator('template_content'); ?>:</label>
+			<textarea style="width: 400px; height: 300px" id="content" name="content"></textarea>
+		</div>
+		
+		<hr />
+		
+		<div class="clearfix t_a_bottom">
+			<label><?php echo $this->translator('template_from_name'); ?>:</label>
+			<input type="text" id="fromName" name="fromName" style="width: 200px" value="<?php echo $this->name; ?>" />
+		</div>
+		
+		<hr />
+		
+		<div class="clearfix t_a_bottom">
+			<label><?php echo $this->translator('template_from_mail'); ?>:</label>
+			<input type="text" id="fromMail" name="fromMail" style="width: 200px" value="<?php echo $this->email; ?>" />
+		</div>
+		
+		<hr />
+		
+		<div class="clearfix t_a_bottom">
+			<label><?php echo $this->translator('template_reply_to_name'); ?>:</label>
+			<input type="text" id="replyToName" name="replyToName" style="width: 200px" value="<?php echo $this->name; ?>" />
+		</div>
+		
+		<hr />
+		
+		<div class="clearfix t_a_bottom">
+			<label><?php echo $this->translator('template_reply_to_mail'); ?>:</label>
+			<input type="text" id="replyToMail" name="replyToMail" style="width: 200px" value="<?php echo $this->email; ?>" />
+		</div>
+		
+		<hr />
+		
+		<div class="clearfix t_a_bottom">
+			<label>&nbsp;</label>
+			<button type="submit"><span><?php echo $this->translator('template_add_save_button'); ?></span></button>
+		</div>
+	</div>
+</div>
+</form>
+
+<script type="text/javascript">
+$(document).ready(function() {
+	/**
+	 * Validate form
+	 */
+	$.validator.addMethod('specialCharacter', function(value) {
+		value = value.replace(/^\s+|\s+$/g, '');
+		var regex = new RegExp(/^[a-zA-Z0-9\-_]+$/);
+		return value == '' || value.match(regex);
+	});
+	
+	$('#addTemplateForm').validate({
+		rules: {
+			name: {
+		  		required: true,
+		  		specialCharacter: true,
+		  		remote: '<?php echo $this->url(array(), 'mail_template_check'); ?>'
+			},
+			title: {
+				required: true
+			},
+			subject: {
+		  		required: true
+			}
+	    },
+	    messages: {
+	    	name: {
+	        	required: "<?php echo $this->translator('template_name_required'); ?>",
+	        	specialCharacter: "<?php echo $this->translator('template_name_invalid'); ?>",
+				remote: "<?php echo $this->translator('template_name_exist'); ?>"
+			},
+			title: {
+	        	required: "<?php echo $this->translator('template_title_required'); ?>"
+			},
+			subject: { 
+	        	required: "<?php echo $this->translator('template_subject_required'); ?>"
+	    	}
+		}
+	});	
+});
+</script>

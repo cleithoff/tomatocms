@@ -1,0 +1,93 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: add.phtml 4185 2010-08-01 16:31:02Z huuphuoc $
+ * @since		2.0.0
+ */
+?>
+<?php 
+$this->headTitle($this->translator('page_add_page_title'));
+$this->headScript()->appendFile($this->APP_STATIC_SERVER . '/js/jquery.validate/jquery.validate.min.js');
+?>
+
+<div class="grid_12 t_a_ui_breadcrumb">
+	<span><a href="<?php echo $this->url(array(), 'core_template_list'); ?>"><?php echo $this->translator('template_list_breadcrumb'); ?></a></span>
+	<span><a href="<?php echo $this->url(array('template' => 'default'), 'core_page_list'); ?>"><?php echo $this->translator('page_list_breadcrumb'); ?></a></span>
+	<span><?php echo $this->translator('page_add_breadcrumb'); ?></span>
+</div>
+
+<div class="grid_12"><?php echo $this->flashMessenger(); ?></div>
+
+<form method="post" action="<?php echo $this->url(array(), 'core_page_add'); ?>" id="addPageForm">
+<div class="grid_12 t_a_bottom"><?php echo $this->translator('page_add_guide'); ?></div>
+
+<div class="grid_12 t_a_bottom">
+	<div class="prefix_1 suffix_1">
+		<div class="clearfix t_a_bottom">
+			<label><?php echo $this->translator('page_type'); ?>:</label>
+			<select name="route" id="route">
+				<option value="">---</option>
+				<?php foreach ($this->frontendRoutes as $name => $settings) : ?>
+				<option value="<?php echo $name; ?>"<?php if ($settings['used']) : ?> disabled="disabled" class="t_a_ui_state_disable"<?php endif; ?>><?php echo $settings['description']; ?></option>
+				<?php endforeach; ?>
+			</select>
+		</div>
+		
+		<hr />
+	
+		<div class="clearfix t_a_bottom">
+			<label><?php echo $this->translator('page_title'); ?>:</label>
+			<input type="text" id="title" name="title" style="width: 400px" />
+		</div>
+		
+		<hr />
+		
+		<div class="clearfix t_a_bottom">
+			<label>&nbsp;</label>
+			<button type="submit"><span><?php echo $this->translator('page_add_button'); ?></span></button>
+		</div>
+	</div>
+</div>
+</form>
+
+<script type="text/javascript">
+$(document).ready(function() {
+	/**
+	 * Assign the title based on the selected route automatically
+	 */
+	$('#route').change(function() {
+		if ($(this).val() != '') {
+			$('#title').val($(this).find('option[selected="true"]').html());
+		}
+	});
+
+	/**
+	 * Validate form
+	 */
+	$('#addPageForm').validate({
+		rules: {
+			route: {
+				required: true
+			}
+	    },
+	    messages: {
+	    	route: {
+	        	required: "<?php echo $this->translator('page_type_required'); ?>"
+			}
+		}
+	});
+});
+</script>

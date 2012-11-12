@@ -1,0 +1,230 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: list.phtml 4988 2010-08-26 04:12:15Z huuphuoc $
+ * @since		2.0.0
+ */
+?>
+<?php 
+$this->headTitle($this->translator('set_list_page_title'));
+
+$this->headLink()
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.core.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.resizable.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.dialog.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.theme.css');
+
+$this->headScript()
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.core.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.dialog.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.editinplace/jquery.editinplace.packed.js');
+?>
+
+<div class="grid_12 t_a_ui_breadcrumb">
+	<span><?php echo $this->translator('set_list_breadcrumb'); ?></span>
+</div>
+
+<div class="grid_12 t_a_bottom">
+	<div class="grid_10 alpha"><?php echo $this->translator('set_list_guide'); ?></div>
+	<div class="grid_2 omega">
+		<div class="t_a_right">
+			<a class="t_a_ui_button_link" href="<?php echo $this->url(array(), 'multimedia_set_add'); ?>"><span><?php echo $this->translator('set_add_breadcrumb'); ?></span></a>
+		</div>
+	</div>
+</div>
+
+<!-- Search form -->
+<form method="post" action="<?php echo $this->url(array(), 'multimedia_set_list'); ?>" id="searchSetForm">
+<div class="grid_12 t_a_bottom">
+	<div class="prefix_1 suffix_1">
+		<div class="clearfix t_a_bottom">
+			<label><?php echo $this->translator('set_list_search_keyword'); ?>:</label>
+			<input type="text" style="width: 300px" name="keyword" value="<?php if (isset($this->exp['keyword'])) : ?><?php echo $this->exp['keyword']; ?><?php endif; ?>" />
+		</div>
+		
+		<hr />
+		
+		<div class="clearfix">
+			<label>&nbsp;</label>
+			<input type="checkbox" name="findMySets"<?php if (isset($this->exp['created_user'])) : ?> checked="checked"<?php endif; ?> value="1" /> <?php echo $this->translator('set_list_search_my_sets'); ?>
+		</div>
+
+		<hr />
+		
+		<div class="clearfix t_a_bottom">
+			<label>&nbsp;</label>
+			<button type="submit"><span><?php echo $this->translator('set_list_search_button'); ?></span></button>
+		</div>
+    </div>
+</div>
+</form>
+
+<!-- List of sets -->
+<?php if ($this->numSets == 0) : ?>
+	<div class="grid_12 t_a_bottom"><?php echo $this->translator('set_list_not_found'); ?></div>	
+<?php else : ?>
+	<?php foreach ($this->sets as $index => $set) : ?>
+	<?php if ($index % 3 == 0) : ?><ul class="grid_12 t_a_bottom"><?php endif; ?>
+	
+	<li id="photoRow_<?php echo $set->set_id; ?>" style="padding: 10px 30px; float: left">
+		<div class="clearfix t_a_bottom"><img class="t_a_image" src="<?php echo $set->image_small; ?>" /></div>
+		<div class="clearfix"><?php echo sprintf($this->translator('set_list_photos'), $this->fileCounter($set->set_id)); ?></div>
+		
+		<div class="clearfix t_a_bottom t_a_ui_helper_editable" style="background: #E8E8E8; border: 1px solid #222; width: 160px; max-height: 200px; overflow: auto" id="<?php echo 'title_'.$set->set_id ?>"><?php echo $set->title; ?></div>
+		<div class="clearfix t_a_bottom t_a_ui_helper_editable" style="background: #E8E8E8; border: 1px solid #222; width: 160px; max-height: 200px; overflow: auto" id="<?php echo 'description_'.$set->set_id ?>"><?php echo $set->description; ?></div>
+		
+		<div class="t_a_bottom t_a_ui_helper_action">
+			<?php if ($this->allow('edit')) : ?>
+			<a href="<?php echo $this->url(array('set_id' => $set->set_id), 'multimedia_set_edit'); ?>"><?php echo $this->translator('set_list_action_edit'); ?></a>&nbsp;|&nbsp;
+			<?php endif; ?>
+			
+			<?php if ($this->allow('delete')) : ?>
+			<a class="deleteAction" rel="<?php echo $set->set_id; ?>" href="javascript: void(0);"><?php echo $this->translator('set_list_action_delete'); ?></a>&nbsp;|&nbsp;
+			<?php endif; ?>
+			
+			<?php if ($this->allow('activate')) : ?>
+			<a class="activateAction" rel="<?php echo $set->set_id ?>_<?php echo (int)$set->is_active; ?>_<?php echo $set->slug; ?>" href="javascript: void(0);"><?php if ($set->is_active) : ?><?php echo $this->translator('set_list_action_deactivate'); ?><?php else : ?><?php echo $this->translator('set_list_action_activate'); ?><?php endif; ?></a>
+			<?php endif; ?>
+		</div>
+	</li>
+	
+	<?php if ($index % 3 == 2 || $index == (count($this->sets) - 1)) : ?></ul><?php endif; ?>
+	<?php endforeach; ?>
+		
+	<div class="grid_12 t_a_bottom t_a_ui_paginator">
+		<?php echo $this->paginator()->slide($this->paginator, $this->paginatorOptions); ?>
+	</div>
+<?php endif; ?>
+
+<div id="messageDialog"></div>
+
+<div id="confirmDialog"></div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+	<?php if ($this->allow('update')) : ?>
+	$('.t_a_ui_helper_editable').editInPlace({
+		url: "<?php echo $this->url(array('set_id' => 0), 'multimedia_set_edit'); ?>",
+		bg_out: '#f3f3f3',
+		field_type: 'textarea',
+		textarea_cols: 17,
+		textarea_rows: 2,
+		saving_text: '<?php echo $this->translator('photo_list_saving'); ?>',	
+		callback: function(original_element, html, original) {
+			$.ajax({
+				url: "<?php echo $this->url(array('set_id' => 0), 'multimedia_set_edit'); ?>",
+				type: 'POST',
+				data: { keySection: original_element, value: html },
+				success: function(response) {
+					$('#messageDialog').html('<?php echo $this->translator('set_list_update_success'); ?>')
+					.dialog({
+						title: '<?php echo $this->translator('common_dialog_message'); ?>',
+						dialogClass: 't_a_ui_dialog',
+						modal: true,
+				    	show: { effect: 'fade' },
+						open: function(event, ui) {
+							setTimeout(function() {
+								$('#' + event.target.id).dialog('option', 'hide', 'fade').dialog('destroy');
+							}, 3000);
+						}
+					});
+				}
+			});
+			return(html);
+	    }	
+	});
+	<?php endif; ?>
+	
+	<?php if ($this->allow('delete')) : ?>
+	$('a.deleteAction').click(function() {
+		var self = this;
+		$('#confirmDialog').html('<?php echo addslashes($this->translator('set_list_action_delete_confirm')); ?>')
+			.dialog({
+				title: '<?php echo addslashes($this->translator('common_dialog_confirm')); ?>',
+				dialogClass: 't_a_ui_dialog',
+				modal: true,
+				closeOnEscape: false,
+				resizable: false,
+				open: function(event, ui) {
+					$('.ui-dialog-titlebar-close').hide();
+					$(this).parent().find('.ui-dialog-buttonpane button').wrapInner('<span/>');
+				},
+				buttons: {
+					'<?php echo addslashes($this->translator('common_dialog_confirm_no')); ?>': function() {
+						$(this).dialog('destroy');
+					},
+					'<?php echo addslashes($this->translator('common_dialog_confirm_yes')); ?>': function() {
+						$(this).dialog('destroy');
+						$(self).html('').addClass('t_a_ui_helper_loading');
+						var id = $(self).attr('rel');
+						$.ajaxq('multimedia_set', {
+							type: 'POST',
+							url: "<?php echo $this->url(array(), 'multimedia_set_delete'); ?>",
+							data: { id: id },
+							success: function(response) {
+								if ('RESULT_OK' == response) {
+									$('#photoRow_' + id).fadeOut('slow');
+								}
+							}
+						});
+					}
+				}
+			});
+	});
+	<?php endif; ?>
+
+	<?php if ($this->allow('activate')) : ?>
+	$('a.activateAction').click(function() {
+		activateSet(this);
+	});
+	<?php endif; ?>
+	
+	<?php if ($this->allow('activate')) : ?>
+	function activateSet(linkObj) {
+		var self = linkObj;
+		var arr = $(self).attr('rel').split('_');
+		$(self).html('').addClass('t_a_ui_helper_loading');
+		$.ajaxq('multimedia_set', {
+			url: "<?php echo $this->url(array(), 'multimedia_set_activate'); ?>",
+			type: 'POST',
+			data: { id: arr[0], status: arr[1] },
+			success: function(response) {
+				$(self).attr('rel', arr[0] + '_' + response + '_' + arr[2]);
+				if (response == 1) {
+					$(self).html("<?php echo $this->translator('set_list_action_deactivate'); ?>");
+				} else {
+					$(self).html("<?php echo $this->translator('set_list_action_activate'); ?>");
+				}
+				$(self).removeClass('t_a_ui_helper_loading').fadeIn('normal');
+
+				$('#messageDialog').html((response == 1) ? sprintf('<?php echo addslashes($this->translator('set_list_activate_success')); ?>', arr[2]) : sprintf('<?php echo addslashes($this->translator('set_list_deactivate_success')); ?>', arr[2]))
+					.dialog({
+						title: '<?php echo addslashes($this->translator('common_dialog_message')); ?>',
+						dialogClass: 't_a_ui_dialog',
+						modal: true,
+				    	show: { effect: 'fade' },
+						open: function(event, ui) {
+							setTimeout(function() {
+								$('#' + event.target.id).dialog('option', 'hide', 'fade').dialog('destroy');
+							}, 3000);
+						}
+					});
+			}
+		});
+	};
+	<?php endif; ?>
+});
+</script>

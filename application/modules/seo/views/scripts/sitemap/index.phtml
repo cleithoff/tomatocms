@@ -1,0 +1,149 @@
+<?php
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: index.phtml 4826 2010-08-24 07:32:20Z huuphuoc $
+ * @since		2.0.7
+ */
+?>
+<?php
+$this->headTitle($this->translator('sitemap_index_page_title'));
+
+$this->headLink()
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.core.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.tabs.css');
+
+$this->headScript()
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.core.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.tabs.js');
+?>
+
+<div class="grid_12 t_a_ui_breadcrumb">
+	<span><?php echo $this->translator('breadcump'); ?></span>
+	<span><?php echo $this->translator('sitemap_index_breadcrumb'); ?></span>
+</div>
+
+<div class="grid_12"><?php echo $this->flashMessenger(); ?></div>
+
+<div class="grid_12">
+	<div class="grid_9 alpha">
+	<?php if ($this->notFound) : ?>
+		<?php echo $this->translator('sitemap_index_not_found'); ?>
+	<?php else : ?>
+		<div class="t_a_bottom"><?php echo $this->translator('sitemap_index_guide'); ?></div>
+		
+		<div class="t_a_ui_tabs">
+			<div id="viewTabs">
+				<ul>
+					<li><a href="#viewAsList"><span><?php echo $this->translator('sitemap_index_view_list'); ?></span></a></li>
+					<li><a href="#viewAsText"><span><?php echo $this->translator('sitemap_index_view_text'); ?></span></a></li>
+				</ul>
+				
+				<!-- View as list -->
+				<div class="t_a_top" id="viewAsList">
+					<form method="post" action="<?php echo $this->url(array(), 'seo_sitemap_delete'); ?>">
+					<div class="t_a_ui_data_list_header">
+						<div class="grid_5 alpha">
+							<div>
+								<input type="checkbox" value="1" id="selectAll" />		
+								<?php echo $this->translator('sitemap_url'); ?>
+							</div>
+						</div>
+						
+						<div class="grid_2"><?php echo $this->translator('sitemap_frequency'); ?></div>
+						
+						<div class="grid_2 omega"><?php echo $this->translator('sitemap_priority'); ?></div>
+						
+						<div class="clear"></div>
+					</div>
+					
+					<?php foreach ($this->items as $item) : ?>
+					<div class="clearfix t_a_ui_data_list_content">
+						<div class="grid_5 alpha">
+							<div>
+								<input type="checkbox" name="urls[]" value="<?php echo urlencode($item->getLoc()); ?>" />
+								<a href="<?php echo $item->getLoc(); ?>" target="_blank"><?php echo $item->getLoc(); ?></a>
+							</div>
+						</div>
+						
+						<div class="grid_2"><?php echo $item->getFrequency(); ?></div>
+						
+						<div class="grid_2 omega"><?php echo $item->getPriority(); ?></div>
+					</div>
+					<?php endforeach; ?>
+					
+					<?php if ($this->allow('delete')) : ?>
+					<div class="clearfix t_a_top">
+						<button type="submit"><span><?php echo $this->translator('sitemap_index_submit_button'); ?></span></button>
+					</div>
+					<?php endif; ?>
+					</form>
+				</div>
+				
+				<!-- View as text -->
+				<div class="t_a_top" id="viewAsText">
+					<?php if ($this->content) : ?>
+					<textarea style="width: 600px; height: 400px"><?php echo $this->content; ?></textarea>
+					<?php endif; ?>
+				</div>
+			</div>
+		</div>
+	<?php endif; ?>
+	</div>
+	
+	<div class="grid_3 omega">
+		<div class="t_a_right t_a_bottom">
+			<a href="<?php echo $this->url(array(), 'seo_sitemap_add'); ?>" class="t_a_ui_button_link"><span><?php echo $this->translator('sitemap_add_breadcrumb'); ?></span></a>
+		</div>
+		
+		<div class="clearfix"></div>
+		
+		<?php if (!$this->notFound) : ?>
+		<!-- More information -->
+		<div class="t_a_bottom">
+			<div class="t_a_ui_helper_line">
+				<h3><?php echo $this->translator('sitemap_index_more_infomation'); ?></h3>
+			</div>
+			<div class="t_a_ui_helper_box">
+				<?php echo sprintf($this->translator('sitemap_index_last_modified_at'), date($this->globalConfig('web')->datetime->format->datetime, $this->lastModified)); ?>
+			</div>
+		</div>
+		<?php endif; ?>
+	</div>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+	/**
+	 * Create tabs
+	 */
+	$('#viewTabs').tabs();
+
+	/**
+	 * Select all handler
+	 */
+	$('#selectAll').click(function() {
+		if ($('#selectAll').attr('checked')) {
+			$('#viewAsList').find('input[name="urls[]"]').each(function() {
+				$(this).attr('checked', 'checked');
+			});
+		} else {
+			$('#viewAsList').find('input[name="urls[]"]').each(function() {
+				$(this).removeAttr('checked');
+			});
+		}
+	});
+});
+</script>

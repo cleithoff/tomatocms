@@ -1,0 +1,264 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: show.phtml 5229 2010-08-31 04:27:10Z huuphuoc $
+ * @since		2.0.1
+ */
+?>
+<div class="t_comment_comment" id="tCommentComment">
+	<h2><?php echo $this->translator()->widget('title'); ?></h2>
+	
+	<div id="comments">
+		<!-- List of comments -->
+		<?php if (count($this->comments) > 0) : ?>
+		<ul>
+			<?php foreach ($this->comments as $index => $comment) : ?>
+			<li class="t_comment_comment_level_<?php echo $comment->depth; ?>" style="padding-left: <?php echo $comment->depth * 40; ?>px">
+				<a name="comment-<?php echo $comment->comment_id; ?>"></a>
+				<?php if ($comment->depth > 0) : ?>
+				<div class="comment_reply"></div>
+				<?php endif; ?>
+				<blockquote<?php if ($comment->depth> 0) : ?> class="reply"<?php else : ?> class="level0"<?php endif; ?>>
+					<?php if ($this->showAvatar && $avatar = $this->helper()->gravatar($comment->email, $this->avatarSize)) : ?>
+						<?php if ((null != $comment->web_site && false !== strstr($comment->web_site, 'http://'))) : ?>
+							<a target="_blank" href="<?php echo $this->escape($comment->web_site); ?>" ><img src="<?php echo $avatar; ?>" style="float: left; margin: 5px 5px 0 5px;<?php if ($comment->depth > 0) : ?> width: 32px;<?php endif; ?>" title="<?php echo $this->escape($comment->full_name); ?>" alt="<?php echo $this->escape($comment->full_name); ?>" /></a>
+						<?php else : ?>
+							<img src="<?php echo $avatar; ?>" style="float: left; margin: 5px 5px 0 5px;<?php if ($comment->depth > 0) : ?> width: 32px;<?php endif; ?>" title="<?php echo $this->escape($comment->full_name); ?>" alt="<?php echo $this->escape($comment->full_name); ?>" />
+						<?php endif; ?>
+					<?php endif; ?>
+					<p>
+						<strong>
+						<?php if ((null != $comment->web_site && false !== strstr($comment->web_site, 'http://'))) : ?>
+							<a target="_blank" href="<?php echo $this->escape($comment->web_site); ?>" ><?php echo $this->escape($comment->full_name); ?></a>
+						<?php else : ?>
+							<?php echo $this->escape($comment->full_name); ?>
+						<?php endif; ?>
+						</strong> 
+						<span class="date"><?php echo sprintf($this->translator()->widget('commented_at'), date($this->globalConfig('web')->datetime->format->datetime, strtotime($comment->created_date))); ?></span><br />
+						<?php echo Tomato_Hook_Registry::getInstance()->executeFilter('Comment_Widget_Comment_FormatContent', $comment->content); ?>
+					</p>
+					<p style="clear: both"></p>
+					<?php if ($this->allowComment) : ?><span style="padding-left: <?php if ($comment->depth > 0) : ?>30px;<?php else : ?>90px;<?php endif; ?>"><a class="tReplyAction" href="javascript: void(0);" rel="<?php echo $comment->comment_id; ?>" title="<?php echo $this->translator()->widget('reply'); ?>"><?php echo $this->translator()->widget('reply'); ?></a></span><?php endif; ?>
+				</blockquote>
+			</li>
+			<?php endforeach; ?>
+		</ul>
+		
+		<!-- Paginator -->	
+		<div class="paginator">
+			<?php echo $this->paginator()->slide($this->paginator, $this->paginatorOptions); ?>
+		</div>
+		<?php else : ?>
+			<?php echo $this->translator()->widget('no_comments'); ?>
+		<?php endif; ?>
+	</div>
+
+	<!-- Form for submit new comment -->
+	<?php if ($this->allowComment) : ?>
+	<div id="tCommentFormContainer">
+		<h2 class="title"><?php echo $this->translator()->widget('write_your_comment'); ?></h2>
+	
+		<div><?php echo $this->flashMessenger(); ?></div>
+	
+		<a name="commentForm"></a>
+	
+		<form action="" method="post" id="tSendCommentForm" class="form">
+			<div class="clearfix">
+				<label><?php echo $this->translator()->widget('full_name'); ?>:</label>
+				<input type="text" name="tCommentFullName" id="tCommentFullName" style="width: 250px; padding: 3px 0" />
+			</div>
+			
+			<div class="clearfix">
+				<label><?php echo $this->translator()->widget('email'); ?>:</label>
+				<input type="text" name="tCommentEmail" id="tCommentEmail" style="width: 250px; padding: 3px 0" />
+			</div>
+			
+			<div class="clearfix">
+				<label><?php echo $this->translator()->widget('website'); ?>:</label>
+				<input type="text" name="tCommentWebsite" id="tCommentWebsite" style="width: 250px; padding: 3px 0" />
+			</div>
+			
+			<div class="clearfix">
+				<label><?php echo $this->translator()->widget('title'); ?>:</label>
+				<input type="text" name="tCommentTitle" id="tCommentTitle" style="width: 250px; padding: 3px 0" />
+			</div>
+			
+			<div class="clearfix">
+				<label><span id="tCommentCaptchaQuestion"></span></label>
+				<label for="tCommentCaptchaAnswer" generated="true" class="error" style="display: none"></label>
+				<input type="text" name="tCommentCaptchaAnswer" id="tCommentCaptchaAnswer" value="" style="width: 40px; padding: 3px 0" />
+				<input type="hidden" name="tCommentCaptchaResult" id="tCommentCaptchaResult" value="" />
+			</div>
+			
+			<div class="clearfix">
+				<div>
+					<label><?php echo $this->translator()->widget('content'); ?>:</label>
+				</div>
+				<div>
+					<textarea style="width: 400px; height: 150px" name="tCommentContent" id="tCommentContent"></textarea>
+					<br />
+					<label style="display: none;" class="error" generated="true" for="tCommentContent"></label>
+				</div>
+			</div>
+			
+			<div class="clearfix">
+				<label>&nbsp;</label>
+				<button id="tCommentSendButton" type="submit" class="button"><span><?php echo $this->translator()->widget('send_button'); ?></span></button>
+			</div>
+			
+			<input type="hidden" name="tCommentUrl" id="tCommentUrl" value="<?php echo $this->pageUrl; ?>" />
+			<input type="hidden" name="tCommentReply" id="tCommentReply" />
+		</form>
+	</div>
+	<?php endif; ?>
+</div>
+
+<?php if (!$this->isPreviewing) : ?>
+<script type="text/javascript" src="<?php echo $this->APP_STATIC_SERVER; ?>/js/tinymce/tiny_mce.js"></script>
+<script type="text/javascript" src="<?php echo $this->APP_STATIC_SERVER; ?>/js/jquery.validate/jquery.validate.min.js"></script>
+<?php endif; ?>
+
+<script type="text/javascript">
+<?php if ($this->allowComment) : ?>
+function toggleEditor(id) {
+	if (!tinyMCE.get(id)) {
+		tinyMCE.execCommand('mceAddControl', false, id);
+	} else { 
+		tinyMCE.execCommand('mceRemoveControl', false, id);
+	}
+};
+
+/**
+ * Init TinyMCE instances
+ */
+tinyMCE.init({
+	theme: 'advanced',
+	theme_advanced_buttons1: 'mybutton,bold,italic,underline,separator,strikethrough,justifyleft,justifycenter,justifyright, justifyfull,bullist,numlist,undo,redo,link,unlink',
+	theme_advanced_buttons2: '',
+	theme_advanced_buttons3: '',
+	theme_advanced_toolbar_location: 'top',
+	theme_advanced_toolbar_align: 'left',
+	width: '400',
+	height: '150',
+	mode: 'specific_textareas',
+	elements: 'tCommentContent',
+	onchange_callback: function(editor) {
+		tinyMCE.triggerSave();
+		$("#" + editor.id).valid();
+	}
+});
+
+$(document).ready(function() {
+	/**
+	 * Init captcha
+	 */
+	var num1 = Math.floor(Math.random() * 10);
+	var num2 = Math.floor(Math.random() * 10);
+	var sum = num1 + num2;
+	$('#tCommentCaptchaQuestion').html(num1 + ' + ' + num2 + ' = ');
+	$('#tCommentCaptchaResult').attr('value' , sum);
+
+	/**
+	 * Validate form
+	 */
+	$('#tSendCommentForm').validate({
+			rules: {
+				tCommentFullName: {
+					maxlength: 255
+				},
+				tCommentEmail: {
+					required: true,
+					email: true
+				},
+				tCommentTitle: {
+					maxlength: 255
+				},
+				tCommentContent: {
+					required: true,
+					minlength: 30,
+					maxlength: 800
+				},
+				tCommentCaptchaAnswer: {
+					required: true,
+					equalTo: '#tCommentCaptchaResult'
+				}
+			},
+			messages: {
+				tCommentFullName: {
+					maxlength: '<?php echo $this->translator()->widget('full_name_maxlength'); ?>'
+				},
+				tCommentEmail: {
+					required: '<?php echo $this->translator()->widget('email_required'); ?>',
+					email: '<?php echo $this->translator()->widget('email_invalid'); ?>'
+				},
+				tCommentTitle: {
+					maxlength: '<?php echo $this->translator()->widget('title_maxlength'); ?>'
+				},
+				tCommentContent: {
+					required: '<?php echo $this->translator()->widget('content_required'); ?>',
+					minlength: '<?php echo $this->translator()->widget('content_minlength'); ?>',
+					maxlength: '<?php echo $this->translator()->widget('content_maxlength'); ?>'
+				},
+				tCommentCaptchaAnswer: {
+					required: '<?php echo $this->translator()->widget('captcha_required'); ?>',
+					equalTo: '<?php echo $this->translator()->widget('captcha_equalto'); ?>'
+				}
+			}
+		});
+
+	$('.tReplyAction').click(function() {
+		var editor = 'tCommentContent';
+		toggleEditor(editor);
+		var self = this;
+		var commentId = $(self).attr('rel');
+		$('#tCommentReply').val(commentId);
+		var container = $(self).parent().parent().parent();
+		$(container).append($('#tCommentFormContainer').css('padding', '10px 0 0'));
+		toggleEditor(editor);
+
+		if ($('#tCommentCancelButton').attr('value') == undefined) {
+			var cancelButton = $('<button/>');
+			$(cancelButton).attr('id', 'tCommentCancelButton')
+					.attr('type', 'button')
+					.addClass('button')
+					.css('margin-left', '10px')
+					.bind('click', function() {
+						toggleEditor(editor);
+						$('#tCommentReply').val(0);
+						$('#tCommentCancelButton').remove();
+						$('#tCommentComment').append($('#tCommentFormContainer'));
+						toggleEditor(editor);
+					})
+					.html($('<span/>').html('<?php echo $this->translator()->widget('cancel_button'); ?>'));
+			
+			$('#tCommentSendButton').after($(cancelButton));
+		}
+	});
+});
+<?php endif; ?>
+
+'Comment.Widgets.Comment'.namespace();
+Comment.Widgets.Comment.loadComments = function(page) {
+	var editor = 'tCommentContent';
+	toggleEditor(editor);
+	$('#tCommentReply').val(0);
+	$('#tCommentCancelButton').remove();
+	$('#tCommentComment').append($('#tCommentFormContainer'));
+	toggleEditor(editor);
+	var data = '{"pageIndex": "' + page + '", "page_url": "<?php echo $this->escape($this->pageUrl); ?>", "limit": "<?php echo $this->escape($this->limit); ?>", "show_avatar": "<?php if ($this->showAvatar) : ?>1<?php endif; ?>", "avatar_size": "<?php echo $this->avatarSize; ?>", "allow_comment": "<?php echo $this->allowComment; ?>"}';
+	var response = Tomato.Core.Widget.Loader.queueAction('comment', 'comment', 'load', data, 'comments');
+};
+</script>

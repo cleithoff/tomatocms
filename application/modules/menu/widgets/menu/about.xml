@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version		$Id: about.xml 5191 2010-08-30 12:12:55Z huuphuoc $
+ * @since 		2.0.2
+ */
+-->
+<!DOCTYPE widget SYSTEM "http://schemas.tomatocms.com/dtd/widget_about.dtd">
+<widget>
+	<name>Menu</name>
+	<title>Menu</title>
+	<module>menu</module>
+	<description>Show menu</description>
+	<thumbnail></thumbnail>
+	<author>TomatoCMS Core Team</author>
+	<email>core@tomatocms.com</email>
+	<version>2.0.2</version>
+	<license>free</license>
+	<params>
+		<param name="menu_id">
+			<description>Id of menu</description>
+		</param>
+	</params>
+	<resources>
+		<resource type="javascript" src="{APP_STATIC_SERVER}/js/jquery.hoverIntent/jquery.hoverIntent.minified.js" />
+		<resource type="javascript" src="{APP_STATIC_SERVER}/js/megamenu/megamenu.js" />
+	</resources>
+	
+	<!-- since 2.0.8 -->
+	<localization enable="true">
+		<identifier class="Menu_Models_Menu" param="menu_id" />
+	</localization>
+</widget>

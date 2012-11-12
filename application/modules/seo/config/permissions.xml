@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version		$Id: permissions.xml 3951 2010-07-25 08:40:24Z huuphuoc $
+ * @since		2.0.7
+ */
+-->
+<!DOCTYPE permissions SYSTEM "http://schemas.tomatocms.com/dtd/module_permission.dtd">
+<permissions>
+	<resource name="ganalytic" description="Google Analytic reports" langKey="permission_ganalytic">
+		<privilege name="index" description="View reports" langKey="permission_ganalytic_view" />
+	</resource>	
+	<resource name="gwebmaster" description="Google Web Master tool" langKey="permission_gwebmaster">
+		<privilege name="add" description="Add site" langKey="permission_gwebmaster_add_site" />
+		<privilege name="addsitemap" description="Add sitemap" langKey="permission_gwebmaster_add_sitemap" />
+		<privilege name="delete" description="Delete site" langKey="permission_gwebmaster_delete" />
+		<privilege name="deletesitemap" description="Delete sitemap" langKey="permission_gwebmaster_delete_sitemap" />
+		<privilege name="details" description="View site details" langKey="permission_gwebmaster_details" />
+		<privilege name="list" description="List of sites" langKey="permission_gwebmaster_list" />
+		<privilege name="verify" description="Verify site" langKey="permission_gwebmaster_verify" />
+	</resource>
+	<resource name="sitemap" description="Sitemap builder" langKey="permission_sitemap">
+		<privilege name="add" description="Add new link to sitemap" langKey="permission_sitemap_add" />
+		<privilege name="delete" description="Remove link from sitemap" langKey="permission_sitemap_delete" />
+		<privilege name="index" description="Sitemap management" langKey="permission_sitemap_index" />
+	</resource>
+	<resource name="toolkit" description="SEO Toolkit" langKey="permission_toolkit">
+		<privilege name="index" description="Get backlinks, indexed pages, rank" langKey="permission_toolkit_index" />
+	</resource>
+</permissions>

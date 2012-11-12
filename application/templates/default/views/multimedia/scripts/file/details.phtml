@@ -1,0 +1,126 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version		$Id: details.phtml 5153 2010-08-30 07:26:07Z huuphuoc $
+ * @since		2.0.2
+ */
+?>
+<?php
+$this->headTitle($this->file->title);
+
+/**
+ * Load notes of photos
+ * @since 2.0.4
+ */
+$this->headLink()
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.core.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.resizable.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.dialog.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.theme.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.imgareaselect/imgareaselect-default.css');
+	
+$this->headScript()
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.core.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.draggable.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.resizable.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.dialog.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/swfobject/swfobject.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.editinplace/jquery.editinplace.packed.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.imgareaselect/jquery.imgareaselect.min.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/tomato/multimedia/note.js');
+?>
+
+<div class="t_multimedia_file_details">
+	<h2><?php echo $this->file->title; ?></h2>
+	<cite><?php echo date($this->globalConfig('web')->datetime->format->datetime, strtotime($this->file->created_date)); ?></cite>
+	
+	<div class=description><?php echo $this->file->description; ?></div>
+	
+	<?php if ($this->file->content) : ?>
+	<div class="content">
+		<?php echo $this->file->content; ?>
+	</div>
+	<?php endif; ?>
+	
+	<div id="multimediaFileEmbed" style="display: none"></div>
+	
+	<div class="t_multimedia_note_container" id="multimediaFileDetails">
+		<img src="<?php echo $this->file->image_medium; ?>" id="photo_<?php echo $this->file->file_id; ?>" />
+	</div>
+	
+	<div>
+	<?php if (count($this->notes) > 0) : ?>
+		<?php echo $this->translator('note_available'); ?><br />
+		<a id="multimediaNoteToggle"><?php echo $this->translator('note_hide_all'); ?></a>
+	<?php endif; ?>
+	</div> 
+</div>
+
+<script type="text/javascript">
+<?php if ($this->file->file_type == 'video') : ?>
+function play(file, image, auto, width, height) {
+	var flashvars = { play: true, repeat: true, autostart: auto + '', file: file };
+	if (image != null) {
+		flashvars.image = image;
+	}
+	var params = { allowfullscreen: 'true', allowscriptaccess: 'always', menu: false };
+	swfobject.embedSWF('<?php echo $this->APP_STATIC_SERVER; ?>/js/jwplayer/player.swf', 
+					'multimediaFileDetails', width, height, '9.0.0', 
+					'<?php echo $this->APP_STATIC_SERVER; ?>/js/jwplayer/expressInstall.swf', 
+					flashvars, params, {});
+};
+<?php if ($this->file->url != '') : ?>
+play('<?php echo $this->file->url; ?>', '<?php echo $this->file->image_large; ?>', true, 610, 452);
+<?php elseif ($this->file->html_code != '') : ?>
+$('#multimediaFileDetails').hide();
+$('#multimediaFileEmbed').html('<?php echo addslashes($this->file->html_code); ?>').show();
+<?php endif; ?>
+<?php endif; ?>
+
+/**
+ * Load notes of photos
+ * @since 2.0.4
+ */
+$(document).ready(function() {
+	var options = {
+		addUrl: 		   '<?php echo $this->url(array(), 'multimedia_note_add'); ?>',		
+		editUrl: 		   '<?php echo $this->url(array(), 'multimedia_note_edit'); ?>',
+		deleteUrl: 		   '<?php echo $this->url(array(), 'multimedia_note_delete'); ?>',
+		defaultContent:    '<?php echo $this->escape($this->translator('note_default_content')); ?>',
+		savingText: 	   '<?php echo $this->escape($this->translator('note_updating')); ?>',
+		saveButton: 	   '<?php echo $this->escape($this->translator('note_save_button')); ?>',
+		deleteButton: 	   '<?php echo $this->escape($this->translator('note_delete_button')); ?>',
+		deleteConfirmText: '<?php echo $this->escape($this->translator('note_delete_confirm')); ?>'
+	};
+	var editable  = <?php if ($this->allow('edit', 'note')) : ?>true<?php else : ?>false<?php endif; ?>;
+	var removable = <?php if ($this->allow('delete', 'note')) : ?>true<?php else : ?>false<?php endif; ?>;
+
+	var container = new Tomato.Multimedia.Note.Container($('#photo_<?php echo $this->file->file_id; ?>'), <?php echo $this->file->file_id; ?>, options, true, editable, removable);
+	<?php foreach ($this->notes as $note) : ?>
+	container.add(new Tomato.Multimedia.Note(<?php echo $note->note_id; ?>, <?php echo $note->top; ?>, <?php echo $note->left; ?>, <?php echo $note->width; ?>, <?php echo $note->height; ?>, '<?php echo $this->escape($note->content); ?>', false, editable, removable));
+	<?php endforeach; ?>
+	container.show();
+
+	$('#multimediaNoteToggle').toggle(function() {
+		$(this).html('<?php echo $this->escape($this->translator('note_show_all')); ?>');
+		container.hide();
+	}, function() {
+		$(this).html('<?php echo $this->escape($this->translator('note_hide_all')); ?>');
+		container.show();
+	});
+});
+</script>
+

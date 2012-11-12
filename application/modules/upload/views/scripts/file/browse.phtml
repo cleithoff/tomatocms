@@ -1,0 +1,104 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: browse.phtml 4179 2010-08-01 16:16:30Z huuphuoc $
+ * @since		2.0.4
+ */
+?>
+
+<div id="uploadFileBrowse">
+	<div class="t_a_bottom">
+		<?php echo $this->escape($this->translator('file_path')); ?>
+		
+		<?php foreach ($this->breadcump as $index => $dir) : ?>
+		<?php if ($index > 0) : ?> &raquo; <?php endif; ?><a href="javascript: void(0);" rel="<?php echo $temp .= ($index > 0) ? '/' . $dir : $dir; ?>" class="dirLink"><?php echo $dir; ?></a>
+		<?php endforeach; ?>
+	</div>
+
+	<?php if (count($this->dirs) > 0) : ?>
+	<div class="t_a_bottom">
+		<div class="t_a_line t_a_toggle">
+			<h2><?php echo $this->escape($this->translator('file_folder')); ?></h2>
+		</div>
+		
+		<div>
+			<ul class="t_a_list">
+			<?php foreach ($this->dirs as $dir) : ?>
+				<li><a href="javascript: void(0);" class="dirLink"><?php echo $dir; ?></a></li>
+			<?php endforeach; ?>
+			</ul>
+		</div>
+	</div>
+	<?php endif; ?>
+	
+	<?php if (count($this->files) > 0) : ?>
+	<div class="t_a_bottom">
+		<div class="t_a_line t_a_toggle">
+			<h2><?php echo $this->escape($this->translator('file_files')); ?></h2>
+		</div>
+		
+		<div class="t_a_right">
+			<?php echo $this->escape($this->translator('file_image_size')); ?>
+			<select name="size" id="size">
+				<?php if (($numSizes = count($this->sizes)) > 0) : ?>
+				<?php foreach ($this->sizes as $index => $size) : ?>
+				<option value="<?php echo $size; ?>"<?php if ($index == $numSizes - 1) : ?> selected<?php endif; ?>><?php echo $this->escape($this->translator('file_image_'.$size)); ?></option>
+				<?php endforeach; ?>
+				<?php endif; ?>
+			</select>
+		</div>
+		
+		<div class="clearfix t_a_bottom"></div>
+		
+		<div>
+			<ul id="uploadedFiles">
+				<?php foreach ($this->files as $file) : ?>
+				<li style="float: left; padding: 5px;<?php if (strpos($file, 'small') === false) : ?> display: none;<?php endif; ?>"><div style="padding: 5px; width: 130px; height: 125px; overflow: hidden; border: #ccc 1px solid; text-align: center; vertical-align: middle"><img src="<?php echo $this->prefixUrl; ?>/<?php echo $file; ?>" style="max-width: 120px; cursor: pointer" onclick="javascript: <?php echo sprintf($this->imageSelectCallback, "'".$this->prefixUrl.'/'.$file."'"); ?>" /></div></li>
+				<?php endforeach; ?>
+			</ul>
+		</div>
+	</div>
+	<?php endif; ?>
+	
+	<script type="text/javascript">
+	$(document).ready(function() {
+		var currPath = '<?php echo $this->path; ?>';
+		
+		$('.dirLink').click(function() {
+			var dir = $(this).html();
+			var rel = $(this).attr('rel');
+			var path = (rel == '') ? currPath + '/' + dir : rel;
+			$.ajax({
+				url: '<?php echo $this->url(array(), 'upload_file_browse'); ?>',
+				data: { path: path, imageSelectCallback: '<?php echo $this->imageSelectCallback; ?>' },
+				success: function(response) {
+					$('#uploadFileBrowse').parent().html(response);
+				}
+			}); 
+		});
+
+		$('#size').bind('change', function() {
+			var size = this.value;
+			$('#uploadedFiles').children('li').each(function() {
+				$(this).hide();
+				if ($(this).find('img:first').attr('src').indexOf(size) >= 1) {
+					$(this).show();
+				}
+			});
+		}).change();
+	});
+	</script>
+</div>

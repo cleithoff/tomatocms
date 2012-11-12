@@ -1,0 +1,127 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: role.phtml 4536 2010-08-12 09:53:07Z huuphuoc $
+ * @since		2.0.0
+ */
+?>
+<?php 
+$this->headTitle($this->translator('rule_role_page_title'));
+?>
+
+<div class="grid_12 t_a_ui_breadcrumb">
+	<span><a href="<?php echo $this->url(array(), 'core_role_list'); ?>"><?php echo $this->translator('role_list_breadcrumb'); ?></a></span><span><?php echo $this->translator('rule_role_title'); ?></span>	
+</div>
+
+<?php if ($this->role->locked) : ?>
+<div class="grid_12 t_a_bottom">
+	<?php echo $this->translator('rule_role_role_desc'); ?>: <b><?php echo $this->role->name; ?> - <?php echo $this->role->description; ?></b><br />
+	<?php echo $this->translator('rule_role_role_locked'); ?>
+</div>
+<?php else : ?>
+<form method="post" action="<?php echo $this->url(array('role_id' => $this->role->role_id), 'core_rule_set_role'); ?>">
+
+<div class="grid_12 t_a_bottom">
+	<div class="grid_9 alpha">
+		<?php echo $this->translator('rule_role_role_desc'); ?>: <b><?php echo $this->role->name; ?> - <?php echo $this->role->description; ?></b><br />
+		<?php echo $this->translator('rule_role_guide'); ?>
+	</div>
+	
+	<div class="grid_3 omega">
+		<div class="t_a_right">
+			<button type="submit"><span><?php echo $this->translator('rule_role_submit_button'); ?></span></button>
+		</div>
+	</div> 
+</div>
+
+<div class="grid_12 t_a_bottom">
+	<!-- List of modules -->
+	<div class="grid_2 alpha">
+		<ul id="modules" class="t_a_ui_list">
+			<?php foreach ($this->modules as $index => $module) : ?>
+			<li<?php if ($index == 0) : ?> class="t_a_ui_active"<?php endif; ?>><a href="javascript: void(0);"><?php echo $module; ?></a></li>
+			<?php endforeach; ?>
+		</ul>
+	</div>
+	
+	<!-- List of resources -->
+	<div class="grid_10 omega">
+		<?php foreach ($this->modules as $index => $module) : ?>
+		<div id="<?php echo $module; ?>Resource" class="moduleResource" style="display: <?php echo (($index == 0) ? 'block' : 'none'); ?>">
+			<?php if ($resources = $this->ruleLoader()->getResources($module)) : ?>
+			<?php foreach ($resources as $i => $resource) : ?>
+			<div class="grid_5 t_a_bottom<?php if ($i % 2 == 0) : ?> alpha<?php else : ?> omega<?php endif; ?>">
+				<!-- Resource description -->
+				<div class="t_a_bottom t_a_ui_helper_head">
+					<h3><?php echo $resource->description; ?></h3>
+				</div>
+				
+				<!-- Resource privileges -->
+				<div class="t_a_bottom">
+					<a class="selectAllAction" href="javascript: void(0);"><?php echo $this->translator('rule_role_select_all'); ?></a> | <a class="deselectAllAction" href="javascript: void(0);"><?php echo $this->translator('rule_role_deselect_all'); ?></a>
+					<br />
+					<ul>
+					<?php foreach ($privileges = $this->ruleLoader()->getByRole($resource, $this->role->role_id) as $index => $priv) : ?>
+						<li><input type="checkbox" name="privileges[]" value="<?php echo $priv->privilege_id; ?>_<?php echo $resource->module_name; ?>:<?php echo $resource->controller_name; ?>"<?php if ($priv->allow == null || $priv->allow == 0) : ?> <?php else : ?> checked="checked"<?php endif; ?> /> <?php echo $priv->description; ?></li>
+					<?php endforeach; ?>
+					</ul>
+				</div>
+			</div>
+			
+			<?php if ($i % 2 == 1) : ?><div class="clearfix"></div><?php endif; ?>
+			<?php endforeach; ?>
+			
+			<?php endif; ?>
+			<div class="clearfix"></div>
+		</div>
+		<?php endforeach; ?>
+	</div>
+</div>
+</form>
+
+<script type="text/javascript">
+$(document).ready(function() {
+	/**
+	 * Load resource based on selected module
+	 */
+	$('#modules').find('a').click(function() {
+		$('.moduleResource').hide();
+		$('#' + $(this).html() + 'Resource').show();
+
+		$('#modules').find('li').removeClass('t_a_ui_active');
+		$(this).parent().addClass('t_a_ui_active');
+	});
+
+	/**
+	 * Select all handler
+	 */
+	$('a.selectAllAction').click(function() {
+		$(this).parent().find('input[type="checkbox"]').each(function() {
+			$(this).attr('checked', 'checked');
+		});
+	});
+
+	/**
+	 * Deselect all handler
+	 */
+	$('a.deselectAllAction').click(function() {
+		$(this).parent().find('input[type="checkbox"]').each(function() {
+			$(this).attr('checked', '');
+		});
+	});
+});
+</script>
+<?php endif; ?>

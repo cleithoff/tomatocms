@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hook SYSTEM "http://schemas.tomatocms.com/dtd/hook_about.dtd">
+<hook>
+	<name>InternalLinks</name>
+	<module>news</module>
+	<description><![CDATA[Insert the links taken from Link Provider to the editor]]></description>
+	<thumbnail></thumbnail>
+	<author>TomatoCMS Core Team</author>
+	<email>core@tomatocms.com</email>
+	<version>2.0.8</version>
+	<license>free</license>
+</hook>

@@ -1,0 +1,67 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version		$Id: show.phtml 5164 2010-08-30 08:33:11Z huuphuoc $
+ */
+?>
+<div class="t_news_categories">
+<?php if ($this->categories != null) : ?>
+	<?php foreach ($this->categories as $index => $category) : ?>
+	<div class="clearfix">
+		<h2>
+			<a id="<?php echo $category->category_id; ?>" href="<?php echo $this->url($category->getProperties(), 'news_article_category'); ?>"><?php echo $category->name; ?></a>
+			
+			<?php if ($subCats = $this->helper()->getSubCategories($category->category_id)) : ?>
+			<?php foreach ($subCats as $subCat) : ?>
+			<a id="<?php echo $subCat->category_id; ?>" href="<?php echo $this->url($subCat->getProperties(), 'news_article_category'); ?>"><?php echo $subCat->name; ?></a>
+			<?php endforeach; ?>
+			<?php endif; ?>
+			
+			<a class="rss" href="<?php echo $this->url($category->getProperties(), 'news_rss_category'); ?>">&nbsp;</a>
+		</h2>
+		
+		<div>
+			<?php if (($articles = $this->helper()->getLatestArticles($category->category_id, $this->limit)) != null && count($articles) > 0) : ?>
+			<?php if ($articles[0]->image_small) : ?>
+			<div class="image">
+				<a href="<?php echo $this->url($articles[0]->getProperties(), 'news_article_details'); ?>">
+					<img src="<?php echo $articles[0]->image_small; ?>" />
+				</a>
+			</div>
+			<?php endif; ?>
+			
+			<h3>
+				<a href="<?php echo $this->url($articles[0]->getProperties(), 'news_article_details'); ?>">
+					<?php echo $this->articleIcons($articles[0]->icons); ?> <?php echo $articles[0]->title; ?>
+				</a>
+				<cite><?php echo $this->dateFormatter()->diff(strtotime($articles[0]->created_date), $this->dateFormat); ?></cite>
+			</h3>
+			
+			<ul>
+			<?php for ($i = 1; $i < count($articles); $i++) : ?>
+				<li>
+					<a href="<?php echo $this->url($articles[$i]->getProperties(), 'news_article_details'); ?>"><?php echo $articles[$i]->title; ?></a><?php echo $this->articleIcons($articles[$i]->icons); ?>
+				</li>
+			<?php endfor; ?>
+			</ul>
+				
+			<div class="clear"></div>
+			<?php endif; ?>
+		</div>
+	</div>
+	<?php endforeach; ?>
+<?php endif; ?>	
+</div>

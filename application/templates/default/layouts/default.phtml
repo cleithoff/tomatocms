@@ -1,0 +1,108 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version		$Id: default.phtml 5117 2010-08-30 03:18:04Z huuphuoc $
+ * @since		2.0.0
+ */
+?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"<?php if ($this->APP_LANG_RTL) : ?> dir="rtl"<?php endif; ?>>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=<?php echo $this->CHARSET; ?>" />
+    <meta name="robots" content="index, follow" />
+    <?php echo $this->headMeta(); ?>
+    <?php echo $this->headTitle(); ?>
+    <link rel="shortcut icon" type="image/x-icon" href="<?php echo $this->APP_STATIC_SERVER; ?>/skins/<?php echo $this->APP_TEMPLATE; ?>/<?php echo $this->APP_SKIN; ?>/images/favicon.ico" />
+	
+    <?php 
+    $this->headLink()
+    	->prependStylesheet($this->APP_STATIC_SERVER . '/skins/' . $this->APP_TEMPLATE . '/' . $this->APP_SKIN . '/' . ($this->APP_LANG_RTL ? 'default-rtl.css' : 'default.css'))
+		->prependStylesheet($this->APP_STATIC_SERVER . '/css/960/' . ($this->APP_LANG_RTL ? 'all-rtl.min.css' : 'all.min.css'));
+    	
+	$this->headScript()
+    	->prependFile($this->APP_STATIC_SERVER . '/js/tomato/namespace.js')
+    	->prependFile($this->APP_STATIC_SERVER . '/js/jquery/jquery.min.js')
+    	->appendFile($this->APP_STATIC_SERVER . '/js/tomato/core/widget.loader.js')
+    	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.json/jquery.json.min.js')
+    	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ajaxq/jquery.ajaxq.min.js');
+    ?>
+    
+    <?php
+    /**
+     * Compress CSS and JS if it is enabled
+     * @since 2.0.6
+     */ 
+    echo $this->compressor('css');
+    echo $this->compressor('js');
+    ?>
+	
+	<!--[if IE 6]>
+	<link href="<?php echo $this->APP_STATIC_SERVER; ?>/skins/<?php echo $this->APP_TEMPLATE; ?>/<?php echo $this->APP_SKIN; ?>/ie.css" media="screen" rel="stylesheet" type="text/css" />
+	<style type="text/css">
+	img, div, a, input { behavior: url("<?php echo $this->APP_STATIC_SERVER; ?>/js/iepngfix/iepngfix.htc") }
+ 	</style>
+ 	<script type="text/javascript" src="<?php echo $this->APP_STATIC_SERVER; ?>/js/iepngfix/iepngfix_tilebg.js"></script>
+	<![endif]-->
+	
+	<!--[if lte IE 7]>
+	<link href="<?php echo $this->APP_STATIC_SERVER; ?>/skins/<?php echo $this->APP_TEMPLATE; ?>/<?php echo $this->APP_SKIN; ?>/i7e.css" media="screen" rel="stylesheet" type="text/css" />
+	<?php if ($this->APP_LANG_RTL) : ?>
+	<link href="<?php echo $this->APP_STATIC_SERVER; ?>/skins/<?php echo $this->APP_TEMPLATE; ?>/<?php echo $this->APP_SKIN; ?>/default-rtl-ie.css" media="screen" rel="stylesheet" type="text/css" />
+	<?php endif; ?>
+	<![endif]-->
+	
+	<script type="text/javascript">
+	//<![CDATA[
+	Tomato.Core.Widget.Loader.baseUrl = '<?php echo $this->baseUrl(); ?>';    
+	//]]>
+	</script>
+</head>
+<body>
+	<div id="wrapper">
+		<div id="header">
+			<div class="container_12">
+				<?php echo $this->render('_header.phtml'); ?>
+			</div>
+		</div>
+	
+		<div id="container" class="container_12">
+			<?php echo $this->layoutLoader(); ?>
+			<div class="clearfix"></div>
+		</div>
+		
+		<div id="footer">
+			<div class="container_12">
+				<?php echo $this->render('_footer.phtml'); ?>
+			</div>
+		</div>
+	</div>
+
+<?php
+/**
+ * Put all widget's javascript to the bottom of page 
+ * @since 2.0.6
+ */
+echo $this->compressor('js', 'bottomBody'); 
+?>
+
+<?php
+/**
+ * @since 2.0.3
+ */
+Tomato_Hook_Registry::getInstance()->executeAction('Core_PageLoaded');
+?>
+</body>
+</html>

@@ -1,0 +1,271 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: layout.phtml 4496 2010-08-12 01:58:49Z huuphuoc $
+ * @since		2.0.0
+ */
+?>
+<?php 
+$this->headTitle($this->translator('page_layout_title')); 
+
+$this->headLink()
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.core.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.resizable.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.dialog.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.tabs.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.theme.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.datepicker.css');
+	//->appendStylesheet($this->APP_STATIC_SERVER . '/skins/'.$this->APP_TEMPLATE.'/'.$this->APP_SKIN.'/default.css');
+
+$this->headScript()
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.core.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.tabs.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.sortable.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.draggable.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.droppable.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.resizable.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.dialog.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.datepicker.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/tomato/core/colorconverter.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/tomato/core/layout.lang.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/tomato/core/layout.container.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/tomato/core/layout.widget.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/tomato/core/layout.defaultoutput.js');
+?>
+
+<script type="text/javascript" src="<?php echo $this->APP_STATIC_SERVER; ?>/js/tinymce/tiny_mce.js"></script>
+
+<div class="grid_12 t_a_ui_breadcrumb">
+	<span><a href="<?php echo $this->url(array(), 'core_template_list'); ?>"><?php echo $this->translator('template_list_breadcrumb'); ?></a></span>
+	<span><a href="<?php echo $this->url(array('template' => $this->template), 'core_page_list'); ?>"><?php echo $this->translator('page_list_breadcrumb'); ?></a></span>	
+</div>
+
+<div class="grid_12 t_a_ui_tabs">
+	<div id="tabs">
+		<ul>
+			<li><a href="#columnTab"><span><?php echo $this->translator('page_layout_columns_tab'); ?></span></a></li>
+			<!-- 
+			<li><a href="#tabTab"><span>Tab</span></a></li>
+			-->
+			<li><a href="#widgetTab"><span><?php echo $this->translator('page_layout_widgets_tab'); ?></span></a></li>
+			<li><a href="#outputTab"><span><?php echo $this->translator('page_layout_output_tab'); ?></span></a></li>
+		</ul>
+		
+		<div class="t_a_top" id="columnTab">
+			<h3><?php echo $this->translator('page_layout_columns'); ?></h3>
+			<hr />
+			
+			<div class="t_a_top">
+				<ul class="t_a_ui_layout_editor_columns">
+					<?php for ($i = 1; $i <= 12; $i++) : ?>
+					<li id="tColumns_<?php echo $i; ?>" class="t_column_draggable grid_2<?php if ($i %6 == 1) : ?> alpha<?php elseif ($i % 6 == 0) : ?> omega<?php endif; ?>"><?php echo sprintf($this->translator('page_layout_num_columns'), $i); ?><?php if ($i == 12) : ?> (<a href="javascript: void(0);" id="addContainerQuickly">+</a>)<?php endif; ?></li>
+					<?php endfor; ?>	
+				</ul>
+				<div class="clearfix"></div>
+			</div>
+		</div>
+		
+		<!-- 
+		<div class="t_a_top" id="tabTab">
+			<ul class="t_a_ui_layout_editor_columns">
+				<li class="t_tab_draggable grid_2">Tab</li>
+			</ul>
+		</div>
+		 -->
+		 
+		<div class="t_a_top" id="widgetTab">
+			<div class="grid_2 alpha">
+				<h3><?php echo $this->translator('page_layout_module_filter'); ?></h3>
+				<hr />
+				
+				<div class="t_a_top">
+					<ul id="modules" class="t_a_ui_list">
+					<?php foreach ($this->widgetModules as $module) : ?>
+						<li><a href="javascript: void(0);"><?php echo $module->name; ?></a></li>
+					<?php endforeach; ?>
+					</ul>
+				</div>
+			</div>
+			
+			<div class="grid_10 omega">
+				<h3><?php echo $this->translator('page_layout_widget_list'); ?></h3>
+				<hr />
+				
+				<div class="t_a_top">
+					<div class="clearfix"></div>
+					<div id="widgetContainer"></div>
+				</div>
+			</div>
+			<div class="clearfix"></div>
+		</div>
+		
+		<div class="t_a_top" id="outputTab">
+			<?php echo $this->translator('page_layout_output_tab_guide'); ?><br />
+			<div id="defaultOutputContainer" class="t_a_ui_layout_editor_default_output"><?php echo $this->escape($this->translator('page_layout_default_output')); ?></div>
+		</div>
+	</div>
+</div>
+
+<div class="grid_12 t_a_bottom">
+	<h3><?php echo $this->translator('page_layout_layout'); ?></h3>
+	<hr />
+</div>
+
+<div class="grid_12 t_a_bottom">
+	<div class="grid_9 alpha"><?php echo sprintf($this->translator('page_layout_editing_guide'), $this->page->name); ?></div>
+	<div class="grid_3 omega t_a_textright">
+		<button id="previewButton"><span><?php echo $this->translator('page_layout_preview_button'); ?></span></button>
+		
+		<?php if ($this->allow('savelayout')) : ?>
+		<button id="saveButton"><span><?php echo $this->translator('page_layout_save_button'); ?></span></button>
+		<?php endif; ?>
+	</div>
+</div>
+
+<div id="layout" style="width: 940px; margin: 0 auto; min-height: 150px; height: 150px"></div>
+
+<div id="messageDialog"></div>
+
+<script type="text/javascript">
+/**
+ * Load widgets from given module
+ *
+ * @param int page The page index
+ * @module string The module name
+ * @return void 
+ */
+function loadWidgets(page, module) {
+	$('#widgetContainer').html('').addClass('t_a_ui_helper_loading');
+	$.ajaxq('page_layout', {
+		url: '<?php echo $this->url(array(), 'core_page_widgets'); ?>',
+		type: 'POST',
+		data: { mod: module, page: page },
+		success: function(response) {
+			$('#widgetContainer').html(response).removeClass('t_a_ui_helper_loading');
+		}
+	});	
+};
+
+var rootContainer = new Tomato.Core.Layout.Container('layout');
+rootContainer.setBaseUrl('<?php echo $this->baseUrl(); ?>');
+loadWidgets(1, $('#widgetTab').find('li:first a').html());
+
+$(document).ready(function() {
+	/** 
+	 * Create tabs 
+	 */
+	$("#tabs").tabs();
+
+	/**
+	 * Load widgets belonging to the first module
+	 */
+	$('#modules').find('li a').click(function() {
+		loadWidgets(1, $(this).html());
+	});
+
+	$('#addContainerQuickly').unbind('click').bind('click', function() {
+		rootContainer.append(12);
+	});
+
+	/** 
+	 * Load lang 
+	 */
+	Tomato.Core.Layout.Lang.setLang({
+		CONTAINER_COLS: 			'<?php echo $this->escape($this->translator('page_layout_container_columns')); ?>',
+		CONTAINER_REMOVE_CONFIRM: 	'<?php echo $this->escape($this->translator('page_layout_remove_container_confirm')); ?>',
+		WIDGET_PREVIEW: 			'<?php echo $this->escape($this->translator('page_layout_widget_preview')); ?>',
+		WIDGET_BACK: 				'<?php echo $this->escape($this->translator('page_layout_widget_back')); ?>',
+		WIDGET_REMOVE_CONFIRM: 		'<?php echo $this->escape($this->translator('page_layout_remove_widget_confirm')); ?>',
+		WIDGET_CACHE: 				'<?php echo $this->escape($this->translator('page_layout_widget_cache')); ?>',
+		WIDGET_LOAD_AJAX: 			'<?php echo $this->escape($this->translator('page_layout_widget_load_ajax')); ?>',
+		DEFAULT_OUTPUT: 			'<?php echo $this->escape($this->translator('page_layout_default_output')); ?>'
+	});
+	
+	/** 
+	 * Containers are draggable
+	 */
+	$('li.t_column_draggable').css('cursor', 'move').draggable({
+		zIndex: 1000,
+		cursor: 'move',
+		helper: 'clone'
+	}).disableSelection();
+
+	/** 
+	 * Tab containers are draggable 
+	 */
+	$('li.t_tab_draggable').css('cursor', 'move').draggable({
+		zIndex: 1000
+//		helper: 'clone'
+	}).disableSelection();
+
+	/** 
+	 * Default output 
+	 */
+	$('#defaultOutputContainer').css('cursor', 'move').draggable({
+		zIndex: 1000,
+		cursor: 'pointer',
+		helper: 'clone'
+	}).disableSelection();
+	
+	/** 
+	 * Load layout 
+	 */
+	<?php if ($this->jsonData) : ?>
+	rootContainer.load(<?php echo $this->jsonData; ?>, false);
+	<?php endif; ?>
+
+	/** 
+	 * Preview handler
+	 */
+	$('#previewButton').toggle(function() {
+		$('#layout').find('.t_a_ui_layout_editor_widget_head, .t_a_ui_layout_editor_widget_bottom').hide();
+		$(this).val("<?php echo $this->escape($this->translator('page_layout_config_button')); ?>");
+		rootContainer.toggleMode('PREVIEW');
+	}, function() {
+		$('#layout').find('.t_a_ui_layout_editor_widget_head, .t_a_ui_layout_editor_widget_bottom').show();
+		$(this).val("<?php echo $this->escape($this->translator('page_layout_preview_button')); ?>");
+		rootContainer.toggleMode('CONFIG');
+	});
+
+	<?php if ($this->allow('savelayout')) : ?>
+	/** 
+	 * Save handler
+	 */
+	$('#saveButton').click(function() {
+		var layout = $.toJSON(rootContainer.save());
+		$.ajaxq('page_layout', {
+			url: '<?php echo $this->url(array(), 'core_page_savelayout'); ?>',
+			type: 'POST',
+			data: { template: '<?php echo $this->template; ?>', page: '<?php echo $this->page->route; ?>', layout: layout },
+			success: function(response) {
+				$('#messageDialog').html('<?php echo addslashes($this->translator('page_layout_save_success')); ?>')
+					.dialog({
+						title: '<?php echo addslashes($this->translator('common_dialog_message')); ?>',
+						dialogClass: 't_a_ui_dialog',
+						modal: true,
+				    	show: { effect: 'fade' },
+						open: function(event, ui) {
+							setTimeout(function() {
+								$('#' + event.target.id).dialog('option', 'hide', 'fade').dialog('destroy');
+							}, 3000);
+						}
+					});
+			}
+		});
+	});
+	<?php endif; ?>
+});
+</script>

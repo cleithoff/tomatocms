@@ -1,0 +1,254 @@
+<?php
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: details.phtml 4192 2010-08-01 16:33:45Z huuphuoc $
+ * @since		2.0.7
+ */
+?>
+<?php
+$this->headTitle($this->translator('gwebmaster_details_page_title'));
+
+$this->headLink()
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.core.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.tabs.css');
+
+$this->headScript()
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.core.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.tabs.js');
+?>
+
+<div class="grid_12 t_a_ui_breadcrumb">
+	<span><?php echo $this->translator('breadcump'); ?></span>
+	<span><a href="<?php echo $this->url(array(), 'seo_gwebmaster_list'); ?>"><?php echo $this->translator('gwebmaster_list_breadcrumb'); ?></a></span>
+	<span><?php echo $this->translator('gwebmaster_details_breadcrumb'); ?></span>
+</div>
+
+<div class="grid_12"><?php echo $this->flashMessenger(); ?></div>
+
+<div class="grid_12 t_a_bottom">
+	<?php echo sprintf($this->translator('gwebmaster_details_guide'), $this->url, $this->url); ?>
+</div>
+
+<div class="grid_12">
+	<div class="t_a_ui_tabs">
+		<div id="tabs">
+			<ul>
+				<li><a href="#sitemapTab"><span><?php echo $this->translator('gwebmaster_details_sitemap'); ?></span></a></li>
+				<li><a href="#keywordTab"><span><?php echo $this->translator('gwebmaster_details_keyword'); ?></span></a></li>
+				<?php if ($this->needToVerify && $this->allow('verify')) : ?>
+				<li><a href="#verifiedTab"><span><?php echo $this->translator('gwebmaster_details_verify'); ?></span></a></li>
+				<?php endif; ?>
+			</ul>
+			
+			<!-- Sitemap -->
+			<div id="sitemapTab">
+				<?php if (0 == count($this->sitemaps)) : ?>
+				<div class="t_a_bottom"><?php echo $this->translator('gwebmaster_details_sitemap_not_found'); ?></div>
+				<?php endif; ?>
+				
+				<?php if ($this->allow('addsitemap')) : ?>
+				<div class="t_a_bottom">
+					<form method="post" action="<?php echo $this->url(array(), 'seo_gwebmaster_addsitemap'); ?>">
+					<?php echo $this->translator('gwebmaster_details_add_sitemap'); ?>: <input type="text" style="width: 300px" name="sitemap" /> <button type="submit"><span><?php echo $this->translator('gwebmaster_details_add_sitemap_button'); ?></span></button>
+					<input type="hidden" name="url" value="<?php echo urlencode($this->url); ?>" />
+					<input type="hidden" name="verified" value="<?php echo $this->verified; ?>" />
+					</form>
+				</div>
+				<?php endif; ?>
+				
+				<?php if (count($this->sitemaps) > 0) : ?>
+				<div class="t_a_bottom"><?php echo $this->translator('gwebmaster_details_sitemap_guide'); ?></div>
+				
+				<div class="t_a_ui_data_list_header">
+					<div class="grid_6 alpha">
+						<div><?php echo $this->translator('gwebmaster_details_sitemap_link'); ?></div>
+					</div>
+					
+					<div class="grid_1"><?php echo $this->translator('gwebmaster_details_sitemap_status'); ?></div>
+					
+					<div class="grid_3"><?php echo $this->translator('gwebmaster_details_sitemap_last_downloaded'); ?></div>
+					
+					<div class="grid_2 omega"><?php echo $this->translator('gwebmaster_details_sitemap_num_urls'); ?></div>
+					
+					<div class="clear"></div>
+				</div>
+				
+				<?php foreach ($this->sitemaps as $sitemap) : ?>
+				<div class="clearfix t_a_ui_data_list_content">
+					<div class="grid_6 alpha">
+						<div><a href="<?php echo $sitemap['link']; ?>"><?php echo $sitemap['link']; ?></a></div>
+						
+						<?php if ($this->allow('deletesitemap')) : ?>
+						<div class="t_a_ui_helper_action">
+							<a href="javascript: void(0);" title="<?php echo urlencode($sitemap['link']); ?>" class="deleteAction""><?php echo $this->translator('gwebmaster_details_delete_sitemap_action'); ?></a>
+						</div>
+						<?php endif; ?>
+					</div>
+					
+					<div class="grid_1"><?php echo $sitemap['status']; ?></div>
+					
+					<div class="grid_3"><?php echo $sitemap['lastDownloaded']; ?></div>
+					
+					<div class="grid_2 omega"><?php echo $sitemap['urlCount']; ?></div>
+				</div>
+				<?php endforeach; ?>
+				<?php endif; ?>
+			</div>
+			
+			<!-- Keyword -->
+			<div id="keywordTab">
+			<?php if (count($this->keywords) > 0) : ?>
+				<div class="t_a_bottom">
+					<div class="grid_8 alpha"><?php echo $this->translator('gwebmaster_details_keyword_guide'); ?></div>
+					
+					<div class="grid_4 omega">
+						<div class="t_a_right">
+							<ul class="t_a_ui_filter">
+								<li class="t_a_ui_active"><a href="javascript: void(0);" onclick="javascript: showKeywords('all');"><?php echo $this->translator('gwebmaster_details_all_keywords'); ?></a></li>
+								<li><a href="javascript: void(0);" onclick="javascript: showKeywords('external');"><?php echo $this->translator('gwebmaster_details_external_keywords'); ?></a></li>
+								<li><a href="javascript: void(0);" onclick="javascript: showKeywords('internal');"><?php echo $this->translator('gwebmaster_details_internal_keywords'); ?></a></li>
+							</ul>
+						</div>
+					</div>
+				</div>
+
+				<div class="clearfix"></div>
+
+				<div class="t_a_top" id="keywords">
+					<?php foreach ($this->keywords as $keyword) : ?>
+					<a class="<?php echo $keyword['source']; ?>" style="text-decoration: underline; padding: 10px" href="http://www.google.com/search?q=<?php echo $keyword['keyword']; ?>" target="_blank"><?php echo $keyword['keyword']; ?></a>
+					<?php endforeach; ?>					
+				</div>			
+			<?php else : ?>
+				<?php echo $this->translator('gwebmaster_details_keyword_not_found'); ?>	
+			<?php endif; ?>
+			</div>
+			
+			<!-- Verify -->
+			<?php if ($this->needToVerify && $this->allow('verify')) : ?>
+			<div id="verifiedTab">
+				<div class="t_a_bottom"><?php echo $this->translator('gwebmaster_details_verify_guide'); ?></div>
+				
+				<div class="t_a_bottom">
+					<form method="post" action="<?php echo $this->url(array(), 'seo_gwebmaster_verify'); ?>">
+					<div class="suffix_1 prefix_1">
+						<div class="t_a_bottom">
+							<label><?php echo $this->translator('gwebmaster_details_verify_method'); ?>:</label>
+							<select name="verifyMethod" id="verifyMethod">
+								<option value="metatag"><?php echo $this->translator('gwebmaster_details_verify_meta_tag_method'); ?></option>
+								<option value="htmlpage"><?php echo $this->translator('gwebmaster_details_verify_html_page_method'); ?></option>
+							</select>
+						</div>
+						
+						<hr />
+					
+						<div class="t_a_bottom" id="metatagVerify">
+							<label><?php echo $this->translator('gwebmaster_details_verify_meta_tag'); ?>:</label>
+							<input type="text" name="metaTagVerify" style="width: 400px" />
+						</div>
+						
+						<div class="t_a_bottom" id="htmlpageVerify" style="display: none">
+							<div class="t_a_bottom">
+								<label><?php echo $this->translator('gwebmaster_details_verify_html_file_name'); ?>:</label>
+								<input type="text" name="htmlFileVerify" style="width: 400px" />
+							</div>
+						</div>
+						
+						<hr />
+						
+						<div class="t_a_bottom">
+							<label>&nbsp;</label>
+							<input type="hidden" name="url" value="<?php echo urlencode($this->url); ?>" />
+							<input type="hidden" name="verified" value="<?php echo $this->verified; ?>" />
+							<button type="submit"><span><?php echo $this->translator('gwebmaster_details_verify_button'); ?></span></button>
+						</div>
+					</div>
+					</form>
+				</div>
+			</div>
+			<?php endif; ?>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+/**
+ * Filter the keywords by its type
+ *
+ * @param string type Can be external or internal
+ * @return void 
+ */
+function showKeywords(type) {
+	$('#keywords').find('a').hide();
+	switch (type) {
+		case 'external':
+			$('#keywords').find('a.external').show();			
+			break;
+		case 'internal':
+			$('#keywords').find('a.internal').show();
+			break;
+		case 'all':
+		default:
+			$('#keywords').find('a').show();
+			break;
+	}
+};
+
+$(document).ready(function() {
+	/**
+	 * Create tabs
+	 */
+	$('#tabs').tabs();
+
+	$('#verifyMethod').change(function() {
+		$('#metatagVerify').hide();
+		$('#htmlpageVerify').hide();
+		$('#' + $(this).val() + 'Verify').show();
+	});
+
+	<?php if ($this->allow('deletesitemap')) : ?>
+	/**
+	 * Delete sitemap handler
+	 */
+	$('a.deleteAction').click(function() {
+		var self = $(this);
+		$(this).html('').addClass('t_a_ui_helper_loading');
+		
+		var sitemapUrl = $(this).attr('title');
+		$.ajaxq('delete_sitemap', {
+			url: '<?php echo $this->url(array(), 'seo_gwebmaster_deletesitemap'); ?>',
+			type: 'POST',
+			data: { url: '<?php echo urlencode($this->url); ?>', sitemapUrl: sitemapUrl },
+			success: function(response) {
+				if (response == 'RESULT_OK') {
+					self.parents('.t_a_ui_data_list_content').remove();
+				} else {
+					self.html('<?php echo $this->translator('gwebmaster_details_delete_sitemap_action'); ?>').removeClass('t_a_ui_helper_loading');
+				}
+			}
+		});
+	});
+	<?php endif; ?>
+
+	/**
+	 * Keyword filter
+	 */
+	$('.t_a_ui_filter a').click(function() {
+		$(this).parents('.t_a_ui_filter').find('li').removeClass('t_a_ui_active');
+		$(this).parent().addClass('t_a_ui_active');
+	});
+});
+</script>

@@ -1,0 +1,41 @@
+// =============================================================================
+// TomatoCMS Install Guide
+// $Id: install_guide.txt 3345 2010-06-22 03:58:37Z leha $
+// =============================================================================
+
+--- TomatoCMS requires:
+* Apache modules:
+	+ mod_rewrite
+* PHP 5.2.0 or newer
+* PHP Modules:
+	+ gd
+	+ json
+	+ mbstring
+	+ simplexml
+	+ xml
+	+ xmlreader
+* Following files/folders have to be writable:
+	+ application/config/application.ini
+	+ application/config/layout.ini
+	+ application/templates	
+	+ temp
+	+ upload
+
+--- Install Guide ---
+- You can use install wizard at address:
+http://{YourDomain}/{TomatocmsInstalledFolder}/install.php
+or 
+http://{YourDomain}/install.php, if you put TomatoCMS in web root directory
+
+***** IMPORTANT NOTE *****
+After installing, you have to import the sample data from tomatocms_sample_db.sql file 
+located in the install folder
+
+--- More info ---
+Official website: 	http://www.tomatocms.com
+Online demo:		http://demo.tomatocms.com
+Documentation:		http://docs.tomatocms.com
+Blog: 				http://blog.tomatocms.com
+Forum:				http://forum.tomatocms.com
+Email:				core@tomatocms.com
+Twitter:			http://twitter.com/tomatocms/

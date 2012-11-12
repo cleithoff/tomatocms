@@ -1,0 +1,39 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version		$Id: details.phtml 5164 2010-08-30 08:33:11Z huuphuoc $
+ * @since		2.0.0
+ */
+?>
+<?php if ($this->article) : ?>
+<?php
+$this->headTitle($this->article->title);
+?>
+
+<div class="t_news_details">
+	<h2><?php echo $this->article->title; ?></h2>
+	
+	<?php if ($this->article->sub_title) : ?>
+	<h2><?php echo $this->article->sub_title; ?></h2>
+	<?php endif; ?>
+	
+	<cite><?php echo $this->article->author; ?> - <?php echo date($this->globalConfig('web')->datetime->format->datetime, strtotime($this->article->activate_date)); ?></cite>
+
+	<div class="description"><?php echo $this->article->description; ?></div>
+	
+	<div class="content"><?php echo $this->article->content; ?></div>
+</div>
+<?php endif; ?>

@@ -1,0 +1,72 @@
+<?php
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: list.phtml 4166 2010-07-31 16:36:26Z huuphuoc $
+ * @since		2.0.6
+ */
+?>
+<?php 
+$this->headTitle($this->translator('mail_list_page_title'));
+?>
+
+<div class="grid_12 t_a_ui_breadcrumb">
+	<span><?php echo $this->translator('mail_list_breadcrumb'); ?></span>
+</div>
+
+<div class="grid_12 t_a_bottom">
+	<div class="grid_10 alpha"><?php echo $this->translator('mail_list_guide'); ?></div>
+	<div class="grid_2 omega">
+		<div class="t_a_right">
+			<a href="<?php echo $this->url(array(), 'mail_mail_send'); ?>" class="t_a_ui_button_link"><span><?php echo $this->translator('mail_send_breadcrumb'); ?></span></a>
+		</div>
+	</div>
+</div>
+
+<?php if ($this->numMails == 0) : ?>
+<div class="grid_12 t_a_bottom"><?php echo $this->translator('mail_list_not_found'); ?></div>	
+<?php else : ?>
+	<div class="grid_12 t_a_ui_data_list_header">
+		<div class="grid_4 alpha">
+			<div><?php echo $this->translator('mail_subject'); ?></div>
+		</div>
+		
+		<div class="grid_3"><?php echo $this->translator('mail_from_mail'); ?></div>
+		
+		<div class="grid_3"><?php echo $this->translator('mail_send_to'); ?></div>
+		
+		<div class="grid_2 omega"><?php echo $this->translator('mail_sent_date'); ?></div>
+	</div>
+	
+	<div class="grid_12 t_a_bottom">
+		<?php foreach ($this->mails as $mail) : ?>
+		<div id="mailRow_<?php echo $mail->mail_id; ?>" class="clearfix t_a_ui_data_list_content" >
+			<div class="grid_4 alpha">
+				<div><?php echo $mail->subject; ?></div>
+			</div>
+			
+			<div class="grid_3"><?php echo $mail->from_name; ?> (<?php echo $mail->from_mail; ?>)</div>
+			
+			<div class="grid_3"><?php echo $mail->to_name; ?> (<?php echo $mail->to_mail; ?>)</div>
+			
+			<div class="grid_2 omega"><?php echo $mail->sent_date; ?></div>
+		</div>
+		<?php endforeach; ?>
+	</div>
+	
+	<div class="grid_12 t_a_bottom t_a_ui_paginator">
+		<?php echo $this->paginator()->slide($this->paginator, $this->paginatorOptions); ?>
+	</div>
+<?php endif; ?>

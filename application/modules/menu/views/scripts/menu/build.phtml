@@ -1,0 +1,308 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: build.phtml 4703 2010-08-16 17:05:16Z huuphuoc $
+ * @since 		2.0.2
+ */
+?>
+<?php
+$this->headTitle($this->translator('menu_build_title'));
+
+$this->headLink()
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.all.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.core.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.resizable.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.dialog.css');
+
+$this->headScript()
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.core.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.sortable.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.draggable.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.droppable.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.dialog.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.editinplace/jquery.editinplace.packed.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.validate/jquery.validate.min.js')
+	
+	/**
+	 * @since 2.0.7
+	 */
+	->appendFile($this->APP_STATIC_SERVER . '/js/tomato/treetable.js');
+?>
+
+<div class="grid_12 t_a_ui_breadcrumb">
+	<span><a href="<?php echo $this->url(array(), 'menu_menu_list'); ?>"><?php echo $this->translator('menu_list_breadcrumb'); ?></a></span>
+	<span><?php echo $this->translator('menu_build_breadcrumb'); ?></span>	
+</div>
+
+<div class="grid_12"><?php echo $this->flashMessenger(); ?></div>
+
+<div class="grid_12 t_a_bottom">
+<form action="<?php echo $this->url(array(), 'menu_menu_build'); ?>" id="addMenuForm" method="post">
+	<!-- Menu information -->
+	<div class="t_a_bottom">
+		<h3><?php echo $this->translator('menu_information'); ?></h3>
+		<hr />
+		
+		<div class="prefix_1 suffix_1 t_a_top">
+			<div class="clearfix t_a_bottom">
+				<label><?php echo $this->translator('menu_name'); ?>:</label>
+				<input type="text" name="name" id="name" style="width: 300px" />
+			</div>
+			
+			<hr />
+			
+			<div class="clearfix t_a_bottom">
+				<label><?php echo $this->translator('menu_description'); ?>:</label>
+				<textarea id="description" name="description" style="width: 300px; height: 100px"></textarea>
+			</div>
+			
+			<hr />
+			
+			<?php 
+			/**
+			 * @since 2.0.8
+			 */
+			?>
+			<div class="clearfix t_a_bottom">
+				<div class="grid_2 alpha">
+					<label><?php echo $this->translator('menu_language'); ?>:</label>
+				</div>
+				<div class="grid_8 omega">
+					<?php 
+					echo $this->languageSelector(array(
+											'id'   => 'languageSelector',
+											'name' => 'languageSelector',
+										), $this->translatableData);
+					?>
+				</div>
+			</div>
+			
+			<hr />
+			
+			<div class="clearfix t_a_bottom">
+				<div class="grid_2 alpha">
+					<label><?php echo $this->translator('menu_source_item'); ?>:</label>
+				</div>
+				<div class="grid_8 omega">
+					<div class="translatable translationSourceItems">
+						<?php 
+						echo $this->translatableMenu(array(
+										'id'       => 'sourceItem',
+										'name'     => 'sourceItem',
+										'selected' => (null == $this->sourceMenu) ? null : $this->sourceMenu->menu_id,
+										'disabled' => (null == $this->sourceMenu) ? null : $this->sourceMenu->menu_id,
+									), $this->lang);
+						?>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<!-- Menu items -->
+	<div class="t_a_bottom">
+		<h3><?php echo $this->translator('menu_item_head'); ?></h3>
+		<hr />
+		
+		<div class="prefix_1 suffix_1 t_a_top">
+			<div class="clearfix t_a_bottom">
+				<label><?php echo $this->translator('menu_item_label'); ?>:</label>
+				<input type="text" id="itemLabel" name="itemLabel" style="width: 300px" />
+			</div>
+			
+			<div class="clearfix t_a_bottom">
+				<div class="grid_2 alpha"><label><?php echo $this->translator('menu_item_url'); ?>:</label></div>
+				<div class="grid_8 omega">
+					<input type="text" id="itemUrl" name="itemUrl" style="width: 300px" />
+				</div>
+			</div>
+			
+			<div class="clearfix t_a_bottom">
+				<label>&nbsp;</label>
+				<a href="javascript: void(0);" class="t_a_ui_button_link" id="addItemButton"><span><?php echo $this->translator('menu_item_add'); ?></span></a>
+			</div>
+			
+			<!-- Link Provider -->
+			<div class="clearfix t_a_bottom">
+				<div class="grid_2 alpha">&nbsp;</div>
+				<div class="grid_8 omega">
+					<a href="javascript: void(0);" id="linkProviderToggle"><?php echo $this->translator('menu_build_link_provider_guide'); ?></a>
+				</div>
+			</div>
+			
+			<div class="clearfix t_a_bottom" id="linkProvider" style="display: none">
+				<?php 
+				/**
+				 * Add language switcher
+				 * @since 2.0.8
+				 */
+				?>
+				<div class="grid_2 alpha">&nbsp;</div>
+				<div class="grid_8 omega">
+					<div class="translatable">
+						<?php echo $this->linkProvider(array('jsCallback' => 'selectLink')); ?>
+					</div>
+				</div>
+			</div>
+				
+			<div class="clearfix t_a_bottom">
+				<table class="t_a_ui_table t_a_top" id="itemTable">
+					<thead>
+						<tr>
+							<th width="360px"><?php echo $this->translator('menu_item_label'); ?></th>
+							<th width="400px"><?php echo $this->translator('menu_item_url'); ?></th>
+						</tr>
+					</thead>
+					<tbody></tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+	
+	<div class="t_a_bottom">
+		<div class="prefix_1 suffix_1 t_a_top">
+			<div class="clearfix t_a_bottom">
+				<label>&nbsp;</label>
+				<button type="button" id="saveButton"><span><?php echo $this->translator('menu_save_button'); ?></span></button>
+				<input type="hidden" id="items" name="items" />
+			</div>
+		</div>
+	</div>
+</form>
+</div>
+
+<script type="text/javascript">
+/**
+ * Handle selecting the link from Link Provider
+ */
+function selectLink(route, href, title) {
+	/**
+	 * Remove all - and blank space from the begining of title
+	 */
+	title = title.replace(/^(\-+)/, '');
+	title = title.replace(/^(\s+)/, '');
+	
+	$('#itemUrl').val(href);
+	$('#itemLabel').val(title);
+
+	$('#addItemButton').trigger('click');
+
+	$('#itemUrl').val('');
+	$('#itemLabel').val('');
+};
+
+$(document).ready(function() {
+	var treeTable = new Tomato.TreeTable('itemTable', 'row');
+	
+	/**
+	 * Toggle link provider section
+	 */
+	$('#linkProviderToggle').click(function() {
+		$('#linkProvider').toggle();
+	});
+
+	/**
+	 * Add menu item
+	 */
+	$('#addItemButton').click(function() {
+		var label = $('#itemLabel').val();
+		var url   = $('#itemUrl').val();
+		if ('' == label || '' == url) {
+			return;
+		}
+
+		/**
+		 * Create new row and append it to items table
+		 */
+		var tr = $('<tr/>');
+		$(tr).attr('id', 'row_id_0').addClass('row_parent_0');
+
+		var deleteLink = $('<a/>').attr('href', 'javascript: void(0);')
+							.addClass('deleteAction')
+							.html('<?php echo $this->translator('menu_item_delete'); ?>');
+		$(deleteLink).hide().click(function() {
+			treeTable.removeRow($(tr));
+		});
+
+		var labelCell = $('<td/>');
+		$(labelCell).css('padding-left', 0)
+			.append($('<span/>').addClass('row_draggable').addClass('editable').css('cursor', 'move').css('padding-right', '20px').html(label))
+			.append($('<span/>').append($(deleteLink)))
+			.appendTo($(tr));
+		$('<td/>').addClass('editable').html(url).appendTo($(tr));
+
+		$(tr).hover(function() {
+			$(this).find('a.deleteAction').show();
+		}, function() {
+			$(this).find('a.deleteAction').hide();
+		});
+
+		/**
+		 * Make the label and link editable
+		 */
+		$(tr).find('.editable').editInPlace({
+			callback: function(unused, enteredText) { 
+				return enteredText; 
+			},
+			bg_over: null
+		});
+
+		treeTable.addRow($(tr));
+	});
+
+	/**
+	 * Validate form
+	 */
+	$('#addMenuForm').validate({
+		rules: {
+			name: {
+				required: true
+			}
+		},
+		messages: {
+			name: {
+				required: '<?php echo $this->translator('menu_name_required'); ?>'
+			}
+		}
+	});
+
+	/**
+	 * Submit form handler
+	 */
+	$('#saveButton').click(function() {
+		var items = new Array();
+		var links = treeTable.getTreeData();
+		$('#itemTable').find('tbody tr').each(function(i) {
+			items[i] = {
+				depth: links[i].depth,
+				item_id: links[i].id,
+				left_id: links[i].left_id,
+				right_id: links[i].right_id,
+				parent_id: links[i].parent_id,
+				label: $(this).find('td:first span.row_draggable').html(),
+				link: $(this).find('td:last').html()
+			};
+		});
+
+		$('#items').val($.toJSON(items));
+
+		/**
+		 * Submit form
+		 */
+		$('#addMenuForm').submit(); 
+	});
+});
+</script>

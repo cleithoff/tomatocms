@@ -1,0 +1,79 @@
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: ie.css 5149 2010-08-30 07:01:53Z huuphuoc $
+ */
+
+/* ========== Common ======================================================== */
+
+/** 
+ * 960 Grid
+ */
+.grid_1, .grid_2, .grid_3, .grid_4, .grid_5, .grid_6, .grid_7, .grid_8, .grid_9, .grid_10, .grid_11, .grid_12, .grid_13, .grid_14, .grid_15, .grid_16 { position: static !important; }
+
+#wrapper { height: 100% !important; }
+#footer { position: absolute; bottom: 0 !important; }
+
+/** 
+ * Box 
+ */
+.t_g_box .t_g_box_content { width: 98% !important; padding: 1% !important; }
+.t_g_box .t_g_box_corner_bl {  background: none; }
+.t_g_box .t_g_box_corner_br { background: none; }
+.t_g_box_head h2 { margin-bottom: 0px; }
+
+/* ========== Widgets ======================================================= */
+
+/** 
+ * comment/comment
+ * @since 2.0.1 
+ */
+.t_comment_comment blockquote { margin-bottom: 6px;}
+.t_comment_comment blockquote img { float: left;  }
+.t_comment_comment cite { position: static; }
+
+/** 
+ * comment/latestcomment
+ * @since 2.0.1 
+ */
+.t_comment_latestcomment blockquote { margin-bottom: 6px; }
+.t_comment_latestcomment blockquote img { float: left; clear: left; }
+.t_comment_latestcomment cite { position: static; }
+
+/** 
+ * news/mostviewed
+ * @since 2.0.0
+ */
+.t_news_mostviewed .t_g_box_content ul li div.clearfix { background: none; font-size: 0px; height: 0px; }
+ 
+/** 
+ * news/searchbox
+ * @since 2.0.2 
+ */
+#t_g_header .t_news_searchbox input { width: 216px !important; }
+
+/**
+ * news/siblingcategory
+ * @since 2.0.0 
+ */
+.t_news_siblingcategory { margin-bottom: 10px; }
+.t_news_siblingcategory .t_news_siblingcategory_grid li { margin-right: 0px; padding-bottom: 0px; }
+ 
+/**
+ * news/stickycategory
+ * @since 2.0.0 
+ */
+.t_news_stickycategory li { width: 100%; } 
+.t_news_stickycategory .t_g_box_content { width: 100%;  padding: 0px 0px 0px 0px !important; }

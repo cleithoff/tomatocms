@@ -1,0 +1,108 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: show.phtml 5014 2010-08-26 09:03:03Z huuphuoc $
+ * @sicne		2.0.7
+ */
+?>
+<div class="t_a_ui_dashboard_widget" id="widgetDashboardArticle">
+	<div class="t_a_ui_dashboard_widget_head">
+		<h3><?php echo $this->translator()->widget('latest_articles'); ?></h3>
+	</div>
+	
+	<div class="t_a_ui_dashboard_widget_content">
+	<?php if (count($this->articles) > 0) : ?>
+		<?php foreach ($this->articles as $article) : ?>
+		<div class="clearfix t_a_ui_data_list_content">
+			<div>
+				<?php if ($this->routeAccessor('news_article_edit')) : ?>
+				<a href="<?php echo $this->url(array('article_id' => $article->article_id), 'news_article_edit'); ?>"><?php echo $this->escape($article->title); ?></a>
+				<?php endif; ?>
+			</div>
+			
+			<div class="t_a_bottom">
+				<?php echo $this->subString($article->description, 200); ?>
+			</div>
+			
+			<div class="t_a_ui_helper_action">
+				<?php if ($this->routeAccessor('news_article_edit')) : ?>
+				<a href="<?php echo $this->url(array('article_id' => $article->article_id), 'news_article_edit'); ?>"><?php echo $this->translator()->widget('action_edit'); ?></a> |
+				<?php endif; ?>
+				
+				<?php if ($this->routeAccessor('news_article_delete')) : ?>
+				<a href="javascript: void(0);" class="deleteAction" rel="<?php echo $article->article_id; ?>"><?php echo $this->translator()->widget('action_delete'); ?></a> |
+				<?php endif; ?>
+				
+				<?php if ($this->routeAccessor('news_article_activate')) : ?>
+				<a href="javascript: void(0);" class="activateAction" rel="<?php echo $article->article_id; ?>_<?php echo $article->status; ?>"><?php if ($article->is_active == 1) : ?><?php echo $this->translator()->widget('action_deactivate'); ?><?php else : ?><?php echo $this->translator()->widget('action_activate'); ?><?php endif; ?></a>
+				<?php endif; ?>
+			</div>
+		</div>
+		<?php endforeach; ?>
+	<?php else : ?>
+		<?php echo $this->translator()->widget('not_found'); ?>
+	<?php endif; ?>
+	</div>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+	<?php if ($this->routeAccessor('news_article_delete')) : ?>
+	/**
+	 * Delete article handler
+	 */
+	$('#widgetDashboardArticle  a.deleteAction').click(function() {
+		var self = $(this);
+		var id   = $(self).attr('rel');
+		$(this).html('').addClass('t_a_ui_helper_loading');
+		
+		$.ajaxq('widget_dashboardarticle', {
+			type: 'POST',
+			url: '<?php echo $this->url(array(), 'news_article_delete'); ?>',
+			data: { id: id },
+			success: function(response) {
+				$(self).parents('.t_a_ui_data_list_content').fadeOut('slow');
+			}
+		});
+	});
+	<?php endif; ?>
+
+	<?php if ($this->routeAccessor('news_article_activate')) : ?>
+	/**
+	 * Activate/Deactivate article handler
+	 */
+	$('#widgetDashboardArticle a.activateAction').click(function() {
+		var self = $(this);
+		var arr  = $(this).attr('rel').split('_');
+		$(this).html('').addClass('t_a_ui_helper_loading');
+				
+		$.ajaxq('widget_dashboardarticle', {
+			url: '<?php echo $this->url(array(), 'news_article_activate'); ?>',
+			type: 'POST',
+			data: { id: arr[0], status: arr[1] },
+			success: function(response) {
+				if (response == 'active') {
+					$(self).html("<?php echo $this->translator()->widget('action_deactivate'); ?>");
+				} else {
+					$(self).html("<?php echo $this->translator()->widget('action_activate'); ?>");
+				}
+				$(self).removeClass('t_a_ui_helper_loading');
+			}
+		});
+	});
+	<?php endif; ?>
+});
+</script>

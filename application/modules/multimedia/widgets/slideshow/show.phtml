@@ -1,0 +1,79 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: show.phtml 5247 2010-08-31 08:23:47Z huuphuoc $
+ * @since		2.0.0
+ */
+?>
+<?php if ($this->photos && count($this->photos) > 0) : ?>
+<div class="t_multimedia_slideshow">
+	<h2><?php echo $this->translator()->widget('title'); ?></h2>
+	
+	<div class="slider">
+		<span><a class="prev" href="javascript:void(0);"></a></span>
+		<div class="nav"></div>
+		<span><a class="next" href="javascript:void(0);"></a></span>
+	</div>
+	
+	<div class="content">
+	<?php foreach ($this->photos as $index => $photo) : ?>
+		<?php if ($index % 7 == 0) : ?><ul class="clearfix" style="display: <?php if ($index == 0) : ?>block<?php else : ?>none<?php endif; ?>"><?php endif; ?>
+		
+		<li>
+			<div class="image">
+				<a href="<?php echo $this->url($photo->getProperties(), 'multimedia_file_details'); ?>">
+					<img src="<?php echo $photo->image_square; ?>" />
+				</a>
+			</div>
+			<span><a href="<?php echo $this->url($photo->getProperties(), 'multimedia_file_details'); ?>"><?php echo $photo->title; ?></a></span>
+		</li>
+		
+		<?php if ($index % 7 == 6 || $index == count($this->photos) - 1) : ?></ul><?php endif; ?>
+	<?php endforeach; ?>
+	</div>
+	
+	<div class="clearfix">&nbsp;</div>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+	$('.t_multimedia_slideshow div.content').cycle({
+	    fx: 'fade', 
+	    timeout: 0,
+	    pager: '.t_multimedia_slideshow div.slider .nav',
+	    prev: '.t_multimedia_slideshow div.slider .prev',
+	    next: '.t_multimedia_slideshow div.slider .next',		
+	    pagerAnchorBuilder: function(idx, slide) { 
+			$('.t_multimedia_slideshow div.slider .nav').find('span').eq(<?php echo count($this->photos) - 1; ?>).remove();
+        	return '<span><a href="#"></a></span>';
+    	},
+    	after: function(curr, next, opts) {
+		    var index = opts.currSlide;
+		    if (index == 0) {
+				$('.t_multimedia_slideshow div.slider .prev').css({backgroundPosition: '-10px -10px'});
+			} else {
+				$('.t_multimedia_slideshow div.slider .prev').css({backgroundPosition: '0px -10px'});
+			}
+			if (index == <?php echo count($this->photos) - 1; ?>) {
+				$('.t_multimedia_slideshow div.slider .next').css({backgroundPosition: '-10px 0px'});
+			} else {
+				$('.t_multimedia_slideshow div.slider .next').css({backgroundPosition: '0px 0px'});
+			}
+		}
+	});	
+});
+</script>
+<?php endif; ?>

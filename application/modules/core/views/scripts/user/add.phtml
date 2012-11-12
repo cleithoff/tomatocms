@@ -1,0 +1,154 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: add.phtml 4185 2010-08-01 16:31:02Z huuphuoc $
+ * @since		2.0.0
+ */
+?>
+<?php 
+$this->headTitle($this->translator('user_add_page_title'));
+$this->headScript()->appendFile($this->APP_STATIC_SERVER . '/js/jquery.validate/jquery.validate.min.js');
+?>
+
+<div class="grid_12 t_a_ui_breadcrumb">
+	<span><a href="<?php echo $this->url(array(), 'core_user_list'); ?>"><?php echo $this->translator('user_list_breadcrumb'); ?></a></span>
+	<span><?php echo $this->translator('user_add_breadcrumb'); ?></span>	
+</div>
+
+<div class="grid_12"><?php echo $this->flashMessenger(); ?></div>
+
+<form method="post" action="<?php echo $this->url(array(), 'core_user_add'); ?>" id="addUserForm">
+<div class="grid_12 t_a_bottom"><?php echo $this->translator('user_add_guide'); ?></div>
+
+<div class="grid_12 t_a_bottom">
+	<div class="prefix_1 suffix_1">
+		<div class="clearfix t_a_bottom">
+			<label><?php echo $this->translator('user_full_name'); ?>:</label>
+			<input type="text" id="full_name" name="full_name" style="width: 200px" />
+		</div>
+		
+		<hr />
+		
+		<div class="clearfix t_a_bottom">
+			<label><?php echo $this->translator('user_user_name'); ?>:</label>
+			<input type="text" id="username" name="username" style="width: 200px" />
+		</div>
+		
+		<hr />
+		
+		<div class="clearfix t_a_bottom">
+			<label><?php echo $this->translator('user_password'); ?>:</label>
+			<input type="password" id="password" name="password" style="width: 200px" />
+		</div>
+		
+		<hr />
+		
+		<div class="clearfix t_a_bottom">
+			<label><?php echo $this->translator('user_confirm_password'); ?>:</label>
+			<input type="password" id="confirmPassword" name="confirmPassword" style="width: 200px" />
+		</div>
+		
+		<hr />
+		
+		<div class="clearfix t_a_bottom">
+			<label><?php echo $this->translator('user_email'); ?>:</label>
+			<input type="text" id="email" name="email" style="width: 200px" />
+		</div>
+		
+		<hr />
+		
+		<div class="clearfix t_a_bottom">
+			<label><?php echo $this->translator('user_role'); ?>:</label>
+			<select name="role" id="role">
+				<option value="">---</option>
+				<?php foreach ($this->roles as $role) : ?>
+				<option value="<?php echo $role->role_id; ?>"><?php echo $role->description; ?></option>
+				<?php endforeach; ?>
+			</select>
+		</div>
+		
+		<hr />
+		
+		<div class="clearfix t_a_bottom">
+			<label>&nbsp;</label>
+			<?php echo $this->tokenElement; ?>
+			<button type="submit"><span><?php echo $this->translator('user_add_save_button'); ?></span></button>
+		</div>
+	</div>
+</div>
+</form>
+
+<script type="text/javascript">
+$(document).ready(function() {
+	/**
+	 * Validate form
+	 */
+	$('#addUserForm').validate({
+		rules: {
+			full_name: {
+				required: true
+			},
+			username: {
+		  		required: true,
+		  		minlength: 5,
+		  		maxlength: 255,
+		  		remote: '<?php echo $this->url(array('check_type' => 'username'), 'core_user_check'); ?>'
+			},
+			email: {
+				required: true,
+				email: true,
+				remote: '<?php echo $this->url(array('check_type' => 'email'), 'core_user_check'); ?>'
+			},
+			password: {
+		  		required: true,
+		  		minlength: 5
+			},
+			confirmPassword: {
+				equalTo: '#password'
+			},
+			role: {
+				required: true
+			}
+	    },
+	    messages: {
+	    	full_name: {
+	        	required: "<?php echo $this->translator('user_full_name_required'); ?>"
+	    	},
+	    	username: {
+	        	required: "<?php echo $this->translator('user_user_name_required'); ?>",
+				minlength: "<?php echo $this->translator('user_user_name_minlength'); ?>",
+				maxlength: "<?php echo $this->translator('user_user_name_maxlength'); ?>",
+				remote: "<?php echo $this->translator('user_user_name_exist'); ?>"
+			},
+			email: { 
+	        	required: "<?php echo $this->translator('user_email_required'); ?>",
+	        	email: "<?php echo $this->translator('user_email_invalid'); ?>",
+		        remote: "<?php echo $this->translator('user_email_exist'); ?>"
+	    	},
+	    	password: {
+				required: "<?php echo $this->translator('user_password_required'); ?>",
+				minlength: "<?php echo $this->translator('user_password_minlength'); ?>"				
+			},
+			confirmPassword: {
+				equalTo: "<?php echo $this->translator('user_confirm_password_error'); ?>"
+			},
+			role: {
+				required: "<?php echo $this->translator('user_role_required'); ?>"
+			}
+		}
+	});
+});
+</script>

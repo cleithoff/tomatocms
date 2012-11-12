@@ -1,0 +1,106 @@
+<?php
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: _editor.phtml 3820 2010-07-20 14:32:47Z huuphuoc $
+ * @since		2.0.7
+ */
+?>
+<div id="editorTabs">
+	<ul>
+		<li><a href="#columnsTab"><span><?php echo $this->translator('page_layout_columns_tab'); ?></span></a></li>
+		<li><a href="#widgetsTab"><span><?php echo $this->translator('page_layout_widgets_tab'); ?></span></a></li>
+	</ul>
+	
+	<div class="t_a_top" id="columnsTab">
+		<h3><?php echo $this->translator('page_layout_columns'); ?></h3>
+		<hr />
+		<div>
+			<ul class="t_a_ui_layout_editor_columns">
+				<?php for ($i = 1; $i <= 12; $i++) : ?>
+				<li id="tColumns_<?php echo $i; ?>" class="t_column_draggable grid_2<?php if ($i %6 == 1) : ?> alpha<?php elseif ($i % 6 == 0) : ?> omega<?php endif; ?>"><?php echo sprintf($this->translator('page_layout_num_columns'), $i); ?><?php if ($i == 12) : ?> (<a href="javascript: void(0);" id="addContainerQuickly">+</a>)<?php endif; ?></li>
+				<?php endfor; ?>	
+			</ul>
+			<div class="clearfix"></div>
+		</div>
+	</div>
+	
+	<div class="t_a_top" id="widgetsTab">
+		<div class="grid_3 alpha">
+			<h3><?php echo $this->translator('page_layout_module_filter'); ?></h3>
+			<hr />
+			<div>
+				<ul id="modules" class="t_a_ui_list">
+				<?php foreach ($this->widgetModules as $module) : ?>
+					<li><a href="javascript: void(0);"><?php echo $module->name; ?></a></li>
+				<?php endforeach; ?>
+				</ul>
+			</div>
+		</div>
+		
+		<div class="grid_9 omega">
+			<h3><?php echo $this->translator('page_layout_widget_list'); ?></h3>
+			<hr />
+			<div>
+				<div class="clearfix"></div>
+				<div id="widgets"></div>
+			</div>
+		</div>
+		<div class="clearfix"></div>
+	</div>
+</div>
+
+<script type="text/javascript">
+function loadWidgets(page, module) {
+	$('#widgets').html('').addClass('t_a_ui_helper_loading');
+	$.ajaxq('page_layout', {
+		url: '<?php echo $this->url(array(), 'core_page_widgets'); ?>',
+		type: 'POST',
+		data: { mod: module, page: page },
+		success: function(response) {
+			$('#widgets').html(response).removeClass('t_a_ui_helper_loading');
+		}
+	});	
+};
+
+loadWidgets(1, $('#widgetsTab').find('li:first a').html());
+
+$(document).ready(function() {
+	/** 
+	 * Create tabs
+	 */
+	$("#editorTabs").tabs();
+
+	/**
+	 * Load widgets belonging to the first module
+	 */
+	$('#modules').find('li a').click(function() {
+		loadWidgets(1, $(this).html());
+	});
+
+	$('#addContainerQuickly').unbind('click').bind('click', function() {
+		rootContainer.append(12);
+	});
+
+	/** 
+	 * Containers are draggable 
+	 */
+	$('li.t_column_draggable').css('cursor', 'move').draggable({
+		zIndex: 1000,
+		cursor: 'move',
+		helper: 'clone'
+	}).disableSelection();	
+});	
+</script>

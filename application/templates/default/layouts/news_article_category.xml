@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE layout SYSTEM "http://schemas.tomatocms.com/dtd/layout.dtd">
+<layout>
+	<container cols="12">
+        <widget module="core" name="localeswitcher" load="php">
+            <title><![CDATA[Switch locale]]></title>
+            <params>
+                <param name="type"><value><![CDATA[full]]></value></param>
+            </params>
+        </widget>
+    </container>
+    <container cols="12">
+        <widget module="menu" name="menu" load="php">
+            <title><![CDATA[Menu]]></title>
+            <resources>
+                <resource type="javascript" src="{APP_STATIC_SERVER}/js/jquery.hoverIntent/jquery.hoverIntent.minified.js" />
+                <resource type="javascript" src="{APP_STATIC_SERVER}/js/megamenu/megamenu.js" />
+            </resources>
+            <params>
+                <param name="menu_id"><value><![CDATA[1]]></value></param>
+            </params>
+        </widget>
+    </container>
+    <container cols="12">
+        <container cols="8" position="first">
+            <widget module="news" name="breadcrumb" load="php">
+                <title><![CDATA[Breadcrumb]]></title>
+                <params>
+                    <param name="category_id" type="global" />
+                </params>
+            </widget>
+            <widget module="news" name="sticky" load="php">
+                <title><![CDATA[Sticky articles]]></title>
+                <params>
+                    <param name="category_id" type="global" />
+                    <param name="limit"><value><![CDATA[4]]></value></param>
+                    <param name="num_articles_per_row"><value><![CDATA[]]></value></param>
+                </params>
+            </widget>
+            <defaultOutput />
+        </container>
+        <container cols="4" position="last">
+            <widget module="news" name="siblingcategory" load="php">
+                <title><![CDATA[Sibling categories]]></title>
+                <params>
+                    <param name="category_id" type="global" />
+                    <param name="limit"><value><![CDATA[6]]></value></param>
+                </params>
+            </widget>
+        </container>
+    </container>
+</layout>

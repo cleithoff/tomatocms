@@ -1,0 +1,300 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: list.phtml 4185 2010-08-01 16:31:02Z huuphuoc $
+ * @since		2.0.0
+ */
+?>
+<?php 
+$this->headTitle($this->translator('config_list_title'));
+
+$this->headLink()
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.core.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.resizable.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.dialog.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.theme.css');
+
+$this->headScript()
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.core.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.draggable.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.resizable.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.dialog.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.editinplace/jquery.editinplace.packed.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.validate/jquery.validate.min.js');
+?>
+
+<div class="grid_12 t_a_ui_breadcrumb">
+	<span><?php echo $this->translator('config_list_breadcrumb'); ?></span>	
+</div>
+
+<div class="grid_12 t_a_bottom"><?php echo $this->translator('config_list_guide'); ?></div>
+
+<div class="grid_12 t_a_bottom">
+	<!-- Left column -->
+	<div class="grid_3 alpha">
+		<!-- Modules -->
+		<div class="t_a_bottom">
+			<ul class="t_a_ui_list" id="moduleFilter">
+				<?php foreach ($this->modules as $index => $module) : ?>
+				<li<?php if (0 == $index) : ?> class="t_a_ui_active"<?php endif; ?>><a href="javascript: void(0);"><?php echo $module; ?></a></li>
+				<?php endforeach; ?>
+			</ul>
+		</div>
+	</div>
+	
+	<!-- Right column -->
+	<div class="grid_9 omega">
+		<!-- List configure section for each module -->
+		<?php foreach ($this->sections as $module => $sections) : ?>
+		<div id="<?php echo $module; ?>Module" class="settingModule t_a_bottom" style="display: none">
+			
+			<?php foreach ($sections as $section => $data) : ?>
+			<div class="t_a_bottom">
+				<h3><?php echo $this->translator('config_list_section'); ?> <?php echo $section; ?></h3>
+				<hr />
+			
+				<?php foreach ($data as $key => $value) : ?>
+				<div id="keyRow_<?php echo $key; ?>" class="clearfix t_a_ui_data_list_content">
+					<div class="grid_3 alpha">
+						<div><?php echo $key; ?></div>
+					</div>
+					
+					<div class="grid_5">
+						<div class="t_a_ui_helper_editable" style="background: #E8E8E8" id="<?php echo $module ?>____valueFor_<?php echo $section.'___'.$key; ?>"><?php echo $this->escape($value); ?></div>
+					</div>
+					
+					<div class="grid_1 omega">
+						<div class="t_a_ui_helper_action" style="display: none">
+							<?php if ($this->allow('delete')) : ?>
+								<a class="deleteAction" href="javascript: void(0);" rel="<?php echo $this->escape($module.'___'.$section.'___'.$key); ?>"><?php echo $this->translator('config_list_delete'); ?></a>
+							<?php else : ?>
+								&nbsp;
+							<?php endif; ?>
+						</div>
+					</div>
+				</div>
+				<?php endforeach; ?>
+			</div>
+			<?php endforeach; ?>
+			
+		</div>
+		<?php endforeach; ?>
+		
+		<!-- Add new setting -->
+		<?php if ($this->allow('add')) : ?>
+		<div class="t_a_bottom">
+			<h3><?php echo $this->translator('config_list_add_new'); ?></h3>
+			<hr />
+			
+			<form id="addValueForm" method="post" action="<?php echo $this->url(array(), 'core_config_add'); ?>">
+				<div class="prefix_1 suffix_1">
+					<div class="clearfix t_a_bottom">
+						<label><?php echo $this->translator('config_list_select_module'); ?>:</label>
+						<select id="moduleSelect" name="moduleName" style="width: 300px">
+								<option value="">---</option>
+							<?php foreach ($this->sections as $module => $sections) : ?>
+								<option value="<?php echo $module; ?>"><?php echo $module; ?></option>
+							<?php endforeach; ?>
+						</select>
+					</div>
+					
+					<hr />
+					
+					<div class="clearfix t_a_bottom">
+						<label><?php echo $this->translator('config_list_select_section'); ?>:</label>
+						<select id="sectionSelect" name="section" style="width: 300px">
+							<option value="">---</option>
+						</select>
+					</div>
+					
+					<hr />
+					
+					<div class="clearfix t_a_bottom">
+						<label><?php echo $this->translator('config_list_create_new_section'); ?>:</label>
+						<input type="text" style="width: 300px" name="new_section" />
+					</div>
+					
+					<hr />
+					
+					<div class="clearfix t_a_bottom">
+						<label><?php echo $this->translator('config_list_new_name'); ?>:</label>
+						<input type="text" style="width: 220px" name="key" />
+					</div>
+					
+					<hr />
+					
+					<div class="clearfix t_a_bottom">
+						<label><?php echo $this->translator('config_list_new_value'); ?>:</label>
+						<input type="text" style="width: 300px" name="value" />
+					</div>
+					
+					<hr />
+					
+					<div class="clearfix t_a_bottom">
+						<label>&nbsp;</label>
+						<button type="submit"><span><?php echo $this->translator('config_list_add_button'); ?></span></button>
+					</div>
+				</div>
+			</form>
+		</div>
+		<?php endif; ?>
+	</div>
+</div>
+
+<div id="confirmDialog"></div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+	/**
+	 * Data list hover handler
+	 */
+	$('.t_a_ui_data_list_content').hover(function() {
+		$(this).find('.t_a_ui_helper_action').show();
+	}, function() {
+		$(this).find('.t_a_ui_helper_action').hide();
+	});
+
+	/**
+	 * Show all the settings belonging to first module
+	 */
+	$('.settingModule:first').show();
+
+	/**
+	 * Filter settings by module
+	 */
+	$('#moduleFilter').find('a').click(function() {
+		$('.settingModule').hide();
+		$('#' + $(this).html() + 'Module').show();	
+
+		$('#moduleFilter').find('li').removeClass('t_a_ui_active');
+		$(this).parent().addClass('t_a_ui_active');
+	});	
+	
+	/**
+	 * Validate form
+	 */
+	$('#addValueForm').validate({
+		rules: {
+			key: {
+				required: true
+			},
+			value: {
+		  		required: true
+			},
+			moduleName: {
+		  		required: true
+			}
+	    },
+	    messages: {
+	    	key: {
+	        	required: "<?php echo $this->translator('config_list_key_required'); ?>"
+	    	},
+	    	value: {
+	        	required: "<?php echo $this->translator('config_list_value_required'); ?>",
+			},
+	    	moduleName: {
+	        	required: "<?php echo $this->translator('config_list_module_required'); ?>",
+			}
+		}
+	});
+
+	/**
+	 * Show available setting groups based on selected module
+	 */
+	var gSections = {}, arr = null;
+	<?php foreach ($this->sections as $module => $sections) : ?>
+	arr = new Array();
+	<?php foreach ($sections as $section => $data): ?>
+	arr[arr.length] = '<?php echo $section; ?>';
+	<?php endforeach; ?>
+	gSections['<?php echo $module; ?>'] = arr;
+	<?php endforeach; ?>
+	
+	$('#moduleSelect').bind('change', function() {
+		$('#sectionSelect').html('').append($('<option/>').val('').html('---'));
+		var module = $(this).val();
+		for (var i in gSections[module]) {
+			$('#sectionSelect').append($('<option/>').val(gSections[module][i]).html(gSections[module][i]));
+		}
+	});
+
+	<?php if ($this->allow('edit')) : ?>
+	/**
+	 * Edit setting handler
+	 */
+	$('.t_a_ui_helper_editable').editInPlace({
+		url: "<?php echo $this->url(array(), 'core_config_update'); ?>",
+		bg_out: '#f3f3f3',
+		field_type: 'textarea',
+		textarea_cols: 40,
+		textarea_rows: 5,
+		saving_text: '<?php echo $this->translator('config_list_saving'); ?>',	
+		callback: function(original_element, html, original) {
+			$.ajax({
+				url: "<?php echo $this->url(array(), 'core_config_update'); ?>",
+				type: 'POST',
+				data: { keySection: original_element, value: html },
+				success: function(response) {
+				}
+			});
+			return(html);
+	    }	
+	});
+	<?php endif; ?>
+
+	<?php if ($this->allow('delete')) : ?>
+	/**
+	 * Delete setting handler
+	 */
+	$('a.deleteAction').click(function() {
+		var self = this;
+		var attr = $(self).attr('rel').split('___');
+
+		$('#confirmDialog').html('<?php echo addslashes($this->translator('config_list_delete_confirm')); ?>')
+			.dialog({
+				title: '<?php echo addslashes($this->translator('common_dialog_confirm')); ?>',
+				dialogClass: 't_a_ui_dialog',
+				modal: true,
+				closeOnEscape: false,
+				resizable: false,
+				open: function(event, ui) {
+					$('.ui-dialog-titlebar-close').hide();
+					$(this).parent().find('.ui-dialog-buttonpane button').wrapInner('<span/>');
+				},
+				buttons: {
+					'<?php echo addslashes($this->translator('common_dialog_confirm_no')); ?>': function() {
+						$(this).dialog('destroy');
+					},
+					'<?php echo addslashes($this->translator('common_dialog_confirm_yes')); ?>': function() {
+						$(this).dialog('destroy');
+						$(self).html('').addClass('t_a_ui_helper_loading');
+						$.ajax({
+							url: "<?php echo $this->url(array(), 'core_config_delete'); ?>",
+							type: 'POST',
+							data: { moduleName: attr[0], section: attr[1], key: attr[2] },
+							success: function(response) {
+								if ('RESULT_OK' == response) {
+									$('#keyRow_' + attr[2]).fadeOut('slow');
+								}
+							}
+						});
+					}
+				}
+			});
+	});
+	<?php endif; ?>
+});
+</script>

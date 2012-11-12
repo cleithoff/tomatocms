@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version		$Id: about.xml 4959 2010-08-25 18:22:17Z huuphuoc $
+ * @since		2.0.1
+ */
+-->
+<!DOCTYPE module SYSTEM "http://schemas.tomatocms.com/dtd/module_about.dtd">
+<module>
+	<name>comment</name>
+	<description langKey="about_comment_description"><![CDATA[Manage comments]]></description>
+	<thumbnail></thumbnail>
+	<author>TomatoCMS Core Team</author>
+	<email>core@tomatocms.com</email>
+	<version>2.0.1</version>
+	<license>free</license>
+	<requires></requires>
+	
+	<install>
+		<db adapter="mysql|pdo_mysql">
+			<query><![CDATA[DROP TABLE IF EXISTS `###comment`;]]></query>
+			<query><![CDATA[CREATE TABLE `###comment` (
+				  `comment_id` int(10) unsigned NOT NULL auto_increment,
+				  `title` varchar(255) NOT NULL,
+				  `content` text NOT NULL,
+				  `full_name` varchar(255) default NULL,
+				  `web_site` varchar(255) default NULL,
+				  `email` varchar(100) NOT NULL,
+				  `user_id` int(11) default NULL,
+				  `user_name` varchar(100) default NULL,
+				  `page_url` varchar(255) default NULL,
+				  `ip` varchar(40) NOT NULL,
+				  `created_date` datetime NOT NULL,
+				  `is_active` tinyint(4) NOT NULL,
+				  `activate_date` datetime default NULL,
+				  `path` varchar(255) default NULL,
+				  `ordering` int(11) default '0',
+				  `depth` int(11) default '0',
+				  `reply_to` int(11) default '0',
+				  PRIMARY KEY  (`comment_id`),
+				  KEY `idx_latest` (`page_url`,`is_active`,`ordering`)
+				) ENGINE=InnoDB DEFAULT CHARSET=utf8;]]>
+			</query>
+		</db>
+		<db adapter="pgsql">
+			<query><![CDATA[DROP TABLE IF EXISTS ###comment;]]></query>
+			<query><![CDATA[CREATE TABLE ###comment (
+				    comment_id integer NOT NULL,
+				    title character varying(255) NOT NULL,
+				    content text NOT NULL,
+				    full_name character varying(255) DEFAULT NULL::character varying,
+				    web_site character varying(255) DEFAULT NULL::character varying,
+				    email character varying(100) NOT NULL,
+				    user_id integer,
+				    user_name character varying(100) DEFAULT NULL::character varying,
+				    page_url character varying(255) DEFAULT NULL::character varying,
+				    ip character varying(40) NOT NULL,
+				    created_date time without time zone NOT NULL,
+				    is_active smallint NOT NULL,
+				    activate_date time without time zone,
+				    path character varying(255) DEFAULT NULL::character varying,
+				    ordering integer DEFAULT 0,
+				    depth integer DEFAULT 0,
+				    reply_to integer DEFAULT 0
+				);
+				CREATE SEQUENCE comment_comment_id_seq
+				    START WITH 1
+				    INCREMENT BY 1
+				    NO MAXVALUE
+				    NO MINVALUE
+				    CACHE 1;
+				ALTER SEQUENCE comment_comment_id_seq OWNED BY ###comment.comment_id;
+				SELECT pg_catalog.setval('comment_comment_id_seq', 1, false);]]>
+			</query>
+		</db>
+		<db adapter="sqlsrv">
+			<query><![CDATA[IF EXISTS (SELECT NAME FROM SYSOBJECTS WHERE NAME='###comment' AND TYPE='U') DROP TABLE ###comment;]]></query>
+			<query><![CDATA[CREATE TABLE ###comment (
+				comment_id int identity(1,1) NOT NULL,
+				title nvarchar(255) NOT NULL,
+				content ntext NOT NULL,
+				full_name nvarchar(255) NULL,
+				web_site nvarchar(255) NULL,
+				email nvarchar(100) NOT NULL,
+				user_id int NULL,
+				user_name nvarchar(100) NULL,
+				page_url nvarchar(255) NULL,
+				ip nvarchar(40) NOT NULL,
+				created_date varchar(19) NOT NULL,
+				is_active numeric(3, 0) NOT NULL,
+				activate_date varchar(19) NULL,
+				path nvarchar(255) NULL,
+				ordering int default 0,
+				depth int default 0,
+				reply_to int default 0,
+				PRIMARY KEY (comment_id)
+			);]]>
+			</query>
+			<query><![CDATA[CREATE INDEX idx_latest ON ###comment (page_url,is_active,ordering);]]></query>
+		</db>
+	</install>
+	
+	<uninstall>
+		<db adapter="mysql|pdo_mysql">
+			<query><![CDATA[DROP TABLE IF EXISTS `###comment`;]]></query>
+		</db>
+		<db adapter="pgsql">
+			<query><![CDATA[DROP TABLE IF EXISTS ###comment;]]></query>
+		</db>
+		<db adapter="sqlsrv">
+			<query><![CDATA[IF EXISTS (SELECT NAME FROM SYSOBJECTS WHERE NAME='###comment' AND TYPE='U') DROP TABLE ###comment;]]></query>
+		</db>
+	</uninstall>
+	
+	<admin>
+		<task langKey="task_list_threads" route="comment_list" />
+	</admin>
+</module>

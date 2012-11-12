@@ -1,0 +1,107 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: _languageSelector.phtml 4809 2010-08-24 03:33:39Z huuphuoc $
+ * @since		2.0.8
+ */
+?>
+<select id="<?php echo $this->attributes['id']; ?>" name="<?php echo $this->attributes['name']; ?>"<?php if ($disabled = (isset($this->attributes['disabled']) && true == $this->attributes['disabled'])) : ?> disabled="disabled"<?php endif; ?>>
+	<?php foreach ($this->languages as $language => $details) : ?>
+	<option value="<?php echo $language; ?>"<?php if (!$disabled && $language == $this->attributes['selected']) : ?> selected="selected"<?php endif; ?>><?php echo $details[1]; ?> (<?php echo $details[2]; ?>)</option>
+	<?php endforeach; ?>
+</select>
+		
+<script type="text/javascript">	
+$(document).ready(function() {
+	/**
+	 * Disable source items element if user select the default language
+	 */
+	if ($('#<?php echo $this->attributes['id']; ?>').val() == '<?php echo $this->defaultLang; ?>') {
+		$('.translationSourceItems select').attr('disabled', 'disabled').find('option:selected').removeAttr('selected');
+	}
+	
+	var translatableData = <?php echo Zend_Json::encode($this->translatableData); ?>;
+	for (var name in translatableData) { 
+		if ($('#' + name).length > 0) {
+			<?php if ($this->autoTranslate) : ?>
+			$.ajaxq('Core_View_Helper_LanguageSelector', {
+				url: '<?php echo $this->url(array(), 'core_locale_translate'); ?>',
+				type: 'POST',
+				data: { source: translatableData['language'], target: '<?php echo $this->attributes['selected']; ?>', name: name, text: translatableData[name] },
+				success: function(response) {
+					var res = $.evalJSON(response);
+					if (res.text != 'RESULT_ERROR') {
+						if ($('#' + res.name).hasClass('tinymce')) {
+							tinyMCE.getInstanceById(res.name).execCommand('mceInsertContent', false, res.text);
+						} else {
+							$('#' + res.name).val(res.text);
+						}
+					}
+				}
+			});
+			<?php else : ?>
+			$('#' + name).val(translatableData[name]);
+			<?php endif; ?>
+		}
+	}
+	
+	$('#<?php echo $this->attributes['id']; ?>').change(function() {
+		var lang  = $(this).val();
+		var total = $('.translatable').length;
+
+		$('.translatable').each(function(index) {
+			var self    = this;
+			var element = $(this).children()[0];
+			$(self).html('').addClass('t_a_ui_helper_loading');
+			var data    = { 
+				id: $(element).attr('id'), 
+				name: $(element).attr('name'), 
+				language: lang, 
+				viewHelperClass: $(element).attr('viewHelperClass'), 
+				viewHelperAttributes: $(element).attr('viewHelperAttributes') 
+			};
+
+			$.ajaxq('Core_View_Helper_LanguageSelector', {
+				url: '<?php echo $this->url(array(), 'core_locale_viewhelper'); ?>',
+				type: 'POST',
+				cache: false,
+				data: data,
+				success: function(response) {
+					$(self).html(response).removeClass('t_a_ui_helper_loading');
+
+					/**
+					 * Disable source items element if user select the default language
+					 */
+					if (lang == '<?php echo $this->defaultLang; ?>') {
+						$('.translationSourceItems select').attr('disabled', 'disabled').find('option:selected').removeAttr('selected');
+					} else {
+						$('.translationSourceItems select').removeAttr('disabled');
+					}
+
+					/**
+					 * Call the callback after loading all translatable elements
+					 */
+					<?php if (isset($this->attributes['jsCallback'])): ?>
+					if (index == total - 1) {
+					<?php echo $this->attributes['jsCallback']; ?>($(this).val, $(this).find('option:selected').html());
+					}
+					<?php endif; ?>
+				}
+			});
+		});
+	});
+});
+</script>

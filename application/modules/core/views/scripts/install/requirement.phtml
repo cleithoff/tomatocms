@@ -1,0 +1,124 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: requirement.phtml 3870 2010-07-22 07:58:31Z huuphuoc $
+ * @since		2.0.1
+ */
+?>
+<?php 
+$this->headTitle($this->translator('install_requirement_page_title'));
+?>
+
+<div class="t_a_install_step">
+	<div class="grid_12">
+		<ul>
+			<li class="grid_3 alpha">
+				<span>1</span>		
+				<h2><?php echo $this->translator('install_steps_language'); ?></h2>
+			</li>
+			<li class="t_a_install_step_active grid_3">
+				<span>2</span>		
+				<h2><?php echo $this->translator('install_steps_requirements'); ?></h2>
+			</li>
+			<li class="grid_3">
+				<span>3</span>		
+				<h2><?php echo $this->translator('install_steps_config'); ?></h2>
+			</li>
+			<li class="grid_3 omega">
+				<span>4</span>
+				<h2><?php echo $this->translator('install_steps_complete'); ?></h2>
+			</li>
+		</ul>
+	</div>
+</div>
+
+<div class="t_a_install_container">
+	<div class="grid_12">
+		<form method="post" action="<?php echo $this->url(array(), 'core_install_requirement'); ?>">
+		<div class="t_a_top">
+			<h3><?php echo $this->translator('install_requirement_php_extensions'); ?></h3>
+			<hr />
+			<div class="t_a_bottom">
+				<?php echo $this->translator('install_requirement_php_extensions_guide'); ?>
+			</div>
+			
+			<table>
+				<thead>
+					<tr>
+						<th><?php echo $this->translator('install_requirement_extension'); ?></th>
+						<th><?php echo $this->translator('install_requirement_installed_status'); ?></th>
+					</tr>
+				</thead>
+				<tbody>
+					<?php foreach ($this->requiredExtensions as $ext => $loaded) : ?>
+					<tr>
+						<td><?php echo $ext; ?></td>
+						
+						<?php if ($loaded): ?>
+						<td><?php echo $this->translator('install_requirement_installed'); ?></td>
+						<?php else : ?>
+						<td class="t_a_install_no"><?php echo $this->translator('install_requirement_not_installed'); ?></td>
+						<?php endif; ?>	
+					</tr>
+					<?php endforeach; ?>
+				</tbody>
+			</table>
+		</div>
+		
+		<div class="t_a_top">
+			<h3><?php echo $this->translator('install_requirement_file_permission'); ?></h3>
+			<hr />
+			<div class="t_a_bottom">
+				<?php echo $this->translator('install_requirement_file_permission_guide'); ?>
+			</div>
+			
+			<table>
+				<thead>
+					<tr>
+						<th><?php echo $this->translator('install_requirement_file'); ?></th>
+						<th><?php echo $this->translator('install_requirement_writable_status'); ?></th>
+					</tr>
+				</thead>
+				<tbody>
+					<?php foreach ($this->writableFiles as $file => $writable) : ?>
+					<tr>
+						<td><?php echo $file; ?></td>
+						
+						<?php if ($writable) : ?>
+						<td><?php echo $this->translator('install_requirement_writable'); ?></td>
+						<?php else : ?>
+						<td class="t_a_install_no"><?php echo $this->translator('install_requirement_not_writable'); ?></td>
+						<?php endif; ?>
+					</tr>
+					<?php endforeach; ?>
+				</tbody>
+			</table>
+		</div>
+		
+		<?php if ($this->pass) : ?>
+		<div class="t_a_top clearfix">
+			<div class="grid_6 alpha">
+				<a href="<?php echo $this->url(array(), 'core_install_language'); ?>" class="t_a_ui_button_link"><span><?php echo $this->translator('install_steps_back_button'); ?></span></a>
+			</div>
+			
+			<div class="grid_6 omega">
+				<button type="submit" class="t_a_right"><span><?php echo $this->translator('install_steps_next_button'); ?></span></button>
+			</div>
+		</div>
+		<?php endif; ?>
+		</form>
+	</div>
+</div>	

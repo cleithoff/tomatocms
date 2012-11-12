@@ -1,0 +1,188 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: edit.phtml 4184 2010-08-01 16:27:39Z huuphuoc $
+ * @since		2.0.1
+ */
+?>
+<?php 
+$this->headTitle($this->translator('comment_edit_page_title'));
+
+$this->headScript()
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.validate/jquery.validate.min.js');
+?>
+
+<script type="text/javascript" src="<?php echo $this->APP_STATIC_SERVER; ?>/js/tinymce/tiny_mce.js"></script>
+
+<div class="grid_12 t_a_ui_breadcrumb">
+	<span><a href="<?php echo $this->url(array(), 'comment_list'); ?>"><?php echo $this->translator('comment_list_breadcrumb'); ?></a></span>
+	<span><a href="<?php echo $this->url(array('paramsString' => $this->queryString), 'comment_thread'); ?>"><?php echo $this->translator('comment_thread_breadcrumb'); ?></a></span>
+	<span><?php echo $this->translator('comment_edit_breadcrumb'); ?></span>	
+</div>
+
+<div class="grid_12"><?php echo $this->flashMessenger(); ?></div>
+
+<form action="<?php echo $this->url(array('comment_id' => $this->comment->comment_id), 'comment_edit'); ?>" method="post" name="editCommentForm" id="editCommentForm">
+<div class="grid_12">
+	<!-- Left column -->
+	<div class="grid_12 alpha">
+		<div class="t_a_ui_helper_line">
+			<h3><?php echo $this->translator('comment_edit_details'); ?></h3>
+		</div>
+		
+		<div>
+			<div class="clearfix t_a_bottom">
+				<label><?php echo $this->translator('comment_page_url'); ?>:</label>
+				<input type="text" name="page_url" id="page_url" style="width: 420px" value="<?php if (null != $this->comment && null != $this->comment->page_url) : ?><?php echo $this->escape($this->comment->page_url); ?><?php endif; ?>" />
+			</div>
+			
+			<hr />
+			
+			<div class="clearfix t_a_bottom">
+				<label><?php echo $this->translator('comment_title'); ?>:</label>
+				<input type="text" name="title" id="title" style="width: 420px" value="<?php if (null != $this->comment && null != $this->comment->title) : ?><?php echo $this->escape($this->comment->title); ?><?php endif; ?>" />
+			</div>
+			
+			<hr />
+			
+			<div class="clearfix t_a_bottom">
+				<label><?php echo $this->translator('comment_content'); ?>:</label>
+				<textarea name="content" id="content" class="tTinyMCE" style="width: 420px; height: 200px"><?php if (null != $this->comment && null != $this->comment->content) : ?><?php echo $this->comment->content; ?><?php endif; ?></textarea>
+			</div>
+			
+			<hr />
+			
+			<div class="clearfix t_a_bottom">
+				<label><?php echo $this->translator('comment_full_name'); ?>:</label>
+				<input type="text" name="fullName" id="fullName" style="width: 420px" value="<?php if (null != $this->comment && null != $this->comment->full_name) : ?><?php echo $this->escape($this->comment->full_name); ?><?php endif; ?>" />
+			</div>
+			
+			<hr />
+			
+			<div class="clearfix t_a_bottom">
+				<label><?php echo $this->translator('comment_email'); ?>:</label>
+				<input type="text" name="email" id="email" style="width: 420px" value="<?php if (null != $this->comment && null != $this->comment->email) : ?><?php echo $this->escape($this->comment->email); ?><?php endif; ?>" />
+			</div>
+			
+			<hr />
+			
+			<div class="clearfix t_a_bottom">
+				<label><?php echo $this->translator('comment_web_site'); ?>:</label>
+				<input type="text" name="website" id="website" style="width: 420px" value="<?php if (null != $this->comment && null != $this->comment->web_site) : ?><?php echo $this->escape($this->comment->web_site); ?><?php endif; ?>" />
+			</div>
+			
+			<hr />
+			
+			<div class="clearfix t_a_bottom">
+				<label><?php echo $this->translator('comment_status'); ?>:</label>
+				<select name="status" id="status">
+					<option value="0"><?php echo $this->translator('comment_status_inactive'); ?></option>
+					<option value="1"<?php if ($this->comment != null && $this->comment->is_active == 1) : ?> selected<?php endif; ?>><?php echo $this->translator('comment_status_active'); ?></option>
+				</select>
+			</div>
+			
+			<hr />
+			
+		</div>
+	</div>
+	
+</div>
+
+<div class="grid_12 t_a_bottom">
+	<label>&nbsp;</label>
+	
+	<button type="button" id="saveButton" onclick="javascript: $('#editCommentForm').submit();"><span><?php echo $this->translator('comment_save_button'); ?></span></button>
+	
+</div>
+</form>
+
+<script type="text/javascript">
+/**
+ * Init TinyMCE instances
+ */
+tinyMCE.init({
+	theme: 'advanced',
+	theme_advanced_toolbar_location: 'top',
+	theme_advanced_toolbar_align: 'left',
+	width: '420',
+	height: '225',
+	mode: 'exact',
+	elements: 'content',
+	content_css: '<?php echo $this->APP_STATIC_SERVER; ?>/skins/<?php echo $this->APP_TEMPLATE; ?>/<?php echo $this->APP_SKIN; ?>/default.css',
+	relative_urls: false,
+	remove_script_host: false,
+	onchange_callback: function(editor) {
+		tinyMCE.triggerSave();
+	}
+});
+
+$(document).ready(function() {
+	/**
+	 * Validate form
+	 */
+	var validator = $('#editCommentForm').submit(function() {
+						tinyMCE.triggerSave();
+					}).validate({
+						rules: {
+							title: {
+								required: true,
+						  		maxlength: 255
+							},
+							fullName: {
+								required: true
+							},
+							content: {
+								required: true,
+								maxlength: 800
+							},
+							email: {
+								required: true,
+								email: true
+							}
+					    },
+					    messages: {
+					    	title: {
+					        	required: "<?php echo $this->translator('comment_title_required'); ?>",
+								maxlength: "<?php echo $this->translator('comment_title_maxlength'); ?>"
+							},
+					    	fullName: {
+								required: "<?php echo $this->translator('comment_full_name_required'); ?>"
+							},
+							content: {
+					        	required: "<?php echo $this->translator('comment_content_required'); ?>",
+								maxlength: "<?php echo $this->translator('comment_content_maxlength'); ?>"
+							},
+					    	email: {
+								required: "<?php echo $this->translator('comment_email_required'); ?>",
+								email: "<?php echo $this->translator('comment_email_invalid'); ?>"
+							}
+						}
+					});
+	validator = function() {
+		if( this.settings.focusInvalid ) {
+			try {
+				var toFocus = $(this.findLastActive() || this.errorList.length && this.errorList[0].element || []);
+				if (toFocus.is('textarea')) {
+					tinyMCE.get(toFocus.attr('id')).focus();
+				} else {
+					toFocus.filter(':visible').focus();
+				}
+			} catch(e) {
+			}
+		}
+	};
+});
+</script>

@@ -1,0 +1,57 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: _pagination.phtml 3483 2010-07-09 09:44:44Z huuphuoc $
+ * @since		2.0.3
+ */
+?>
+
+<!-- First page link -->
+<?php if (isset($this->previous)): ?>
+	<span><?php echo $this->paginator()->buildLink($this->first, $this->translator('helper_paginator_first', 'core'), $this->paginatorOptions); ?></span>
+<?php else: ?>
+	<span class="t_a_ui_disable"><?php echo $this->translator('helper_paginator_first', 'core'); ?></span>
+<?php endif; ?>
+    
+<!-- Previous page link -->
+<?php if (isset($this->previous)): ?>
+	<span><?php echo $this->paginator()->buildLink($this->previous, $this->translator('helper_paginator_previous', 'core'), $this->paginatorOptions); ?></span>
+<?php else: ?>
+	<span class="t_a_ui_disable"><?php echo $this->translator('helper_paginator_previous', 'core'); ?></span>
+<?php endif; ?>
+
+<!-- Numbered page links -->
+<?php foreach ($this->pagesInRange as $page): ?>
+	<?php if ($page != $this->current): ?>
+	<span><?php echo $this->paginator()->buildLink($page, $page, $this->paginatorOptions); ?></span>
+    <?php else: ?>
+    <span class="t_a_ui_active"><?php echo $page; ?></span>
+	<?php endif; ?>
+<?php endforeach; ?>
+
+<!-- Next page link -->
+<?php if (isset($this->next)): ?>
+	<span><?php echo $this->paginator()->buildLink($this->next, $this->translator('helper_paginator_next', 'core'), $this->paginatorOptions); ?></span>
+<?php else: ?>
+	<span class="t_a_ui_disable"><?php echo $this->translator('helper_paginator_next', 'core'); ?></span>
+<?php endif; ?>
+
+<!-- Last page link -->
+<?php if (isset($this->next)): ?>
+	<span><?php echo $this->paginator()->buildLink($this->last, $this->translator('helper_paginator_last', 'core'), $this->paginatorOptions); ?></span>
+<?php else: ?>
+	<span class="t_a_ui_disable"><?php echo $this->translator('helper_paginator_last', 'core'); ?></span>
+<?php endif; ?>

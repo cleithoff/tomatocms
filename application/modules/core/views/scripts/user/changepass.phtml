@@ -1,0 +1,90 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: changepass.phtml 4185 2010-08-01 16:31:02Z huuphuoc $
+ * @since		2.0.0
+ */
+?>
+<?php 
+$this->headTitle($this->translator('user_changepass_page_title'));
+$this->headScript()->appendFile($this->APP_STATIC_SERVER . '/js/jquery.validate/jquery.validate.min.js');
+?>
+
+<div class="grid_12 t_a_ui_breadcrumb">
+	<span><?php echo $this->translator('user_changepass_breadcrumb'); ?></span>	
+</div>
+
+<div class="grid_12"><?php echo $this->flashMessenger(); ?></div>
+
+<div class="grid_12 t_a_bottom">
+	<div class="prefix_1 suffix_1">
+		<form method="post" action="<?php echo $this->url(array(), 'core_user_changepass'); ?>" id="changepassForm">
+		<div class="t_a_bottom">
+			<label><?php echo $this->translator('user_changepass_new_password'); ?>:</label>
+			<div>
+				<input type="password" style="width: 200px" name="password" id="password" />
+				<p><?php echo $this->translator('user_password_guide'); ?></p>
+			</div>
+		</div>
+		
+		<hr />
+		
+		<div class="t_a_bottom">
+			<label><?php echo $this->translator('user_changepass_confirm_password'); ?>:</label>
+			<div>
+				<input type="password" style="width: 200px" name="confirmPassword" id="confirmPassword" />
+				<p><?php echo $this->translator('user_confirm_password_guide'); ?></p>
+			</div>
+		</div>
+		
+		<hr />
+		
+		<div class="t_a_bottom">
+			<label>&nbsp;</label>
+			<?php echo $this->tokenElement; ?>
+			<button type="submit"><span><?php echo $this->translator('user_changepass_save_button'); ?></span></button>
+		</div>
+		</form>
+	</div>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+	/**
+	 * Validate form
+	 */
+	$('#changepassForm').validate({
+		rules: {
+			password: {
+				required: true,
+		  		minlength: 5
+			},
+			confirmPassword: {
+				equalTo: '#password'
+			}
+	    },
+	    messages: {
+	    	password: {
+	    		required: "<?php echo $this->translator('user_password_required'); ?>",
+				minlength: "<?php echo $this->translator('user_password_minlength'); ?>"
+			},
+			confirmPassword: {
+				equalTo: "<?php echo $this->translator('user_confirm_password_error'); ?>"
+			}
+		}
+	});
+});
+</script>

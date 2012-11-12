@@ -1,0 +1,53 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: config.phtml 5364 2010-09-09 15:24:07Z huuphuoc $
+ * @since		2.0.0
+ */
+?>
+<div>
+	<div class="t_a_bottom"><?php echo $this->translator()->widget('config_article_id'); ?></div>
+	<div class="t_a_bottom">
+		<input type="text" name="article_id" class="t_widget_input" />
+	</div>
+	<div class="t_a_bottom">
+		<input type="checkbox" class="t_widget_input_global" name="global_article_id" /> <?php echo $this->translator()->widget('config_article_from_request'); ?>
+	</div>
+	
+	<hr />
+	
+	<div class="t_a_bottom"><?php echo $this->translator()->widget('config_select_category'); ?></div>
+	<div class="t_a_bottom">
+		<select name="category_id" class="t_widget_input">
+			<?php foreach ($this->categories as $category) : ?>
+			<option value="<?php echo $category->category_id; ?>"><?php echo str_repeat('---', $category->depth).$category->name; ?></option>
+			<?php endforeach; ?>
+		</select>
+	</div>
+	<div class="t_a_bottom">
+		<input type="checkbox" class="t_widget_input_global" name="global_category_id" /> <?php echo $this->translator()->widget('config_category_from_request'); ?>
+	</div>
+	
+	<hr />
+
+	<div class="t_a_bottom"><?php echo $this->translator()->widget('config_num_articles'); ?></div>
+	<div class="t_a_bottom">
+		<input type="text" class="t_widget_input" name="limit" style="width: 100px" />
+	</div>
+	
+	<hr />
+</div>
+

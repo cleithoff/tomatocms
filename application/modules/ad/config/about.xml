@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version		$Id: about.xml 5469 2010-09-20 08:21:02Z huuphuoc $
+ * @since		2.0.0
+ */
+-->
+<!DOCTYPE module SYSTEM "http://schemas.tomatocms.com/dtd/module_about.dtd">
+<module>
+	<name>ad</name>
+	<description langKey="about_ad_description"><![CDATA[Manage banners]]></description>
+	<thumbnail></thumbnail>
+	<author>TomatoCMS Core Team</author>
+	<email>core@tomatocms.com</email>
+	<version>2.0.0</version>
+	<license>free</license>
+	
+	<requires>
+		<requiredModules>
+			<requiredModule name="upload" />			
+		</requiredModules>
+	</requires>
+	
+	<install>
+		<db adapter="mysql|pdo_mysql">
+			<query><![CDATA[DROP TABLE IF EXISTS `###ad_banner`;]]></query>
+			<query><![CDATA[CREATE TABLE `###ad_banner` (
+				  `banner_id` int(10) unsigned NOT NULL auto_increment,
+				  `name` varchar(200) default NULL,
+				  `text` varchar(255) default NULL,
+				  `num_clicks` int(11) default '0',
+				  `created_date` date default NULL,
+				  `start_date` date default NULL,
+				  `expired_date` date default NULL,
+				  `client_id` int(11) default NULL,
+				  `code` text,
+				  `click_url` text,
+				  `target` enum('new_tab','new_window','same_window') default 'new_tab',
+				  `format` enum('image','flash','text','html') default 'image',
+				  `image_url` varchar(255) default NULL,
+				  `ordering` int(11) default '0',
+				  `mode` enum('unique','share','alternate') default 'unique',
+				  `timeout` int(11) default '15',
+				  `status` enum('active','inactive') default 'active',
+				  PRIMARY KEY  (`banner_id`),
+				  KEY `idx_status` (`status`)
+				) ENGINE=InnoDB DEFAULT CHARSET=utf8;]]>
+			</query>
+			<query><![CDATA[DROP TABLE IF EXISTS `###ad_click`;]]></query>
+			<query><![CDATA[CREATE TABLE `###ad_click` (
+				  `banner_id` int(11) NOT NULL,
+				  `zone_id` int(11) NOT NULL,
+				  `page_id` int(11) default NULL,
+				  `clicked_date` datetime NOT NULL,
+				  `ip` varchar(30) NOT NULL,
+				  `from_url` text
+				) ENGINE=InnoDB DEFAULT CHARSET=utf8;]]>
+			</query>
+			<query><![CDATA[DROP TABLE IF EXISTS `###ad_client`;]]></query>
+			<query><![CDATA[CREATE TABLE `###ad_client` (
+				  `client_id` int(10) unsigned NOT NULL auto_increment,
+				  `name` varchar(200) NOT NULL,
+				  `email` varchar(200) default NULL,
+				  `telephone` varchar(50) default NULL,
+				  `address` text,
+				  `created_date` datetime NOT NULL,
+				  PRIMARY KEY  (`client_id`)
+				) ENGINE=InnoDB DEFAULT CHARSET=utf8;]]>
+			</query>
+			<query><![CDATA[DROP TABLE IF EXISTS `###ad_page_assoc`;]]></query>
+			<query><![CDATA[CREATE TABLE `###ad_page_assoc` (
+				  `ad_page_id` int(10) NOT NULL auto_increment,
+				  `banner_id` int(11) NOT NULL,
+				  `route` varchar(50) default NULL,
+				  `zone_id` int(11) NOT NULL,
+				  `page_url` varchar(200) default NULL,
+				  `page_title` varchar(255) default NULL,
+				  PRIMARY KEY  (`ad_page_id`)
+				) ENGINE=InnoDB DEFAULT CHARSET=utf8;]]>
+			</query>
+			<query><![CDATA[DROP TABLE IF EXISTS `###ad_zone`;]]></query>
+			<query><![CDATA[CREATE TABLE `###ad_zone` (
+				  `zone_id` int(10) unsigned NOT NULL auto_increment,
+				  `width` int(11) NOT NULL,
+				  `height` int(11) NOT NULL,
+				  `name` varchar(200) NOT NULL,
+				  `description` varchar(255) default NULL,
+				  `price` varchar(255) default NULL,
+				  PRIMARY KEY  (`zone_id`)
+				) ENGINE=InnoDB DEFAULT CHARSET=utf8;]]>
+			</query>
+		</db>
+		<db adapter="pgsql">
+			<query><![CDATA[DROP TABLE IF EXISTS ###ad_banner;]]></query>
+			<query><![CDATA[CREATE TABLE ###ad_banner (
+				    banner_id integer NOT NULL,
+				    name character varying(200) DEFAULT NULL::character varying,
+				    text character varying(255) DEFAULT NULL::character varying,
+				    num_clicks integer DEFAULT 0,
+				    created_date date,
+				    start_date date,
+				    expired_date date,
+				    client_id integer,
+				    code text,
+				    click_url text,
+				    target character varying(15) DEFAULT 'new_tab'::character varying,
+				    format character varying(10) DEFAULT 'image'::character varying,
+				    image_url character varying(255) DEFAULT NULL::character varying,
+				    ordering integer DEFAULT 0,
+				    mode character varying(15) DEFAULT 'unique'::character varying,
+				    timeout integer DEFAULT 15,
+				    status character varying(10) DEFAULT 'active'::character varying,
+				    CONSTRAINT ad_banner_format_check CHECK (((format)::text = ANY ((ARRAY['image'::character varying, 'flash'::character varying, 'text'::character varying, 'html'::character varying])::text[]))),
+				    CONSTRAINT ad_banner_mode_check CHECK (((mode)::text = ANY ((ARRAY['unique'::character varying, 'share'::character varying, 'alternate'::character varying])::text[]))),
+				    CONSTRAINT ad_banner_status_check CHECK (((status)::text = ANY ((ARRAY['active'::character varying, 'inactive'::character varying])::text[]))),
+				    CONSTRAINT ad_banner_target_check CHECK (((target)::text = ANY ((ARRAY['new_tab'::character varying, 'new_window'::character varying, 'same_window'::character varying])::text[])))
+				);
+				CREATE SEQUENCE ad_banner_banner_id_seq
+				    START WITH 1
+				    INCREMENT BY 1
+				    NO MAXVALUE
+				    NO MINVALUE
+				    CACHE 1;
+				ALTER SEQUENCE ad_banner_banner_id_seq OWNED BY ###ad_banner.banner_id;
+				SELECT pg_catalog.setval('ad_banner_banner_id_seq', 1, false);]]>
+			</query>
+			<query><![CDATA[DROP TABLE IF EXISTS ###ad_click;]]></query>
+			<query><![CDATA[CREATE TABLE ###ad_click (
+				    banner_id integer NOT NULL,
+				    zone_id integer NOT NULL,
+				    page_id integer,
+				    clicked_date time without time zone NOT NULL,
+				    ip character varying(30) NOT NULL,
+				    from_url text);]]>
+			</query>
+			<query><![CDATA[DROP TABLE IF EXISTS ###ad_client;]]></query>
+			<query><![CDATA[CREATE TABLE ###ad_client (
+				    client_id integer NOT NULL,
+				    name character varying(200) NOT NULL,
+				    email character varying(200) DEFAULT NULL::character varying,
+				    telephone character varying(50) DEFAULT NULL::character varying,
+				    address text,
+				    created_date time without time zone NOT NULL
+				);
+				CREATE SEQUENCE ad_client_client_id_seq
+				    START WITH 1
+				    INCREMENT BY 1
+				    NO MAXVALUE
+				    NO MINVALUE
+				    CACHE 1;
+				ALTER SEQUENCE ad_client_client_id_seq OWNED BY ###ad_client.client_id;
+				SELECT pg_catalog.setval('ad_client_client_id_seq', 1, false);]]>
+			</query>
+			<query><![CDATA[DROP TABLE IF EXISTS ###ad_page_assoc;]]></query>
+			<query><![CDATA[CREATE TABLE ###ad_page_assoc (
+				    ad_page_id integer NOT NULL,
+				    banner_id integer NOT NULL,
+				    route character varying(50) DEFAULT NULL::character varying,
+				    zone_id integer NOT NULL,
+				    page_url character varying(200) DEFAULT NULL::character varying,
+				    page_title character varying(255) DEFAULT NULL::character varying
+				);
+				CREATE SEQUENCE ad_page_assoc_ad_page_id_seq
+				    START WITH 1
+				    INCREMENT BY 1
+				    NO MAXVALUE
+				    NO MINVALUE
+				    CACHE 1;
+				ALTER SEQUENCE ad_page_assoc_ad_page_id_seq OWNED BY ###ad_page_assoc.ad_page_id;
+				SELECT pg_catalog.setval('ad_page_assoc_ad_page_id_seq', 1, false);]]>
+			</query>
+			<query><![CDATA[DROP TABLE IF EXISTS ###ad_zone;]]></query>
+			<query><![CDATA[CREATE TABLE ###ad_zone (
+				    zone_id integer NOT NULL,
+				    width integer NOT NULL,
+				    height integer NOT NULL,
+				    name character varying(200) NOT NULL,
+				    description character varying(255) DEFAULT NULL::character varying,
+				    price character varying(255) DEFAULT NULL::character varying
+				);
+				CREATE SEQUENCE ad_zone_zone_id_seq
+				    START WITH 1
+				    INCREMENT BY 1
+				    NO MAXVALUE
+				    NO MINVALUE
+				    CACHE 1;
+				ALTER SEQUENCE ad_zone_zone_id_seq OWNED BY ###ad_zone.zone_id;
+				SELECT pg_catalog.setval('ad_zone_zone_id_seq', 1, false);]]>
+			</query>
+		</db>
+		<db adapter="sqlsrv">
+			<query><![CDATA[IF EXISTS (SELECT NAME FROM SYSOBJECTS WHERE NAME='###ad_banner' AND TYPE='U') DROP TABLE ###ad_banner;]]></query>
+			<query><![CDATA[CREATE TABLE ###ad_banner(
+					banner_id int identity(1,1) NOT NULL,
+					name nvarchar(200) NULL,
+					text nvarchar(255) NULL,
+					num_clicks int default 0,
+					created_date varchar(19) NULL,
+					start_date varchar(19) NULL,
+					expired_date varchar(19) NULL,
+					client_id int NULL,
+					code ntext NULL,
+					click_url ntext NULL,
+					target nvarchar(11) check(target in ('new_tab','new_window','same_window')) default 'new_tab',
+					format nvarchar(5) check(format in ('image','flash','text','html')) default 'image',
+					image_url nvarchar(255) NULL,
+					ordering int default 0,
+					mode nvarchar(9) check(mode in ('unique','share','alternate')) default 'unique',
+					timeout int default 15,
+					status nvarchar(8) check(status in ('active','inactive')) default 'active',
+					PRIMARY KEY (banner_id)
+				);]]>
+			</query>
+			<query><![CDATA[CREATE INDEX idx_status ON ###ad_banner (status);]]></query>
+			<query><![CDATA[IF EXISTS (SELECT NAME FROM SYSOBJECTS WHERE NAME='###ad_click' AND TYPE='U') DROP TABLE ###ad_click;]]></query>
+			<query><![CDATA[CREATE TABLE ###ad_click(
+					banner_id int NOT NULL,
+					zone_id int NOT NULL,
+					page_id int NULL,
+					clicked_date varchar(19) NOT NULL,
+					ip nvarchar(30) NOT NULL,
+					from_url ntext NULL);]]>
+			</query>
+			<query><![CDATA[IF EXISTS (SELECT NAME FROM SYSOBJECTS WHERE NAME='###ad_client' AND TYPE='U') DROP TABLE ###ad_client;]]></query>
+			<query><![CDATA[CREATE TABLE ###ad_client(
+					client_id int identity(1,1) NOT NULL,
+					name nvarchar(200) NOT NULL,
+					email nvarchar(200) NULL,
+					telephone nvarchar(50) NULL,
+					address ntext NULL,
+					created_date varchar(19) NOT NULL,
+					PRIMARY KEY (client_id));]]>
+			</query>
+			<query><![CDATA[IF EXISTS (SELECT NAME FROM SYSOBJECTS WHERE NAME='###ad_page_assoc' AND TYPE='U') DROP TABLE ###ad_page_assoc;]]></query>
+			<query><![CDATA[CREATE TABLE ###ad_page_assoc(
+					ad_page_id int identity(1,1) NOT NULL,
+					banner_id int NOT NULL,
+					route nvarchar(50) NULL,
+					zone_id int NOT NULL,
+					page_url nvarchar(200) NULL,
+					page_title nvarchar(255) NULL,
+					PRIMARY KEY (ad_page_id));]]>
+			</query>
+			<query><![CDATA[IF EXISTS (SELECT NAME FROM SYSOBJECTS WHERE NAME='###ad_zone' AND TYPE='U') DROP TABLE ###ad_zone;]]></query>
+			<query><![CDATA[CREATE TABLE ###ad_zone(
+					zone_id int identity(1,1) NOT NULL,
+					width int NOT NULL,
+					height int NOT NULL,
+					name nvarchar(200) NOT NULL,
+					description nvarchar(255) NULL,
+					price nvarchar(255) NULL,
+					PRIMARY KEY (zone_id));]]>
+			</query>
+		</db>
+	</install>
+	
+	<uninstall>
+		<db adapter="mysql|pdo_mysql">
+			<query><![CDATA[DROP TABLE IF EXISTS `###ad_client`;]]></query>
+			<query><![CDATA[DROP TABLE IF EXISTS `###ad_click`;]]></query>
+			<query><![CDATA[DROP TABLE IF EXISTS `###ad_banner`;]]></query>
+			<query><![CDATA[DROP TABLE IF EXISTS `###ad_zone`;]]></query>
+			<query><![CDATA[DROP TABLE IF EXISTS `###ad_page_assoc`;]]></query>
+		</db>
+		<db adapter="pgsql">
+			<query><![CDATA[DROP TABLE IF EXISTS ###ad_client;]]></query>
+			<query><![CDATA[DROP TABLE IF EXISTS ###ad_click;]]></query>
+			<query><![CDATA[DROP TABLE IF EXISTS ###ad_banner;]]></query>
+			<query><![CDATA[DROP TABLE IF EXISTS ###ad_zone;]]></query>
+			<query><![CDATA[DROP TABLE IF EXISTS ###ad_page_assoc;]]></query>
+		</db>
+		<db adapter="sqlsrv">
+			<query><![CDATA[IF EXISTS (SELECT NAME FROM SYSOBJECTS WHERE NAME='###ad_client' AND TYPE='U') DROP TABLE ###ad_client;]]></query>
+			<query><![CDATA[IF EXISTS (SELECT NAME FROM SYSOBJECTS WHERE NAME='###ad_click' AND TYPE='U') DROP TABLE ###ad_click;]]></query>
+			<query><![CDATA[IF EXISTS (SELECT NAME FROM SYSOBJECTS WHERE NAME='###ad_banner' AND TYPE='U') DROP TABLE ###ad_banner;]]></query>		
+			<query><![CDATA[IF EXISTS (SELECT NAME FROM SYSOBJECTS WHERE NAME='###ad_zone' AND TYPE='U') DROP TABLE ###ad_zone;]]></query>
+			<query><![CDATA[IF EXISTS (SELECT NAME FROM SYSOBJECTS WHERE NAME='###ad_page_assoc' AND TYPE='U') DROP TABLE ###ad_page_assoc;]]></query>
+		</db>
+	</uninstall>
+	
+	<admin>
+		<task langKey="task_list_zones" route="ad_zone_list" />
+		<task langKey="task_list_banners" route="ad_banner_list" />
+		<task langKey="task_list_clients" route="ad_client_list" />
+	</admin>
+</module>

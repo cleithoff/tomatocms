@@ -1,0 +1,168 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: index.phtml 4185 2010-08-01 16:31:02Z huuphuoc $
+ * @since		2.0.0
+ */
+?>
+<?php
+$this->headTitle($this->translator('dashboard_index_page_title'));
+
+/**
+ * Dashboard editor
+ * @since 2.0.7
+ */
+$this->headLink()
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.core.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.resizable.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.dialog.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.tabs.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.theme.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.datepicker.css');
+
+$this->headScript()
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.core.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.tabs.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.sortable.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.draggable.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.droppable.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.resizable.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.dialog.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.datepicker.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/tomato/core/colorconverter.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/tomato/core/layout.lang.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/tomato/core/layout.container.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/tomato/core/layout.widget.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/tomato/core/layout.defaultoutput.js');
+?>
+
+<div class="grid_12 t_a_top t_a_bottom">
+	<div class="grid_9 alpha"><?php echo $this->translator('dashboard_index_guide'); ?></div>
+	
+	<div class="grid_3 omega">
+		<div class="t_a_right">
+			<a href="javascript: void(0);" class="t_a_ui_button_link" id="customizeButton"><span><?php echo $this->translator('dashboard_index_customize_button'); ?></span></a>
+		</div>
+	</div>
+</div>
+
+<!-- Loading -->
+<div id="loading" class="grid_12 t_a_bottom" style="display: none">&nbsp;</div>
+
+<!-- Editor -->
+<div class="grid_12 t_a_bottom t_a_ui_tabs" id="editor" style="display: none"></div>
+
+<!-- Buttons for previewing/saving Dashboard layout -->
+<div class="grid_12 t_a_bottom" id="layoutButtons" style="display: none">
+	<h3><?php echo $this->translator('dashboard_index_layout'); ?></h3>
+	<hr />
+	
+	<div class="t_a_textright">
+		<button id="switchButton"><span><?php echo $this->translator('dashboard_index_preview_button'); ?></span></button>
+		<button id="saveButton"><span><?php echo $this->translator('dashboard_index_save_button'); ?></span></button>
+	</div>
+</div>
+
+<div id="dashboardLayout" style="width: 940px; margin: 0 auto; min-height: 150px; height: 150px"></div>
+
+<div id="messageDialog"></div>
+
+<script type="text/javascript">
+var rootContainer = new Tomato.Core.Layout.Container('dashboardLayout');
+rootContainer.setBaseUrl('<?php echo $this->baseUrl(); ?>');
+rootContainer.setBgColor('#1a1a1a');
+
+$(document).ready(function() {
+	$('#customizeButton').toggle(function() {
+		$(this).find('span').html('<?php echo $this->escape($this->translator('dashboard_index_close_editor_button')); ?>');
+		$('#loading').addClass('t_a_ui_helper_loading').show();
+		
+		$.ajax({
+			url: '<?php echo $this->url(array(), 'core_dashboard_index'); ?>',
+			type: 'POST',
+			data: { act: 'edit' },
+			success: function(response) {
+				$('#editor').html(response).show();
+				$('#loading').removeClass('t_a_ui_helper_loading').hide();
+				$('#layoutButtons').show();
+
+				rootContainer.toggleMode('CONFIG', false);
+			}
+		});
+	}, function() {
+		$(this).find('span').html('<?php echo $this->escape($this->translator('dashboard_index_customize_button')); ?>');
+		$('#editor').hide();
+		$('#layoutButtons').hide();
+		rootContainer.toggleMode('PREVIEW', true);
+	});
+
+	/**
+	 * Switch mode handler
+	 */
+	$('#switchButton').toggle(function() {
+		$(this).find('span').html('<?php echo $this->escape($this->translator('dashboard_index_config_button')); ?>');
+		rootContainer.toggleMode('PREVIEW', true);
+	}, function() {
+		$(this).find('span').html('<?php echo $this->escape($this->translator('dashboard_index_preview_button')); ?>');
+		rootContainer.toggleMode('CONFIG', false);
+	});
+
+	/**
+	 * Save layout handler
+	 */
+	$('#saveButton').click(function() {
+		var layout = $.toJSON(rootContainer.save());
+		
+		$.ajaxq('dashboard', {
+			url: '<?php echo $this->url(array(), 'core_dashboard_index'); ?>',
+			type: 'POST',
+			data: { act: 'save', layout: layout },
+			success: function(response) {
+				$('#messageDialog').html('<?php echo addslashes($this->translator('dashboard_index_save_success')); ?>')
+					.dialog({
+						title: '<?php echo addslashes($this->translator('common_dialog_message')); ?>',
+						dialogClass: 't_a_ui_dialog',
+						modal: true,
+				    	show: { effect: 'fade' },
+						open: function(event, ui) {
+							setTimeout(function() {
+								$('#' + event.target.id).dialog('option', 'hide', 'fade').dialog('destroy');
+							}, 3000);
+						}
+					});
+			}
+		});
+	});
+
+	/**
+	 * Load the layout
+	 */
+	 Tomato.Core.Layout.Lang.setLang({
+		CONTAINER_COLS: 		  '<?php echo $this->escape($this->translator('page_layout_container_columns')); ?>',
+		CONTAINER_REMOVE_CONFIRM: '<?php echo $this->escape($this->translator('page_layout_remove_container_confirm')); ?>',
+		WIDGET_PREVIEW: 		  '<?php echo $this->escape($this->translator('page_layout_widget_preview')); ?>',
+		WIDGET_BACK: 			  '<?php echo $this->escape($this->translator('page_layout_widget_back')); ?>',
+		WIDGET_REMOVE_CONFIRM: 	  '<?php echo $this->escape($this->translator('page_layout_remove_widget_confirm')); ?>',
+		WIDGET_CACHE: 			  '<?php echo $this->escape($this->translator('page_layout_widget_cache')); ?>',
+		WIDGET_LOAD_AJAX:		  '<?php echo $this->escape($this->translator('page_layout_widget_load_ajax')); ?>',
+		DEFAULT_OUTPUT:			  '<?php echo $this->escape($this->translator('page_layout_default_output')); ?>'
+	});
+
+	<?php if ($this->dashboardLayout) : ?>
+	rootContainer.load(<?php echo $this->dashboardLayout; ?>, true);
+	<?php endif; ?>
+});
+</script>

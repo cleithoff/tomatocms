@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE layout SYSTEM "http://schemas.tomatocms.com/dtd/layout.dtd">
+<layout>
+	<container cols="12">
+		<container cols="8" position="first">
+			<widget module="news" name="categories" load="php">
+				<title><![CDATA[Latest articles]]></title>
+				<params>
+					<param name="limit">
+						<value><![CDATA[3]]></value>
+					</param>
+				</params>
+			</widget>
+		</container>
+		<container cols="4" position="last">
+			<widget module="news" name="searchbox" load="php">
+				<title><![CDATA[Search Box]]></title>
+				<resources>
+					<resource type="css"
+						src="{APP_STATIC_SERVER}/js/jquery.autocomplete/jquery.autocomplete.css" />
+					<resource type="javascript"
+						src="{APP_STATIC_SERVER}/js/jquery.autocomplete/jquery.autocomplete.js" />
+				</resources>
+				<params>
+					<param name="limit">
+						<value><![CDATA[5]]></value>
+					</param>
+				</params>
+			</widget>
+			<widget module="page" name="pagetree" load="php">
+				<title><![CDATA[Page Tree]]></title>
+			</widget>
+			<widget module="news" name="categorytree" load="php">
+				<title><![CDATA[Category]]></title>
+			</widget>
+			<widget module="poll" name="vote" load="php">
+				<title><![CDATA[Poll]]></title>
+				<params>
+					<param name="poll_id">
+						<value><![CDATA[]]></value>
+					</param>
+				</params>
+			</widget>
+			<widget module="utility" name="twitter" load="php">
+				<title><![CDATA[Twitter updates]]></title>
+				<params>
+					<param name="account">
+						<value><![CDATA[tomatocms]]></value>
+					</param>
+					<param name="limit">
+						<value><![CDATA[5]]></value>
+					</param>
+				</params>
+			</widget>
+		</container>
+	</container>
+</layout>

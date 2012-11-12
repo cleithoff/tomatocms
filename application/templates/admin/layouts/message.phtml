@@ -1,0 +1,55 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version		$Id: message.phtml 4181 2010-08-01 16:23:59Z huuphuoc $
+ * @since		2.0.3
+ */
+?>
+<?php 
+/**
+ * Use this layout to show messages as error, offline messages
+ */
+?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"<?php if ($this->APP_LANG_RTL) : ?> dir="rtl"<?php endif; ?>>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=<?php echo $this->CHARSET; ?>" />
+    <meta name="robots" content="noindex, nofollow" />
+    <?php echo $this->headMeta(); ?>
+	<?php echo $this->headTitle(); ?>
+    <link rel="shortcut icon" type="image/x-icon" href="<?php echo $this->APP_STATIC_SERVER; ?>/skins/<?php echo $this->APP_TEMPLATE; ?>/<?php echo $this->APP_SKIN; ?>/images/favicon.ico" />
+    
+	<?php
+    $this->headLink()
+		->prependStylesheet($this->APP_STATIC_SERVER . '/css/960/' . ($this->APP_LANG_RTL ? 'all-rtl.min.css' : 'all.min.css'))
+		->appendStylesheet($this->APP_STATIC_SERVER . '/skins/admin/default/' . ($this->APP_LANG_RTL ? 'admin-rtl.css' : 'admin.css'));
+	
+    $this->headScript()
+    	->prependFile($this->APP_STATIC_SERVER . '/js/jquery/jquery.min.js');
+    ?>
+    <?php echo $this->headScript(); ?>
+	<?php echo $this->headLink(); ?>
+</head>
+<body id="t_a_message">
+	<div class="container_12">
+		<div id="t_a_message_container">
+			<?php echo $this->layout()->content; ?>			
+		</div>
+		
+		<div class="clearfix"></div>
+	</div>
+</body>
+</html>

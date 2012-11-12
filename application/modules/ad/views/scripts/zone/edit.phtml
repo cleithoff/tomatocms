@@ -1,0 +1,118 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: edit.phtml 4182 2010-08-01 16:27:10Z huuphuoc $
+ * @since		2.0.0
+ */
+?>
+<?php 
+$this->headTitle($this->translator('zone_edit_page_title'));
+$this->headScript()->appendFile($this->APP_STATIC_SERVER . '/js/jquery.validate/jquery.validate.min.js');
+?>
+
+<div class="grid_12 t_a_ui_breadcrumb">
+	<span><a href="<?php echo $this->url(array(), 'ad_zone_list'); ?>"><?php echo $this->translator('zone_list_breadcrumb'); ?></a></span>
+	<span><?php echo $this->translator('zone_edit_breadcrumb'); ?></span>
+</div>
+
+<div class="grid_12"><?php echo $this->flashMessenger(); ?></div>
+
+<form method="post" action="<?php echo $this->url(array('zone_id' => $this->zone->zone_id), 'ad_zone_edit'); ?>" id="editZoneForm">
+<div class="grid_12 t_a_bottom"><?php echo $this->translator('zone_edit_guide'); ?></div>
+
+<div class="grid_12 t_a_bottom">
+	<div class="prefix_1 suffix_1">
+		<div class="clearfix t_a_bottom">
+			<label><?php echo $this->translator('zone_name'); ?>:</label>
+			<input type="text" id="name" name="name" style="width: 200px" value="<?php if (null != $this->zone->name) : ?><?php echo $this->zone->name; ?><?php endif; ?>" />
+		</div>
+		
+		<hr />
+		
+		<div class="clearfix t_a_bottom">
+			<label><?php echo $this->translator('zone_description'); ?>:</label>
+			<textarea name="description" id="description" style="width: 400px; height: 100px" ><?php if (null != $this->zone->description) : ?><?php echo $this->zone->description; ?><?php endif; ?></textarea>
+		</div>
+		
+		<hr />
+		
+		<div class="clearfix t_a_bottom">
+			<label><?php echo $this->translator('zone_width'); ?>:</label>
+			<input type="text" id="width" name="width" style="width: 50px" value="<?php if (null != $this->zone->width) : ?><?php echo $this->zone->width; ?><?php endif; ?>" />
+		</div>
+		
+		<hr />
+		
+		<div class="clearfix t_a_bottom">
+			<label><?php echo $this->translator('zone_height'); ?>:</label>
+			<input type="text" id="height" name="height" style="width: 50px" value="<?php if (null != $this->zone->height) : ?><?php echo $this->zone->height; ?><?php endif; ?>" />
+		</div>
+		
+		<hr />
+		
+		<div class="clearfix t_a_bottom">
+			<label>&nbsp;</label>
+			<button type="submit"><span><?php echo $this->translator('zone_edit_save_button'); ?></span></button>
+		</div>
+	</div>
+</div>
+</form>
+
+<script type="text/javascript">
+$(document).ready(function() {
+	/**
+	 * Validate form
+	 */
+	$.validator.addMethod('specialCharacter', function(value) {
+		value = value.replace(/^\s+|\s+$/g, '');
+		var regex = new RegExp(/^[a-zA-Z0-9\-]+$/);
+		return value == '' || value.match(regex);
+	});
+	
+	$('#editZoneForm').validate({
+		rules: {
+			name: {
+		  		required: true,
+		  		specialCharacter: true,
+		  		remote: '<?php echo $this->url(array(), 'ad_zone_check'); ?>?original=<?php echo $this->zone->name; ?>'
+			},
+			width: {
+				required: true,
+				number: true
+			},
+			height: {
+		  		required: true,
+				number: true
+			}
+	    },
+	    messages: {
+	    	name: {
+	        	required: "<?php echo $this->translator('zone_name_required'); ?>",
+	        	specialCharacter: "<?php echo $this->translator('zone_name_invalid'); ?>",
+				remote: "<?php echo $this->translator('zone_name_exist'); ?>"
+			},
+			width: {
+	        	required: "<?php echo $this->translator('zone_width_required'); ?>",
+	        	number: "<?php echo $this->translator('zone_number_required'); ?>"
+			},
+			height: { 
+	        	required: "<?php echo $this->translator('zone_height_required'); ?>",
+	        	number: "<?php echo $this->translator('zone_number_required'); ?>"
+	    	}
+		}
+	});
+});
+</script>

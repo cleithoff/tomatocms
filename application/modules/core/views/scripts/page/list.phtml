@@ -1,0 +1,182 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: list.phtml 4359 2010-08-04 17:46:39Z huuphuoc $
+ * @since		2.0.0
+ */
+?>
+<?php 
+$this->headTitle($this->translator('page_list_page_title'));
+
+$this->headLink()
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.core.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.resizable.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.dialog.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.theme.css');
+
+$this->headScript()
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.core.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.draggable.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.resizable.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.dialog.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.sortable.js');
+?>
+
+<div class="grid_12 t_a_ui_breadcrumb">
+	<span><a href="<?php echo $this->url(array(), 'core_template_list'); ?>"><?php echo $this->translator('template_list_breadcrumb'); ?></a></span>
+	<span><a href="<?php echo $this->url(array('template' => $this->template), 'core_page_list'); ?>"><?php echo $this->translator('page_list_breadcrumb'); ?></a></span>
+</div>
+
+<div class="grid_12 t_a_bottom">
+	<div class="grid_9 alpha"><?php echo $this->translator('page_list_top_desc'); ?></div>
+	
+	<div class="grid_3 omega">
+		<div class="t_a_right">
+			<a class="t_a_ui_button_link" href="<?php echo $this->url(array(), 'core_page_add'); ?>"><span><?php echo $this->translator('page_list_add'); ?></span></a>
+		</div>
+	</div>	
+</div>
+
+<div class="grid_12 t_a_ui_data_list_header">
+	<div class="grid_10 alpha">
+		<div><?php echo $this->translator('page_list_name'); ?></div>
+	</div>
+	
+	<div class="grid_2 omega"><?php echo $this->translator('page_list_ordering'); ?></div>
+</div>
+
+<div class="grid_12 t_a_bottom" id="pages">
+	<?php foreach ($this->pages as $page) : ?>
+	<div class="clearfix t_a_ui_data_list_content pageRow" id="pageId_<?php echo $page->page_id; ?>">
+		<div class="grid_10 alpha">
+			<div>
+				<?php echo $page->title; ?>
+			</div>
+			
+			<div class="t_a_ui_helper_action t_a_top">
+				<?php if ($this->allow('edit')) : ?>
+				<a href="<?php echo $this->url(array('template' => $this->template, 'route' => $page->route), 'core_page_edit'); ?>"><?php echo $this->translator('page_list_edit_action'); ?></a> |
+				<?php endif; ?>
+				
+				<?php if ($this->allow('delete')) : ?> 
+				<a href="javascript: void(0);" rel="<?php echo $page->page_id; ?>" class="deleteAction"><?php echo $this->translator('page_list_delete_action'); ?></a> |
+				<?php endif; ?>
+				
+				<?php if ($this->allow('layout')) : ?> 
+				<a href="<?php echo $this->url(array('template' => $this->template, 'route' => $page->route), 'core_page_layout'); ?>"><?php echo $this->translator('page_list_layout_action'); ?></a>
+				<?php endif; ?> 
+			</div>
+		</div>
+		
+		<div class="grid_2 omega ordering"><?php echo $page->ordering; ?></div>
+	</div>
+	<?php endforeach; ?>
+</div>
+
+<?php if ($this->allow('ordering')) : ?>
+<div class="grid_12">
+	<div class="alpha t_a_bottom">
+		<button type="button" id="orderButton"><span><?php echo $this->translator('page_list_save_ordering_button'); ?></span></button>
+	</div>
+</div>
+<?php endif; ?>
+
+<div id="messageDialog"></div>
+
+<div id="confirmDialog"></div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+	/**
+	 * Make the list of pages sortable
+	 */
+	$('#pages').sortable({
+		items: '.pageRow',
+		cursor: 'move'
+	}).disableSelection();
+	
+	<?php if ($this->allow('ordering')) : ?>
+	$('#orderButton').click(function() {
+		var self = $(this);
+		$(self).html('').addClass('t_a_ui_helper_loading');
+		var orders = $('#pages').sortable("serialize");
+		$.ajaxq('page_list', {
+			url: '<?php echo $this->url(array(), 'core_page_ordering'); ?>',
+			type: 'POST',
+			data: orders,
+			success: function(response) {
+				$(self).removeClass('t_a_ui_helper_loading').html('').append($('<span/>').html('<?php echo addslashes($this->translator('page_list_save_ordering_button')); ?>'));
+				
+				/**
+				 * Update the ordering on UI
+				 */
+				$('#pages').find('.ordering').each(function(i) {
+					$(this).html(i);
+				});
+				$('#messageDialog').html('<?php echo addslashes($this->translator('page_list_ordering_success')); ?>')
+				.dialog({
+					title: '<?php echo addslashes($this->translator('page_list_ordering_message')); ?>',
+					dialogClass: 't_a_ui_dialog',
+					modal: true,
+			    	show: { effect: 'fade' },
+					open: function(event, ui) {
+						setTimeout(function() {
+							$('#' + event.target.id).dialog('option', 'hide', 'fade').dialog('destroy');
+						}, 3000);
+					}
+				});
+			}
+		});
+	});
+	<?php endif; ?>
+
+	<?php if ($this->allow('delete')) : ?>
+	$('.deleteAction').click(function() {
+		var self = this;
+		$('#confirmDialog').html('<?php echo addslashes($this->translator('page_list_delete_confirm')); ?>')
+			.dialog({
+				title: '<?php echo addslashes($this->translator('common_dialog_confirm')); ?>',
+				dialogClass: 't_a_ui_dialog',
+				modal: true,
+				closeOnEscape: false,
+				resizable: false,
+				open: function(event, ui) {
+					$('.ui-dialog-titlebar-close').hide();
+					$(this).parent().find('.ui-dialog-buttonpane button').wrapInner('<span/>');
+				},
+				buttons: {
+					'<?php echo addslashes($this->translator('common_dialog_confirm_no')); ?>': function() {
+						$(this).dialog('destroy');
+					},
+					'<?php echo addslashes($this->translator('common_dialog_confirm_yes')); ?>': function() {
+						$(this).dialog('destroy');
+						$(self).html('').addClass('t_a_ui_helper_loading');
+						$.ajaxq('page_list', {
+							url: '<?php echo $this->url(array(), 'core_page_delete'); ?>',
+							type: 'POST',
+							data: { id: $(self).attr('rel') },
+							success: function(response) {
+								$(self).parents('.pageRow');
+								$('#pageId_' + $(self).attr('rel')).fadeOut('slow');
+							}
+						});
+					}
+				}
+			});
+	});
+	<?php endif; ?>
+});
+</script>

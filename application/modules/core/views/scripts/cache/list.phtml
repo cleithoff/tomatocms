@@ -1,0 +1,369 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: list.phtml 4185 2010-08-01 16:31:02Z huuphuoc $
+ * @since		2.0.0
+ */
+?>
+<?php 
+$this->headTitle($this->translator('cache_list_page_title'));
+
+$this->headLink()
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.core.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.resizable.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.dialog.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.tabs.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.theme.css');
+
+$this->headScript()
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.core.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.draggable.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.resizable.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.dialog.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.tabs.js');
+?>
+
+<div class="grid_12 t_a_ui_breadcrumb">
+	<span><?php echo $this->translator('cache_list_breadcrumb'); ?></span>	
+</div>
+
+<div class="grid_12 t_a_bottom">
+	<!-- Left column -->	
+	<div class="grid_3 alpha">
+		<div class="t_a_ui_helper_line">
+			<h3><?php echo $this->translator('cache_list_info'); ?></h3>
+		</div>
+		
+		<div class="t_a_ui_helper_box">
+			<?php if (null == $this->cache) : ?>
+				<?php echo $this->translator('cache_list_type'); ?>: <?php echo $this->translator('cache_list_not_used'); ?>
+			<?php else : ?>
+				<ul class="t_a_bottom">
+					<li><?php echo $this->translator('cache_list_type'); ?>: <?php echo $this->backend; ?></li>
+					<li><?php echo $this->translator('cache_list_filling_percentage'); ?>: <?php if ($this->fillingPercentage) : ?><?php echo $this->fillingPercentage; ?>%<?php else : ?><?php echo $this->translator('cache_list_not_support_filling_percentage'); ?><?php endif; ?></li>
+				</ul>	
+				<?php if ($this->allow('clear')) : ?>
+				<button type="button" onclick="javascript: clearCache(this, 'data');"><span><?php echo $this->translator('cache_list_clear_cache_action'); ?></span></button>
+				<?php endif; ?>
+			<?php endif; ?>
+		</div>
+	</div>
+	
+	<!-- Right column -->
+	<div class="grid_9 omega">
+		<div class="t_a_ui_tabs">
+			<div id="cacheTabs">
+				<ul>
+					<li><a href="#dataCached"><span><?php echo $this->translator('cache_list_data_cached'); ?></span></a></li>
+					<li><a href="#filesCached"><span><?php echo $this->translator('cache_list_files_cached'); ?></span></a></li>
+				</ul>
+				
+				<!-- Data cached -->
+				<div id="dataCached">
+					<?php if (null == $this->cache) : ?>
+						<?php echo $this->translator('cache_list_not_found'); ?>
+					<?php elseif ($this->supportListIds == false || $this->supportTags == false) : ?>
+						<?php echo $this->translator('cache_list_not_support_tags'); ?>
+					<?php elseif ($this->tags) : ?>
+						<div id="cachedContainer">
+							<div class="t_a_bottom"><?php echo $this->translator('cache_list_guide'); ?></div>
+							
+							<div class="t_a_ui_data_list_header">
+								<div class="grid_3 alpha">
+									<div><?php echo $this->translator('cache_list_id'); ?></div>
+								</div>
+								
+								<div class="grid_4"><?php echo $this->translator('cache_list_value_dump'); ?></div>
+								
+								<div class="grid_2 omega"><?php echo $this->translator('cache_list_action'); ?></div>
+							</div>
+							
+							<!-- List cached data by tag -->
+							<?php foreach ($this->tags as $tag) : ?>
+							<div id="tagContainer_<?php echo $tag; ?>" class="clearfix">
+								<div class="t_a_bottom">
+									<div class="grid_7 alpha"><?php echo $this->translator('cache_list_tag'); ?>: <a href="javascript: void(0);" class="collapseAction" id="<?php echo $tag; ?>"><?php echo $tag; ?></a> <?php if ($ids = $this->cacheIds[$tag]) : ?>(<?php echo sprintf($this->translator('cache_list_tag_num_items'), count($ids)); ?>)<?php endif; ?></div>
+									<div class="grid_2 omega"><?php if ($allowDelete = $this->allow('delete')) : ?><a class="deleteTagAction t_a_ui_helper_action" rel="<?php echo $this->escape($tag); ?>" href="javascript: void(0);"><?php echo $this->translator('cache_list_action_delete'); ?></a><?php endif; ?></div>
+								</div>
+								
+								<div class="clear"></div>
+								
+								<?php if ($ids) : ?>
+								<div class="clearfix t_a_bottom" id="tagRow_<?php echo $tag; ?>" style="display: none">
+									<?php foreach ($ids as $id) : ?>
+									<div id="cacheRow_<?php echo $id; ?>" class="clearfix t_a_ui_data_list_content">
+										<div class="grid_3 alpha">
+											<div>
+												<textarea style="overflow-x: hidden; overflow-y: scroll; height: 100px; width: 200px" disabled="disabled"><?php echo $id; ?></textarea>
+											</div>
+										</div>
+										
+										<div class="grid_4"><textarea style="overflow-x: hidden; overflow-y: scroll; height: 100px; width: 300px" disabled="disabled"><?php Zend_Debug::dump($this->cache->load($id)); ?></textarea></div>
+										
+										<div class="grid_2 omega"><?php if ($allowDelete): ?><a class="deleteAction t_a_ui_helper_action" rel="<?php echo $this->escape($id); ?>" href="javascript: void(0);"><?php echo $this->translator('cache_list_action_delete'); ?></a><?php endif; ?></div>
+									</div>
+									<?php endforeach; ?>
+								</div>
+								<?php endif; ?>
+							</div>
+							<?php endforeach; ?>
+						</div>
+					<?php endif; ?>
+				</div>
+				
+				<!-- Files cached -->
+				<div id="filesCached">
+					<!-- CSS cached -->
+					<div class="grid_3 alpha">
+						<div class="t_a_ui_helper_head t_a_bottom">
+							<h3><?php echo $this->translator('cache_list_css_cached'); ?></h3>
+						</div>
+						
+						<div>
+							<?php if ($this->cssCached['numberFiles'] == 0) : ?>
+							<?php echo $this->translator('cache_list_css_cached_not_available'); ?>
+							<?php else : ?>
+							<div class="t_a_bottom">
+								<?php echo sprintf($this->translator('cache_list_css_cached_statistic'), $this->cssCached['numberFiles'], $this->sizeFormatter($this->cssCached['size'])); ?>
+							</div>
+							
+							<?php if ($this->allow('clear')) : ?>
+							<button type="button" onclick="javascript: clearCache(this, 'css');"><span><?php echo $this->translator('cache_list_clear_cache_action'); ?></span></button>
+							<?php endif; ?>
+							<?php endif; ?>
+						</div>
+					</div>
+					
+					<!-- Javascript cached -->
+					<div class="grid_3">
+						<div class="t_a_ui_helper_head t_a_bottom">
+							<h3><?php echo $this->translator('cache_list_javascript_cached'); ?></h3>
+						</div>
+						
+						<div>
+							<?php if ($this->jsCached['numberFiles'] == 0) : ?>
+							<?php echo $this->translator('cache_list_javascript_cached_not_available'); ?>
+							<?php else : ?>
+							<div class="t_a_bottom">
+								<?php echo sprintf($this->translator('cache_list_javascript_cached_statistic'), $this->jsCached['numberFiles'], $this->sizeFormatter($this->jsCached['size'])); ?>
+							</div>
+							
+							<?php if ($this->allow('clear')) : ?>
+							<button type="button" onclick="javascript: clearCache(this, 'js');"><span><?php echo $this->translator('cache_list_clear_cache_action'); ?></span></button>
+							<?php endif; ?>
+							<?php endif; ?>
+						</div>
+					</div>
+					
+					<!-- HTML cached -->
+					<div class="grid_3 omega">
+						<div class="t_a_ui_helper_head t_a_bottom">
+							<h3><?php echo $this->translator('cache_list_pages_cached'); ?></h3>
+						</div>
+						
+						<div>
+							<?php if ($this->pagesCached['numberFiles'] == 0) : ?>
+							<?php echo $this->translator('cache_list_pages_cached_not_available'); ?>
+							<?php else : ?>
+							<div class="t_a_bottom">
+								<?php echo sprintf($this->translator('cache_list_pages_cached_statistic'), $this->pagesCached['numberFiles'], $this->sizeFormatter($this->pagesCached['size'])); ?>
+							</div>
+							
+							<?php if ($this->allow('clear')) : ?>
+							<button type="button" onclick="javascript: clearCache(this, 'pages');"><span><?php echo $this->translator('cache_list_clear_cache_action'); ?></span></button>
+							<?php endif; ?>
+							<?php endif; ?>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="messageDialog"></div>
+
+<div id="confirmDialog"></div>
+		
+<script type="text/javascript">
+<?php if ($this->allow('clear')) : ?>
+function clearCache(link, type) {
+	$('#confirmDialog').html('<?php echo addslashes($this->translator('cache_list_clear_cache_confirm')); ?>')
+		.dialog({
+			title: '<?php echo addslashes($this->translator('common_dialog_confirm')); ?>',
+			dialogClass: 't_a_ui_dialog',
+			modal: true,
+			closeOnEscape: false,
+			resizable: false,
+			open: function(event, ui) {
+				$('.ui-dialog-titlebar-close').hide();
+				$(this).parent().find('.ui-dialog-buttonpane button').wrapInner('<span/>');
+			},
+			buttons: {
+				'<?php echo addslashes($this->translator('common_dialog_confirm_no')); ?>': function() {
+					$(this).dialog('destroy');
+				},
+				'<?php echo addslashes($this->translator('common_dialog_confirm_yes')); ?>': function() {
+					$(this).dialog('destroy');
+					$(link).html('').addClass('t_a_ui_helper_loading');
+					$.ajaxq('core_cache', {
+						type: 'POST',
+						url: "<?php echo $this->url(array(), 'core_cache_clear'); ?>",
+						data: { type: type },
+						success: function(response) {
+							$(link).removeClass('t_a_ui_helper_loading').append($('<span/>').html('<?php echo addslashes($this->translator('cache_list_clear_cache_action')); ?>'));
+							
+							switch (type) {
+								case 'data':
+									$('#cachedContainer').html('<?php echo addslashes($this->translator('cache_list_empty')); ?>');
+									break;
+								case 'css':
+									$(link).parent().html('<?php echo addslashes($this->translator('cache_list_css_cached_not_available')); ?>');
+									break;
+								case 'js':
+									$(link).parent().html('<?php echo addslashes($this->translator('cache_list_javascript_cached_not_available')); ?>');
+									break;
+								case 'pages':
+									$(link).parent().html('<?php echo addslashes($this->translator('cache_list_pages_cached_not_available')); ?>');
+									break;
+							}
+							
+							$('#messageDialog').html('<?php echo addslashes($this->translator('cache_list_clear_cache_success')); ?>')
+								.dialog({
+									title: '<?php echo addslashes($this->translator('common_dialog_message')); ?>',
+									dialogClass: 't_a_ui_dialog',
+									modal: true,
+							    	show: { effect: 'fade' },
+									open: function(event, ui) {
+										setTimeout(function() {
+											$('#' + event.target.id).dialog('option', 'hide', 'fade').dialog('destroy');
+										}, 3000);
+									}
+								});
+						}
+					});
+				}
+			}
+		});
+};
+<?php endif; ?>
+
+$(document).ready(function() {
+	/**
+	 * Create tabs
+	 */
+	$('#cacheTabs').tabs();
+	
+	$('a.collapseAction').click(function() {
+		$('#tagRow_' + $(this).attr('id')).toggle();
+	});
+	
+	<?php if (isset($allowDelete) && $allowDelete == true) : ?>
+	$('.deleteTagAction').click(function() {
+		var self = this;
+		
+		$('#confirmDialog').html('<?php echo addslashes($this->translator('cache_list_delete_tag_confirm')); ?>')
+			.dialog({
+				title: '<?php echo addslashes($this->translator('common_dialog_confirm')); ?>',
+				dialogClass: 't_a_ui_dialog',
+				modal: true,
+				closeOnEscape: false,
+				resizable: false,
+				open: function(event, ui) {
+					$('.ui-dialog-titlebar-close').hide();
+					$(this).parent().find('.ui-dialog-buttonpane button').wrapInner('<span/>');
+				},
+				buttons: {
+					'<?php echo addslashes($this->translator('common_dialog_confirm_no')); ?>': function() {
+						$(this).dialog('destroy');
+					},
+					'<?php echo addslashes($this->translator('common_dialog_confirm_yes')); ?>': function() {
+						$(this).dialog('destroy');
+						$(self).html('').addClass('t_a_ui_helper_loading');
+						var tag = $(self).attr('rel');
+						$.ajaxq('core_cache', {
+							type: 'POST',
+							url: "<?php echo $this->url(array(), 'core_cache_delete'); ?>",
+							data: { type: 'tag', id: tag },
+							success: function(response) {
+								$('#tagContainer_' + tag).remove();
+								$('#messageDialog').html(sprintf('<?php echo addslashes($this->translator('cache_list_delete_tag_success')); ?>', tag.substring(0, 30) + '...'))
+									.dialog({
+										title: '<?php echo addslashes($this->translator('common_dialog_message')); ?>',
+										dialogClass: 't_a_ui_dialog',
+										modal: true,
+								    	show: { effect: 'fade' },
+										open: function(event, ui) {
+											setTimeout(function() {
+												$('#' + event.target.id).dialog('option', 'hide', 'fade').dialog('destroy');
+											}, 3000);
+										}
+									});
+							}
+						});
+					}
+				}
+			});
+	});
+	
+	$('a.deleteAction').click(function() {
+		var self = this;
+		$('#confirmDialog').html('<?php echo addslashes($this->translator('cache_list_delete_confirm')); ?>')
+			.dialog({
+				title: '<?php echo addslashes($this->translator('common_dialog_confirm')); ?>',
+				dialogClass: 't_a_ui_dialog',
+				modal: true,
+				closeOnEscape: false,
+				resizable: false,
+				open: function(event, ui) {
+					$('.ui-dialog-titlebar-close').hide();
+					$(this).parent().find('.ui-dialog-buttonpane button').wrapInner('<span/>');
+				},
+				buttons: {
+					'<?php echo addslashes($this->translator('common_dialog_confirm_no')); ?>': function() {
+						$(this).dialog('destroy');
+					},
+					'<?php echo addslashes($this->translator('common_dialog_confirm_yes')); ?>': function() {
+						$(this).dialog('destroy');
+						$(self).html('').addClass('t_a_ui_helper_loading');
+						var id = $(self).attr('rel');
+						$.ajaxq('core_cache', {
+							type: 'POST',
+							url: "<?php echo $this->url(array(), 'core_cache_delete'); ?>",
+							data: { type: 'id', id: id },
+							success: function(response) {
+								$('#cacheRow_' + id).fadeOut();
+								$('#messageDialog').html(sprintf('<?php echo addslashes($this->translator('cache_list_delete_success')); ?>', id.substring(0, 30) + '...'))
+									.dialog({
+										title: '<?php echo addslashes($this->translator('common_dialog_message')); ?>',
+										dialogClass: 't_a_ui_dialog',
+										modal: true,
+								    	show: { effect: 'fade' },
+										open: function(event, ui) {
+											setTimeout(function() {
+												$('#' + event.target.id).dialog('option', 'hide', 'fade').dialog('destroy');
+											}, 3000);
+										}
+									});
+							}
+						});
+					}
+				}
+			});
+	});
+	<?php endif; ?>	
+});
+</script>

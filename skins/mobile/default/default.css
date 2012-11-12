@@ -1,0 +1,137 @@
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: default.css 5165 2010-08-30 08:36:44Z huuphuoc $
+ * @since		2.0.0
+ */
+
+/* ========== Common ======================================================== */
+
+* { margin: 0; padding: 0; }
+body { background-color: #F1F1F1; color: #333; font-family: Arial, Tahoma, Helvetica, Verdana, sans-serif; font-size: 12px; }
+h1, h2, h3, h4, h5, h6 { margin: 0; padding: 0; }
+a, a:visited { text-decoration: none; color: #333; }
+a:hover { text-decoration: none; }
+table, p, ul, li { margin: 0; padding: 0; }
+ul li { margin: 0; list-style-type: none; }
+
+/**
+ * Always put the footer at the bottom of page
+ * http://matthewjamestaylor.com/blog/keeping-footers-at-the-bottom-of-the-page
+ */
+#wrapper { background-color: #fff; }
+#container { background-color: #fff; }
+#header { background: #1B1918; border-bottom: 2px solid #0A9BB4; height: 40px; }
+#header h1 { font-family: Georgia, Arial, Tahoma, sans-serif; font-size: 20px; height: 30px; line-height: 30px; color: #fff; }
+#header h1 a { color: #fff; }
+#footer { color: #FFF; border-top: 2px solid #656565; background: #ececec; height: 30px; padding-top: 10px; }
+#footer a { color: #727272; }
+
+.widget { margin-bottom: 10px; }
+.form label { float: left; width: 140px; text-align: right; display: block; margin-right: 20px; height: 26px; line-height: 26px; }
+.form label.error { float: right; width: 220px; color: #de6b18; }
+.form .clearfix { margin-bottom: 10px; }
+.form button, .button { background: url(images/button.gif) no-repeat right -23px; font-weight: bold; color: #fff; text-decoration: none; padding-right: 6px; border: 0; cursor: pointer; overflow: visible; position: relative; }
+.form button::-moz-focus-inner, .button::-moz-focus-inner { border: none; }
+.form button span, .button span { background: url(images/button.gif) no-repeat top left; display: block; padding-left: 26px; padding-right: 20px; height: 23px; line-height: 23px; position: relative; white-space: nowrap; }
+.left { float: left; }
+.right { float: right; }
+.loading { margin: 0 auto; background: url(images/loading.gif) center no-repeat; height: 20px; line-height: 20px; }
+.slider { padding-top: 5px; position: absolute; right: 0px; top: 7px; }
+.slider div { float: left; height: 10px; line-height: 10px; }
+.slider span a { /*margin: 0; padding: 0;*/ width: 10px; height: 10px; float: left; font-size: 0; }
+.slider .nav span a { background: url(images/slider.png) no-repeat -10px -20px; line-height: 0; }
+.slider .nav span a.activeSlide { background-position: 0 -20px; }
+.slider .prev { background: url(images/slider.png) no-repeat 0px -10px; }
+.slider .next { background: url(images/slider.png) no-repeat 0px 0px; }
+.paginator { margin: 0 auto; text-align: center; }
+.paginator span { margin: 0px 10px 0px 0px; }
+.paginator a { text-decoration: underline; text-align: center; margin: 0px 5px 0px 0px; line-height: 20px; color: #0192ac; }
+.paginator span.t_a_ui_active { background-color: #d3d3d3; padding: 6px 8px; line-height: 9px; height: 9px; width: 7px; }
+
+/* ========== Modules ======================================================= */
+
+.t_news_category { margin: 10px 0px; }
+.t_news_category li { background: url(images/dot.jpg) bottom repeat-x; margin-bottom: 10px; padding-bottom: 10px; clear: both; }
+.t_news_category li:last-child { background: none; }
+.t_news_category li h2 { margin: 0; font-size: 18px; padding: 0; }
+.t_news_category h2 a { color: #0a9bb4; }
+.t_news_category cite { color: #666; font-size: 11px; font-weight: normal; }
+.t_news_category li img { float: left; border: 1px solid #CCC; margin-right: 10px; }
+.t_news_category .pager { border-top: 1px solid #d9d9d9; margin-top: 10px; padding-top: 5px; }
+
+.t_news_details { margin-bottom: 10px; }
+.t_news_details h2 { margin: 0; line-height: 20px; font-size: 18px; font-weight: bold; }
+.t_news_details h2 a { color: #0a9bb4; }
+.t_news_details cite { color: #666; font-size: 11px; font-weight: normal; }
+.t_news_details .description { font-weight: bold; margin: 10px 0px; }
+.t_news_image { background: url(images/news_image.gif) no-repeat right; padding-right: 15px; }
+.t_news_video { background: url(images/news_video.gif) no-repeat right; padding-right: 15px; }
+
+.t_news_article_search { margin: 10px 0px; }
+.t_news_article_search li { background: url(images/dot.jpg) bottom repeat-x; margin-bottom: 10px; padding-bottom: 10px; clear: both; }
+.t_news_article_search li:last-child { background: none; }
+.t_news_article_search li h2 { margin: 0; font-size: 18px; padding: 0; }
+.t_news_article_search h2 a { color: #0a9bb4; }
+.t_news_article_search cite { color: #666; font-size: 11px; font-weight: normal; }
+.t_news_article_search li img { float: left; border: 1px solid #CCC; margin-right: 10px; }
+.t_news_article_search .pager { border-top: 1px solid #d9d9d9; margin-top: 10px; padding-top: 5px; }
+
+/* ========== News Widgets ================================================== */
+
+/** breadcrumb */
+.t_news_breadcrumb h2 { font-family: Georgia, Arial, Tahoma, sans-serif; font-size: 18px; height: 30px; line-height: 30px; border-bottom: 1px solid #d9d9d9; }
+.t_news_breadcrumb h2 a { color: #0a9bb4; }
+
+/** categories */
+.t_news_categories h2 { font-size: 14px; font-weight: normal; height: 30px; line-height: 30px; border-top: 2px solid #a3a3a3; border-bottom: 1px solid #c8c8c8; margin-bottom: 10px; position: relative; }
+.t_news_categories h2 a { padding-right: 20px; }
+.t_news_categories div.clearfix { margin-bottom: 10px; }
+.t_news_categories h3 { font-size: 12px; font-weight: bold; margin: 5px 0px; }
+.t_news_categories .image { overflow: hidden; width: 240px; height: 120px; }
+.t_news_categories cite { color: #666; font-size: 11px; font-weight: normal; }
+.t_news_categories ul { margin-left: 0px; margin-bottom: 10px; }
+.t_news_categories li { background: url(images/square.jpg) left no-repeat; padding-left: 10px; }
+.t_news_categories .rss { position: absolute; top: 8px; right: 0; width: 16px; padding-right: 0; background: url(images/news_categories_rss.gif) no-repeat; }
+.t_news_categories a.rss:hover { text-decoration: none; }
+.t_news_categories .more { text-align: left; }
+.t_news_categories .more a { color: #099ab3; }
+
+/** hotest */
+.t_news_hotest { margin-top: 10px; }
+.t_news_hotest h2 { font-family: Georgia, Arial, Tahoma, sans-serif; font-size: 12px; margin-bottom: 5px; }
+.t_news_hotest cite { color: #666; font-size: 11px; }
+.t_news_hotest .image { margin-bottom: 5px; }
+.t_news_hotest ul { margin-top: 10px; }
+.t_news_hotest li { background: url(images/square.jpg) left no-repeat; padding-left: 10px; }
+.t_news_hotest h3 { font-size: 12px; font-weight: normal; }
+
+/** newer */
+.t_news_newer h2 { font-family: Georgia, Arial, Tahoma, sans-serif; font-size: 16px; height: 30px; line-height: 30px; border-top: 2px solid #a3a3a3; border-bottom: 1px solid #e5e5e5; }
+.t_news_newer ul { margin-top: 5px; }
+.t_news_newer li { background: url(images/square.jpg) left no-repeat; padding-left: 10px; padding-bottom: 5px; }
+
+/** newest */
+.t_news_newest .image { float: left; margin-right: 5px; }
+.t_news_newest .image img { width: 75px; height: 75px; }
+.t_news_newest h2 { font-size: 12px; }
+.t_news_newest cite { color: #666; font-size: 11px; }
+.t_news_newest li { clear: both; list-style-type: none; padding: 5px 0px; background: url(images/dot.jpg) bottom left repeat-x; }
+.t_news_newest li:last-child { background: none; }
+
+/** older */
+.t_news_older h2 { font-family: Georgia, Arial, Tahoma, sans-serif; font-size: 16px; height: 30px; line-height: 30px; border-top: 2px solid #a3a3a3; border-bottom: 1px solid #e5e5e5; }
+.t_news_older ul { margin-top: 5px; }
+.t_news_older li { background: url(images/square.jpg) left no-repeat; padding-left: 10px; padding-bottom: 5px; }

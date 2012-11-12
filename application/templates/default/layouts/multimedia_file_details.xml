@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE layout SYSTEM "http://schemas.tomatocms.com/dtd/layout.dtd">
+<layout>
+	<container cols="12">
+        <widget module="core" name="localeswitcher" load="php">
+            <title><![CDATA[Switch locale]]></title>
+            <params>
+                <param name="type"><value><![CDATA[full]]></value></param>
+            </params>
+        </widget>
+    </container>
+    <container cols="12">
+        <widget module="menu" name="menu" load="php">
+            <title><![CDATA[Menu]]></title>
+            <resources>
+                <resource type="javascript" src="{APP_STATIC_SERVER}/js/jquery.hoverIntent/jquery.hoverIntent.minified.js" />
+                <resource type="javascript" src="{APP_STATIC_SERVER}/js/megamenu/megamenu.js" />
+            </resources>
+            <params>
+                <param name="menu_id"><value><![CDATA[1]]></value></param>
+            </params>
+        </widget>
+    </container>
+    <container cols="12">
+        <container cols="9" position="first">
+            <defaultOutput />
+            <widget module="utility" name="socialshare" load="php">
+                <title><![CDATA[Share link]]></title>
+                <resources>
+                    <resource type="javascript" src="http://static.ak.fbcdn.net/connect.php/js/FB.Share" />
+                    <resource type="javascript" src="http://platform.twitter.com/widgets.js" />
+                    <resource type="javascript" src="http://widgets.digg.com/buttons.js" />
+                </resources>
+                <params>
+                    <param name="size"><value><![CDATA[compact]]></value></param>
+                </params>
+            </widget>
+            <widget module="tag" name="tags" load="php">
+                <title><![CDATA[Tags]]></title>
+                <params>
+                    <param name="limit"><value><![CDATA[]]></value></param>
+                </params>
+            </widget>
+            <widget module="comment" name="comment" load="php">
+                <title><![CDATA[Latest comments]]></title>
+                <params>
+                    <param name="limit"><value><![CDATA[]]></value></param>
+                    <param name="allow_comment"><value><![CDATA[1]]></value></param>
+                    <param name="show_avatar"><value><![CDATA[1]]></value></param>
+                    <param name="avatar_size"><value><![CDATA[]]></value></param>
+                </params>
+            </widget>
+        </container>
+        <container cols="3" position="last">
+            <widget module="multimedia" name="set" load="php">
+                <title><![CDATA[Set]]></title>
+                <params>
+                    <param name="set_id" type="global" />
+                    <param name="limit"><value><![CDATA[]]></value></param>
+                </params>
+            </widget>
+            <widget module="multimedia" name="sets" load="php">
+                <title><![CDATA[Latest sets]]></title>
+                <params>
+                    <param name="limit"><value><![CDATA[5]]></value></param>
+                </params>
+            </widget>
+            <widget module="tag" name="tagcloud" load="php">
+                <title><![CDATA[Tag Cloud]]></title>
+                <params>
+                    <param name="route"><value><![CDATA[core_index_index]]></value></param>
+                    <param name="limit"><value><![CDATA[]]></value></param>
+                </params>
+            </widget>
+        </container>
+    </container>
+</layout>

@@ -1,0 +1,270 @@
+<?php
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: editor.phtml 4641 2010-08-15 16:08:24Z huuphuoc $
+ * @since		2.0.4
+ */
+?>
+<link rel="stylesheet" type="text/css" href="<?php echo $this->APP_STATIC_SERVER; ?>/js/jquery.imgareaselect/imgareaselect-animated.css" />
+<script type="text/javascript" src="<?php echo $this->APP_STATIC_SERVER; ?>/js/jquery.imgareaselect/jquery.imgareaselect.pack.js"></script>
+
+<div class="grid_7 alpha">
+	<div class="t_a_line">
+		<h2><?php echo $this->translator('file_image_editor_details'); ?></h2>
+	</div>
+	
+	<div>
+		<div class="clearfix" style="padding-top: 10px">
+			<ul style="list-style-type: none">
+				<li style="float: left; padding-right: 5px">
+					<?php echo $this->translator('file_image_select_size'); ?>
+					<select name="imageSize" id="imageSize">
+						<?php if ($this->data != null) : ?>
+						<?php foreach ($this->data as $size => $source) : ?>
+						<option value="<?php echo $this->escape($size); ?>"><?php echo $this->escape($this->translator('file_' . $size)); ?></option>
+						<?php endforeach; ?>
+						<?php endif; ?>
+					</select>
+				</li>
+			</ul>
+		</div>
+	</div>
+	
+	<div class="grid_7 alpha t_a_top">
+		<input type="button" class="image_crop" name="cropButton" id="cropButton" value="<?php echo $this->escape($this->translator('file_image_action_crop')); ?>" disabled="disabled" />
+		<input type="button" name="rotateLeftButton" id="rotateLeftButton" value="<?php echo $this->escape($this->translator('file_image_action_rotate_left')); ?>" />
+		<input type="button" name="rotateRightButton" id="rotateRightButton" value="<?php echo $this->escape($this->translator('file_image_action_rotate_right')); ?>" />
+		<input type="button" name="flipVerticalButton" id="flipVerticalButton" value="<?php echo $this->escape($this->translator('file_image_action_flip_vertical')); ?>" />
+		<input type="button" name="flipHorizontalButton" id="flipHorizontalButton" value="<?php echo $this->escape($this->translator('file_image_action_flip_horizontal')); ?>" />
+	</div>
+	
+	<div class="clearfix t_a_bottom"></div>	
+	
+	<div id="sourceContainer" style="width: 400px; border: 1px solid #CCCCCC; overflow: auto; text-align: center">
+		<img id="imgSource" src="" style="max-width: 400px" />
+	</div>
+</div>
+
+<div class="grid_2 omega">
+	<div class="grid_2 t_g_bottom">
+		<div class="t_a_line">
+			<h2><?php echo $this->translator('file_image_editor_crop'); ?></h2>
+		</div>
+		<div>
+			<div class="grid_2 alpha clearfix t_a_top">
+				<?php echo $this->escape($this->translator('file_image_selection')); ?> <input type="text" name="imageWidth" id="imageWidth" style="width: 40px" /> : <input type="text" name="imageHeight" id="imageHeight" style="width: 40px;" />
+			</div>
+		</div>
+	</div>
+	
+	<div class="clearfix t_a_bottom"></div>
+	
+	<div class="grid_2 t_g_bottom">
+		<div class="t_a_line">
+			<h2><?php echo $this->translator('file_image_editor_apply_settings'); ?></h2>
+		</div>
+		<div>
+			<div class="grid_2 alpha clearfix t_a_bottom" style="padding-top: 10px">
+				<label><?php echo $this->translator('file_image_editor_apply_change_to'); ?></label><br />
+				<select name="sizeSelect" id="sizeSelect">
+					<option value=""><?php echo $this->escape($this->translator('file_image_current_size')); ?></option>
+					<?php if ($this->data != null) : ?>
+					<?php foreach ($this->data as $size => $source) : ?>
+					<option value="<?php echo $this->escape($source); ?>|<?php echo $size; ?>"><?php echo $this->escape($this->translator('file_'.$size)); ?></option>
+					<?php endforeach; ?>
+					<?php endif; ?>
+				</select>
+				<input type="hidden" name="fileId" id="fileId" value="<?php if ($this->file != null) : ?><?php echo $this->file->file_id; ?><?php endif; ?>" />
+			</div>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+var baseUrl = '<?php echo $this->baseUrl; ?>';
+var data = $.evalJSON(base64_decode(rawurldecode('<?php echo $this->dataString; ?>')));
+var options = {
+		fadeSpeed: 400,
+		handles: true,
+		onSelectChange: onSelectChange,
+		instance: true
+};
+var imgSource = $('#imgSource');
+var images = data;
+var editor = null;
+
+function onSelectChange(img, selection) {
+	if (selection.width != 0 || selection.height != 0) {
+		/**
+		 * Enable image crop button
+		 */
+		$('.image_crop').unbind('click').bind('click', function() {
+			imageAction('crop', null); 
+		}).removeAttr('disabled');
+	} else {
+		/**
+		 * Disable image crop button
+		 */
+		$('.image_crop').attr('disabled', 'disabled').unbind('click');
+	}
+
+	$('#imageWidth').val(selection.width);
+	$('#imageHeight').val(selection.height);
+
+	var divHeight = 40;
+	var top = selection.height + 5;
+	var height = $('#imgSource').height();
+	if ((top  + selection.y1) > height - divHeight) {
+		top = - divHeight;	
+	}
+
+	$('.imgareaselect-selection').parent().css('overflow', '');
+	
+	if ($('#imageCropForm').html() == undefined) {
+		$('.imgareaselect-selection').parent().css('overflow', '');
+		$('.imgareaselect-selection').after('<div id="imageCropForm" style="position: relative; left: 0; top: ' + top + 'px"><input type="button" class="image_crop" value="<?php echo $this->escape($this->translator('file_image_action_crop')); ?>" /></div>');
+	} else {
+		$('#imageCropForm').css('top', top + 'px');
+	}
+};
+
+function imageAction(action, mode) {
+	var dataPost = null;
+	switch (action) {
+		case 'rotate':
+			var degrees = 450;
+			if (mode == 'left') {
+				degrees = 270;
+			} 
+			dataPost = { degrees: degrees };
+			break;
+		case 'flip':
+			dataPost = { mode: mode }
+			break;
+		case 'crop':
+			if (editor == undefined || editor == null) {
+				return false;
+			}
+			var selection = editor.getSelection();
+			dataPost = { x1: selection.x1, y1: selection.y1, width: selection.width, height: selection.height };
+			$('#cropButton').attr('disabled', 'disabled').unbind('click');
+			break;
+		default:
+			break;
+	}
+
+	if (dataPost != null) {
+		dataPost.source    = $(imgSource).attr('src');
+		dataPost.action    = action;
+		dataPost.des       = $('#sizeSelect').val();
+		dataPost.file_id   = $('#fileId').val();
+		dataPost.max_width = 400;
+		dataPost.load      = 'edit';
+		
+		editor = $(imgSource).imgAreaSelect({ remove: true });
+		$.ajaxq('image_load', {
+			type: 'POST',
+			url: '<?php echo $this->url(array(), 'multimedia_file_editor'); ?>',
+			data: dataPost,
+			success: function(response) {
+				if (response != 'RESULT_ERROR') {
+					$(imgSource).hide();
+					response = $.evalJSON(response);
+					if (response.image_url != undefined) {
+						$(imgSource).attr('src', response.image_url + '?rand=' + Math.random()).fadeIn("slow");
+						editor = $(imgSource).imgAreaSelect(options);
+						$(imgSource).fadeIn('slow');
+					}
+					if (response.type != undefined && response.type != null) {
+						$('#imageSize option').each(function() {
+							$(this).removeAttr('selected');
+							if (response.type == this.value) {
+								$(this).attr('selected', 'selected');
+								images[response.type] = response.image_url;
+								$('#imageSize').change();
+								return;
+							}
+						});
+					}
+				}
+			}
+		});
+	}
+};
+
+$(document).ready(function() {
+	$('#imageSize').bind('change', function() {
+		var size = this.value;
+		if (images[size] != undefined) {
+			var src = images[size];
+			$(imgSource).hide().attr('src', src + '?rand=' + Math.random()).fadeIn('slow');
+			editor = $(imgSource).imgAreaSelect({ remove: true });
+			$('.image_crop').unbind('click');
+			$('#rotateLeftButton').unbind('click');
+			$('#rotateRightButton').unbind('click');
+			$('#flipVerticalButton').unbind('click');
+			$('#flipHorizontalButton').unbind('click');
+			if (src.indexOf(baseUrl) >= 0) {
+				editor = $(imgSource).imgAreaSelect(options);
+				$('#rotateLeftButton').bind('click', function() {
+					imageAction('rotate', 'left');
+				}).removeAttr('disabled');
+
+				$('#rotateRightButton').bind('click', function() {
+					imageAction('rotate', 'right');
+				}).removeAttr('disabled');
+
+				$('#flipVerticalButton').bind('click', function() {
+					imageAction('flip', 'vertical');
+				}).removeAttr('disabled');
+
+				$('#flipHorizontalButton').bind('click', function() {
+					imageAction('flip', 'horizontal');
+				}).removeAttr('disabled');
+							
+			} else {
+				$('#rotateLeftButton').unbind().attr('disabled', 'disabled');
+				$('#rotateRightButton').unbind().attr('disabled', 'disabled');
+				$('#flipVerticalButton').unbind().attr('disabled', 'disabled');
+				$('#flipHorizontalButton').unbind().attr('disabled', 'disabled');
+				$('#imageWidth').unbind().attr('disabled', 'disabled');
+				$('#imageHeight').unbind().attr('disabled', 'disabled');
+			}
+		}
+	});
+	$('#imageSize option:last').attr('selected', 'selected').change();
+
+	$('#imageWidth').bind('keyup', function() {
+		var selection = editor.getSelection();
+		var x1 = selection.x1;
+		var y1 = selection.y1;
+		var x2 = x1 + parseInt($(this).val());
+		var y2 = y1 + parseInt($('#imageHeight').val());
+		editor.setSelection(x1, y1, x2, y2, true);
+		editor.update();
+	});
+
+	$('#imageHeight').bind('keyup', function() {
+		var selection = editor.getSelection();
+		var x1 = selection.x1;
+		var y1 = selection.y1;
+		var x2 = x1 + parseInt($('#imageWidth').val());
+		var y2 = y1 + parseInt($(this).val());
+		editor.setSelection(x1, y1, x2, y2, true);
+		editor.update();
+	});
+});
+</script>

@@ -1,0 +1,211 @@
+<?php
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: list.phtml 4685 2010-08-16 08:54:12Z huuphuoc $
+ * @since		2.0.7
+ */
+?>
+<?php 
+$this->headTitle($this->translator('page_list_page_title'));
+
+$this->headLink()
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.core.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.resizable.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.dialog.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.theme.css');
+
+$this->headScript()
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.core.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.draggable.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.droppable.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.resizable.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.dialog.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/tomato/treetable.js');
+?>
+
+<div class="grid_12 t_a_ui_breadcrumb">
+	<span><?php echo $this->translator('page_list_breadcrumb'); ?></span>
+</div>
+
+<div class="grid_12 t_a_bottom">
+	<div class="grid_9 alpha"><?php echo $this->translator('page_list_guide'); ?></div>
+	
+	<div class="grid_3 omega">
+		<div class="t_a_right">	
+			<a href="<?php echo $this->url(array(), 'page_page_add'); ?>" class="t_a_ui_button_link"><span><?php echo $this->translator('page_add_breadcrumb'); ?></span></a>
+		</div>
+	</div>
+</div>
+
+<!-- List of pages -->
+<div class="grid_12 t_a_top t_a_bottom">
+	<table id="pageTable" class="t_a_ui_table">
+		<thead>
+			<tr>
+				<th width="420px"><?php echo $this->translator('page_name'); ?></th>
+				<th width="320px"><?php echo $this->translator('page_slug'); ?></th>
+				<th width="140px"><?php echo $this->languageSwitcher('flag', str_repeat('&nbsp', 2)); ?></th>
+				<th width="60px"><?php echo $this->translator('page_id'); ?></th>
+			</tr>
+		</thead>
+		
+		<tbody>
+			<?php foreach ($this->pages as $page) : ?>
+			<tr id="row_id_<?php echo $page->page_id; ?>" class="row_parent_<?php echo $page->parent_id; ?>">
+				<td style="padding-left: <?php echo 40 * $page->depth; ?>px">
+					<span class="row_draggable" style="cursor: move"><?php echo $page->name; ?></span>
+					
+					<span class="t_a_ui_helper_action" style="display: none; padding-left: 20px">
+						<?php if ($this->allow('edit')) : ?>
+						<a href="<?php echo $this->url(array('page_id' => $page->page_id), 'page_page_edit'); ?>"><?php echo $this->translator('page_list_action_edit'); ?></a>
+						<?php endif; ?>
+						
+						<?php if ($this->allow('delete')) : ?>
+						| <a href="javascript: void(0);" class="deleteAction" rel="<?php echo $page->page_id; ?>"><?php echo $this->translator('page_list_action_delete'); ?></a>
+						<?php endif; ?>
+					</span>
+				</td>
+				<td><?php echo $page->slug; ?></td>
+				
+				<?php 
+				/**
+				 * @since 2.0.8
+				 */
+				?>
+				<td>
+				<?php if (($translations = $this->translationItems($page)) != null) : ?>
+					<?php foreach ($translations as $language => $translation) : ?>
+						<?php if ($translation == null && $language != $page->language) : ?>
+							<?php if (isset($translations[$this->APP_DEFAULT_LANG])) : ?>
+							<a class="t_a_ui_helper_action_add" href="<?php echo $this->url(array('source_id' => $translations[$this->APP_DEFAULT_LANG]->page_id), 'page_page_add_localization'); ?>/<?php echo $language; ?>/">&nbsp;</a>
+							<?php else :?>
+							<a class="t_a_ui_helper_action_add" href="<?php echo $this->url(array(), 'page_page_add'); ?>/<?php echo $language; ?>/">&nbsp;</a>
+							<?php endif; ?>
+					
+						<?php elseif (($translation == null && $language == $page->language) || ($translation != null && $translation->page_id == $page->page_id)) : ?>
+						<a class="t_a_ui_helper_action_edit" href="<?php echo $this->url(array('page_id' => $page->page_id), 'page_page_edit'); ?>/<?php echo $language; ?>/">&nbsp;</a>
+						
+						<?php elseif ($translation != null && $translation->page_id != $page->page_id) : ?>
+						<a class="t_a_ui_helper_action_edit" href="<?php echo $this->url(array('page_id' => $translation->page_id), 'page_page_edit'); ?>/<?php echo $language; ?>/">&nbsp;</a>
+						<?php endif; ?>
+					<?php endforeach; ?>
+				<?php endif; ?>
+				</td>
+				
+				<td><?php echo $page->page_id; ?></td>
+			</tr>
+			<?php endforeach; ?>
+		</tbody>
+	</table>
+</div>
+
+<?php if ($this->allow('order')) : ?>
+<div class="grid_12 t_a_top t_a_bottom">
+	<button id="saveButton"><span><?php echo $this->translator('page_list_save_button'); ?></span></button>
+</div>
+<?php endif; ?>
+
+<div id="messageDialog"></div>
+
+<div id="confirmDialog"></div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+	<?php if ($this->allow('order')) : ?>
+	var treeTable = new Tomato.TreeTable('pageTable', 'row');
+	/**
+	 * Save button handler
+	 */
+	$('#saveButton').click(function() {
+		var data = $.toJSON(treeTable.getTreeData());
+		var self = this;
+		$(self).html('').addClass('t_a_ui_helper_loading');
+		
+		$.ajaxq('page_list', {
+			type: 'POST',
+			url: '<?php echo $this->url(array(), 'page_page_order'); ?>',
+			data: { data: data },
+			success: function(response) {
+				if ('RESULT_OK' == response) {
+					$(self).removeClass('t_a_ui_helper_loading')
+							.append($('<span/>').html('<?php echo addslashes($this->translator('page_list_save_button')); ?>'));
+					$('#messageDialog').html('<?php echo addslashes($this->translator('page_list_order_success')); ?>')
+						.dialog({
+							title: '<?php echo addslashes($this->translator('common_dialog_message')); ?>',
+							dialogClass: 't_a_ui_dialog',
+							modal: true,
+					    	show: { effect: 'fade' },
+							open: function(event, ui) {
+								setTimeout(function() {
+									$('#' + event.target.id).dialog('option', 'hide', 'fade').dialog('destroy');
+								}, 3000);
+							}
+						});
+				}
+			}
+		});
+	});
+	<?php endif; ?>
+	
+	/**
+	 * Data list hover handler
+	 */
+	$('#pageTable tr').hover(function() {
+		$(this).find('.t_a_ui_helper_action').show();
+	}, function() {
+		$(this).find('.t_a_ui_helper_action').hide();
+	});
+	
+	<?php if ($this->allow('delete')) : ?>
+	$('a.deleteAction').click(function() {
+		var self = this;
+		$('#confirmDialog').html('<?php echo addslashes($this->translator('page_list_action_delete_confirm')); ?>')
+			.dialog({
+				title: '<?php echo addslashes($this->translator('common_dialog_confirm')); ?>',
+				dialogClass: 't_a_ui_dialog',
+				modal: true,
+				closeOnEscape: false,
+				resizable: false,
+				open: function(event, ui) {
+					$('.ui-dialog-titlebar-close').hide();
+					$(this).parent().find('.ui-dialog-buttonpane button').wrapInner('<span/>');
+				},
+				buttons: {
+					'<?php echo addslashes($this->translator('common_dialog_confirm_no')); ?>': function() {
+						$(this).dialog('destroy');
+					},
+					'<?php echo addslashes($this->translator('common_dialog_confirm_yes')); ?>': function() {
+						$(this).dialog('destroy');
+						$(self).html('').addClass('t_a_ui_helper_loading');
+						var id = $(self).attr('rel');
+						$.ajaxq('page_list', {
+							type: 'POST',
+							url: '<?php echo $this->url(array(), 'page_page_delete'); ?>',
+							data: { id: id },
+							success: function(response) {
+								if ('RESULT_OK' == response) {
+									$('#pageRow_' + id).fadeOut('slow');
+									window.location = '<?php echo $this->url(array(), 'page_page_list'); ?>';
+								}
+							}
+						});
+					}
+				}
+			});
+	});
+	<?php endif; ?>
+});
+</script>

@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version		$Id: about.xml 4961 2010-08-25 18:29:44Z huuphuoc $
+ * @since		2.0.6
+ */
+-->
+<!DOCTYPE module SYSTEM "http://schemas.tomatocms.com/dtd/module_about.dtd">
+<module>
+	<name>mail</name>
+	<description langKey="about_mail_description"><![CDATA[Manage mails]]></description>
+	<thumbnail></thumbnail>
+	<author>TomatoCMS Core Team</author>
+	<email>core@tomatocms.com</email>
+	<version>2.0.6</version>
+	<license>free</license>
+	
+	<requires>
+		<requiredModules></requiredModules>
+	</requires>
+	
+	<install>
+		<db adapter="mysql|pdo_mysql">
+			<query><![CDATA[DROP TABLE IF EXISTS `###mail_template`;]]></query>
+			<query><![CDATA[CREATE TABLE `###mail_template` (
+				  `template_id` int(11) unsigned NOT NULL auto_increment,
+				  `name` varchar(100) NOT NULL,
+				  `title` varchar(200) NOT NULL,
+				  `subject` varchar(255) NOT NULL,
+				  `body` text,
+				  `from_mail` varchar(100) default NULL,
+				  `from_name` varchar(100) default NULL,
+				  `reply_to_mail` varchar(100) default NULL,
+				  `reply_to_name` varchar(100) default NULL,
+				  `created_user_id` int(11) NOT NULL,
+				  `locked` tinyint(1) default '0',
+				  PRIMARY KEY  (`template_id`),
+				  UNIQUE KEY `idx_name` USING BTREE (`name`),
+				  KEY `idx_created_user` (`created_user_id`)
+				) ENGINE=InnoDB DEFAULT CHARSET=utf8;]]>
+			</query>
+			<query><![CDATA[DROP TABLE IF EXISTS `###mail`;]]></query>
+			<query><![CDATA[CREATE TABLE `###mail` (
+				  `mail_id` int(10) unsigned NOT NULL auto_increment,
+				  `template_id` int(11) default NULL,
+				  `subject` varchar(255) NOT NULL,
+				  `content` text NOT NULL,
+				  `created_user_id` int(11) NOT NULL,
+				  `from_mail` varchar(100) NOT NULL,
+				  `from_name` varchar(100) NOT NULL,
+				  `reply_to_mail` varchar(100) default NULL,
+				  `reply_to_name` varchar(100) default NULL,
+				  `to_mail` varchar(100) NOT NULL,
+				  `to_name` varchar(100) default NULL,
+				  `status` enum('outbox','sent') default NULL,
+				  `created_date` datetime default NULL,
+				  `sent_date` datetime default NULL,
+				  PRIMARY KEY  (`mail_id`),
+				  KEY `idx_created_user` (`created_user_id`)
+				) ENGINE=InnoDB DEFAULT CHARSET=utf8;]]>
+			</query>
+		</db>
+		<db adapter="pgsql">
+			<query><![CDATA[DROP TABLE IF EXISTS ###mail_template;]]></query>
+			<query><![CDATA[CREATE TABLE ###mail_template (
+				  template_id integer NOT NULL,
+				  "name" character varying(100) NOT NULL,
+				  title character varying(200) NOT NULL,
+				  subject character varying(255) NOT NULL,
+				  body text,
+				  from_mail character varying(100) DEFAULT NULL::character varying,
+				  from_name character varying(100) DEFAULT NULL::character varying,
+				  reply_to_mail character varying(100) DEFAULT NULL::character varying,
+				  reply_to_name character varying(100) DEFAULT NULL::character varying,
+				  created_user_id integer NOT NULL,
+				  locked smallint DEFAULT 0::smallint,
+				  CONSTRAINT mail_template_pkey PRIMARY KEY (template_id),
+				  CONSTRAINT mail_template_name_key UNIQUE (name)
+				)
+				WITH (
+				  OIDS=FALSE
+				);
+				ALTER TABLE ###mail_template OWNER TO postgres;
+				CREATE INDEX idx_mail_template_created_user
+				  ON ###mail_template
+				  USING btree
+				  (created_user_id);
+				CREATE UNIQUE INDEX norootdupes
+				  ON mail_template
+				  USING btree
+				  (name);]]>
+			</query>
+			<query><![CDATA[DROP TABLE IF EXISTS ###mail;]]></query>
+			<query><![CDATA[CREATE TABLE ###mail (
+				  mail_id integer NOT NULL,
+				  template_id integer,
+				  subject character varying(255) NOT NULL,
+				  "content" text NOT NULL,
+				  created_user_id integer NOT NULL,
+				  from_mail character varying(100) NOT NULL,
+				  from_name character varying(100) NOT NULL,
+				  reply_to_mail character varying(100) DEFAULT NULL::character varying,
+				  reply_to_name character varying(100) DEFAULT NULL::character varying,
+				  to_mail character varying(100) NOT NULL,
+				  to_name character varying(100) DEFAULT NULL::character varying,
+				  status character varying(6) DEFAULT NULL::character varying,
+				  created_date date,
+				  sent_date date,
+				  CONSTRAINT mail_pkey PRIMARY KEY (mail_id),
+				  CONSTRAINT mail_status_check CHECK (status::text = ANY (ARRAY['outbox'::character varying, 'sent'::character varying]::text[]))
+				)
+				WITH (
+				  OIDS=FALSE
+				);
+				ALTER TABLE ###mail OWNER TO postgres;
+				CREATE INDEX idx_mail_created_user
+				  ON ###mail
+				  USING btree
+				  (created_user_id);]]>
+			</query>
+		</db>
+		<db adapter="sqlsrv">
+			<query><![CDATA[IF EXISTS (SELECT NAME FROM SYSOBJECTS WHERE NAME='###mail_template' AND TYPE='U') DROP TABLE ###mail_template;]]></query>
+			<query><![CDATA[CREATE TABLE ###mail_template (
+				    template_id int identity(1,1) NOT NULL,
+					name nvarchar(100) NOT NULL,
+					title nvarchar(200) NOT NULL,
+					subject nvarchar(255) NOT NULL,
+					body ntext NOT NULL,
+					from_mail nvarchar(100) NOT NULL,
+					from_name nvarchar(100) NOT NULL,
+					reply_to_mail nvarchar(100) NOT NULL,
+					reply_to_name nvarchar(100) NOT NULL,
+					created_user_id int NOT NULL,
+					locked bit default 0,
+					PRIMARY KEY (template_id)
+				);]]>
+			</query>
+			<query><![CDATA[CREATE INDEX idx_created_user ON ###mail_template (created_user_id);]]></query>
+			
+			<query><![CDATA[IF EXISTS (SELECT NAME FROM SYSOBJECTS WHERE NAME='###mail' AND TYPE='U') DROP TABLE ###mail;]]></query>
+			<query><![CDATA[CREATE TABLE ###mail (
+				  	mail_id int identity(1,1) NOT NULL,
+				  	template_id int NOT NULL,
+				  	subject nvarchar(255) NOT NULL,
+				  	content ntext NULL,
+				  	created_user_id int NULL,
+				  	from_mail nvarchar(100) NOT NULL,	 
+				  	from_name nvarchar(100) NOT NULL,
+				  	reply_to_mail nvarchar(100) default NULL,
+				  	reply_to_name nvarchar(100) default NULL,
+				  	to_mail nvarchar(100) NOT NULL,
+				  	to_name nvarchar(100) NOT NULL,     
+				  	status varchar(6) check(status in ('outbox','sent')) default NULL,	
+				  	created_date varchar(19) NULL,
+				  	sent_date  varchar(19) NULL,
+				  	PRIMARY KEY (mail_id)
+				);]]>
+			</query>
+			<query><![CDATA[CREATE INDEX idx_created_user ON ###mail (created_user_id);]]></query>
+		</db>
+	</install>
+	
+	<uninstall>
+		<db adapter="mysql|pdo_mysql">
+			<query><![CDATA[DROP TABLE IF EXISTS `###mail_template`;]]></query>
+			<query><![CDATA[DROP TABLE IF EXISTS `###mail`;]]></query>
+		</db>
+		<db adapter="pgsql">
+			<query><![CDATA[DROP TABLE IF EXISTS ###mail_template;]]></query>
+			<query><![CDATA[DROP TABLE IF EXISTS ###mail;]]></query>
+		</db>
+		<db adapter="sqlsrv">
+			<query><![CDATA[IF EXISTS (SELECT NAME FROM SYSOBJECTS WHERE NAME='###mail_template' AND TYPE='U') DROP TABLE ###mail_template;]]></query>
+			<query><![CDATA[IF EXISTS (SELECT NAME FROM SYSOBJECTS WHERE NAME='###mail' AND TYPE='U') DROP TABLE ###mail;]]></query>
+		</db>
+	</uninstall>
+	
+	<admin>
+		<task langKey="task_config_server" route="mail_config_server" />
+		<task langKey="task_list_templates" route="mail_template_list" />
+		<task langKey="task_list_mails" route="mail_mail_list" />
+	</admin>
+</module>

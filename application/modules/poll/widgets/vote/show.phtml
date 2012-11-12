@@ -1,0 +1,96 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: show.phtml 5132 2010-08-30 04:47:16Z huuphuoc $
+ * @since		2.0.0
+ */
+?>
+<?php if ($this->question) : ?>
+<div class="t_poll_vote">
+	<h2><?php echo $this->question->title; ?></h2>
+	
+	<div><?php echo $this->question->content; ?></div>
+	
+	<!-- Answers -->
+	<?php if ($this->answers) : ?>
+	<ul>
+		<?php foreach ($this->answers as $answer) : ?>
+		<li>
+			<input name="answers" onclick="javascript: $('#pollVoteCaptcha').show();" 
+				type="<?php if ($this->question->multiple_options == 0) : ?>radio<?php else : ?>checkbox<?php endif; ?>"
+				value="<?php echo $answer->answer_id; ?>" /> <?php echo $answer->title; ?>
+		</li>
+		<?php endforeach; ?>
+	</ul>
+	<?php endif; ?>
+	
+	<!-- Captcha -->
+	<div style="display: none" id="pollVoteCaptcha">
+		<div><?php echo $this->translator()->widget('validate_desc'); ?></div>
+		<span id="pollVoteCaptchaQuestion"></span><input type="text" style="width: 50px" id="pollVoteCaptchaAnswer" value="" />
+		<input type="hidden" id="pollVoteCaptchaResult" value="" />
+	</div>
+	
+	<!-- Buttons -->
+	<div>
+		<button id="pollVoteButton" class="button"><span><?php echo $this->translator()->widget('vote_button'); ?></span></button>
+		<button id="pollVoteResultButton" class="button"><span><?php echo $this->translator()->widget('result_button'); ?></span></button>
+	</div>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+	var num1 = Math.floor(Math.random() * 10);
+	var num2 = Math.floor(Math.random() * 10);
+	var sum  = num1 + num2;
+
+	/**
+	 * Init the captcha
+	 */
+	$('#pollVoteCaptchaQuestion').html(num1 + ' + ' + num2 + ' = ');
+	$('#pollVoteCaptchaResult').attr('value' , sum);
+
+	/**
+	 * Handle vote button click event
+	 */
+	$('#pollVoteButton').click(function() {
+		if ($('#pollVoteCaptchaAnswer').attr('value') == $('#pollVoteCaptchaResult').attr('value')) {
+			var answers = Array();
+			$(this).parents('.t_poll_vote').find('li input').each(function() {
+				if ($(this).attr('checked') == true) {
+					answers.push($(this).attr('value'));
+				}
+			});
+			if (answers.length > 0) {
+				var data = $.toJSON({
+					'poll_id': '<?php echo $this->question->question_id; ?>', 
+					'container': '<?php echo $this->container; ?>', 
+					'answers': answers.join(',')
+				});
+				Tomato.Core.Widget.Loader.queueAction('poll', 'vote', 'result', data, '<?php echo $this->container; ?>');
+			}
+		}
+	});
+
+	/**
+	 * Handle result button click event
+	 */
+	$('#pollVoteResultButton').click(function() {
+		Tomato.Core.Widget.Loader.queueAction('poll', 'vote', 'result', '<?php echo addslashes($this->data); ?>', '<?php echo $this->container; ?>');
+	});
+});
+</script>
+<?php endif; ?>

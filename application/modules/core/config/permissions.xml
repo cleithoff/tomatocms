@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version		$Id: permissions.xml 4787 2010-08-23 17:14:56Z huuphuoc $
+ * @since		2.0.0
+ */
+-->
+<!DOCTYPE permissions SYSTEM "http://schemas.tomatocms.com/dtd/module_permission.dtd">
+<permissions>
+	<resource name="cache" description="Manage cache" langKey="permission_cache">
+		<privilege name="clear" description="Clear all cached data" langKey="permission_cache_clear" />
+		<privilege name="config" description="Configure cache" langKey="permission_cache_config" />
+		<privilege name="delete" description="Delete cached item" langKey="permission_cache_delete" />
+		<privilege name="list" description="View the list of cached items by id" langKey="permission_cache_list" />
+	</resource>
+	<resource name="config" description="Manage settings" langKey="permission_config" >
+		<privilege name="app" description="Configure application" langKey="permission_config_app" />
+		<privilege name="add" description="Add setting" langKey="permission_config_add" />
+		<privilege name="delete" description="Delete settings" langKey="permission_config_delete" />
+		<privilege name="edit" description="Edit setting" langKey="permission_config_edit" />
+		<privilege name="list" description="View the list of settings" langKey="permission_config_list" />
+		<privilege name="update" description="Update setting" langKey="permission_config_update" />
+	</resource>
+	<resource name="dashboard" description="Administrator section" langKey="permission_dashboard">
+		<privilege name="index" description="Dashboard of administrator" langKey="permission_dashboard_index" />
+	</resource>
+	<resource name="hook" description="Manage hooks" langKey="permission_hook">
+		<privilege name="config" description="Config hook" langKey="permission_hook_config" />
+		<privilege name="install" description="Install hook" langKey="permission_hook_install" />
+		<privilege name="list" description="View the list of hooks" langKey="permission_hook_list" />
+		<privilege name="uninstall" description="Uninstall hook" langKey="permission_hook_uninstall" />
+		<privilege name="upload" description="Upload new hook" langKey="permission_hook_upload" />
+	</resource>
+	<resource name="language" description="Manage languages" langKey="permission_language">
+		<privilege name="add" description="Add item to language file" langKey="permission_language_add" />
+		<privilege name="delete" description="Delete item from language file" langKey="permission_language_delete" />
+		<privilege name="edit" description="Edit language file" langKey="permission_language_edit" />
+		<privilege name="list" description="View the list of language files for module/wiget" langKey="permission_language_list" />
+		<privilege name="new" description="Create new language file" langKey="permission_language_new" />
+		<privilege name="update" description="Update item in language file" langKey="permission_language_update" />
+		<privilege name="upload" description="Upload new language package" langKey="permission_language_upload" />
+	</resource>
+	
+	<!-- since 2.0.8 -->
+	<resource name="locale" description="Manage localization settings" langKey="permission_locale">
+		<privilege name="config" description="Configure localization settings" langKey="permission_locale_config" />
+	</resource>
+	
+	<!-- since 2.0.7 -->
+	<resource name="log" description="Errors log" langKey="permission_log">
+		<privilege name="delete" description="Delete error" langKey="permission_log_delete" />
+		<privilege name="list" description="List errors" langKey="permission_log_list" />	
+	</resource>
+	
+	<resource name="module" description="Manage modules" langKey="permission_module">
+		<privilege name="install" description="Install module" langKey="permission_module_install" />
+		<privilege name="list" description="View the list of modules" langKey="permission_module_list" />
+		<privilege name="uninstall" description="Uninstall module" langKey="permission_module_uninstall" />
+		<privilege name="upload" description="Upload new module" langKey="permission_module_upload" />
+	</resource>
+	<resource name="page" description="Manage pages" langKey="permission_page">
+		<privilege name="add" description="Create new page" langKey="permission_page_add" />
+		<privilege name="edit" description="Edit page" langKey="permission_page_edit" />
+		<privilege name="layout" description="View layout of page" langKey="permission_page_layout" />
+		<privilege name="savelayout" description="Update layout of page" langKey="permission_page_savelayout" />
+		<privilege name="list" description="View the list of pages" langKey="permission_page_list" />
+		<privilege name="ordering" description="Update order of pages" langKey="permission_page_ordering" />
+	</resource>
+	
+	<!-- since 2.0.7 -->
+	<resource name="permalink" description="Manage permalinks" langKey="permission_permalink">
+		<privilege name="index" description="Manage permalinks" langKey="permission_permalink_index" />
+	</resource>
+	
+	<resource name="plugin" description="Manage plugins" langKey="permission_plugin">
+		<privilege name="config" description="Config plugin" langKey="permission_plugin_config" />
+		<privilege name="install" description="Install plugin" langKey="permission_plugin_install" />
+		<privilege name="list" description="View the list of plugins" langKey="permission_plugin_list" />
+		<privilege name="ordering" description="Update order of plugins" langKey="permission_plugin_ordering" />
+		<privilege name="uninstall" description="Uninstall plugin" langKey="permission_plugin_uninstall" />
+		<privilege name="upload" description="Upload new plugin" langKey="permission_plugin_upload" />
+	</resource>
+	<resource name="privilege" description="Manage actions to resource" langKey="permission_privilege">
+		<privilege name="add" description="Add action" langKey="permission_privilege_add" />
+		<privilege name="delete" description="Delete action" langKey="permission_privilege_delete" />
+		<privilege name="list" description="View the list of actions" langKey="permission_privilege_list" />
+	</resource>
+	<resource name="resource" description="Manage resources" langKey="permission_resource">
+		<privilege name="add" description="Add resource" langKey="permission_resource_add" />
+		<privilege name="delete" description="Delete resource" langKey="permission_resource_delete" />
+	</resource>
+	<resource name="role" description="Manage roles" langKey="permission_role">
+		<privilege name="add" description="Add role" langKey="permission_role_add" />
+		<privilege name="delete" description="Delete role" langKey="permission_role_delete" />
+		<privilege name="list" description="View the list of roles" langKey="permission_role_list" />
+		<privilege name="lock" description="Lock/unlock role" langKey="permission_role_lock" />
+	</resource>
+	<resource name="rule" description="Manage rules" langKey="permission_rule">
+		<privilege name="role" description="Set rules for role" langKey="permission_rule_role" />
+		<privilege name="user" description="Set rules for user" langKey="permission_rule_user" />
+	</resource>
+	<resource name="target" description="Manage hook targets" langKey="permission_target">
+		<privilege name="add" description="Apply hook for target" langKey="permission_target_add" />
+		<privilege name="list" description="View the list of targets" langKey="permission_target_list" />
+		<privilege name="remove" description="Remove hook from target" langKey="permission_target_remove" />
+	</resource>
+	<resource name="template" description="Manage templates" langKey="permission_template">
+		<privilege name="activate" description="Activate template" langKey="permission_template_activate" />
+		<privilege name="editskin" description="Edit skin of template" langKey="permission_template_editskin" />
+		<privilege name="list" description="View the list of templates" langKey="permission_template_list" />
+		<privilege name="skin" description="Set skin for current template" langKey="permission_template_skin" />
+	</resource>
+	<resource name="user" description="Manage users" langKey="permission_user">
+		<privilege name="activate" description="Activate/deactivate an user" langKey="permission_user_activate" />
+		<privilege name="add" description="Add user" langKey="permission_user_add" />
+		<privilege name="changepass" description="Update password" langKey="permission_user_changepass" />
+		<privilege name="edit" description="Update user information" langKey="permission_user_edit" />
+		<privilege name="list" description="View the list of users" langKey="permission_user_list" />		
+	</resource>
+	<resource name="widget" description="Manage widgets" langKey="permission_widget">
+		<privilege name="install" description="Install widget" langKey="permission_widget_install" />
+		<privilege name="list" description="View the list of widgets" langKey="permission_widget_list" />
+		<privilege name="uninstall" description="Uninstall widget" langKey="permission_widget_uninstall" />
+		<privilege name="upload" description="Upload new widget" langKey="permission_widget_upload" />
+	</resource>
+</permissions>

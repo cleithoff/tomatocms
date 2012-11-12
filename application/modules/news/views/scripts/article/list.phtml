@@ -1,0 +1,558 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: list.phtml 4684 2010-08-16 08:44:14Z huuphuoc $
+ * @since		2.0.0
+ */
+?>
+<?php 
+$this->headTitle($this->translator('article_list_page_title'));
+
+$this->headLink()
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.core.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.resizable.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.dialog.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.theme.css');
+
+$this->headScript()
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.core.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.draggable.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.resizable.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.dialog.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.validate/jquery.validate.min.js');
+?>
+
+<div class="grid_12 t_a_ui_breadcrumb">
+	<span><a href="<?php echo $this->url(array(), 'news_article_list'); ?>"><?php echo $this->translator('article_list_breadcrumb'); ?></a></span>
+</div>
+
+<div class="grid_12 t_a_bottom">
+	<div class="grid_9 alpha"><?php echo $this->translator('article_list_guide'); ?></div>
+	
+	<div class="grid_3 omega">
+		<div class="t_a_right">	
+			<a href="<?php echo $this->url(array(), 'news_article_add'); ?>" class="t_a_ui_button_link"><span><?php echo $this->translator('article_add_breadcrumb'); ?></span></a>
+		</div>
+	</div>
+</div>
+
+<!-- Search form -->
+<form method="post" action="<?php echo $this->url(array(), 'news_article_list'); ?>" id="searchArticleForm">
+<div class="grid_12 t_a_bottom">
+	<div class="prefix_1 suffix_1">
+		<div class="clearfix t_a_bottom">
+			<div class="grid_5 alpha">
+				<label><?php echo $this->translator('article_list_search_keyword'); ?>:</label>
+				<input type="text" style="width: 180px" name="keyword" value="<?php if (isset($this->exp['keyword'])) : ?><?php echo $this->exp['keyword']; ?><?php endif; ?>" />
+			</div>
+			
+			<div class="grid_5 omega">
+				<label><?php echo $this->translator('article_list_search_id'); ?>:</label>
+				<input type="text" style="width: 180px" name="articleId" id="articleId" value="<?php if (isset($this->exp['article_id'])) : ?><?php echo $this->exp['article_id']; ?><?php endif; ?>" />
+		    </div>
+		</div>
+		
+		<hr />
+		
+		<div class="clearfix t_a_bottom">
+			<div class="grid_5 alpha">
+				<label><?php echo $this->translator('article_language'); ?>:</label>
+				<?php echo $this->languageSelector(); ?>
+			</div>
+			
+			<div class="grid_5 omega">
+				<div class="grid_2 alpha">
+					<label><?php echo $this->translator('article_list_search_category'); ?>:</label>
+				</div>
+				<div class="grid_3 omega">
+					<div class="translatable">
+						<?php 
+						echo $this->helperLoader('category')->categorySelect(array(
+																'id'       => 'category', 
+																'name'     => 'category', 
+																'selected' => (isset($this->exp['category_id']) ? $this->exp['category_id'] : null)
+															));
+						?>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<hr />
+		
+		<div class="clearfix t_a_bottom">
+			<div class="grid_5 alpha">
+				<label><?php echo $this->translator('article_list_search_status'); ?>:</label>
+				<select name="status" style="width: 180px">
+					<option value=""<?php if (!isset($this->exp['status'])) : ?> selected="selected"<?php endif; ?>>---</option>
+					<option value="active"<?php if (isset($this->exp['status']) && $this->exp['status'] == 'active') : ?> selected="selected"<?php endif; ?>><?php echo $this->translator('article_list_status_activated'); ?></option>
+					<option value="inactive"<?php if (isset($this->exp['status']) && $this->exp['status'] == 'inactive') : ?> selected="selected"<?php endif; ?>><?php echo $this->translator('article_list_status_not_activated'); ?></option>
+					<option value="draft"<?php if (isset($this->exp['status']) && $this->exp['status'] == 'draft') : ?> selected="selected"<?php endif; ?>><?php echo $this->translator('article_list_status_draft'); ?></option>
+					<option value="deleted"<?php if (isset($this->exp['status']) && $this->exp['status'] == 'deleted') : ?> selected="selected"<?php endif; ?>><?php echo $this->translator('article_list_status_deleted'); ?></option>
+				</select>
+			</div>
+			
+			<div class="grid_5 omega">
+				<label>&nbsp;</label>
+				<input type="checkbox" name="findMyArticles"<?php if (isset($this->exp['created_user_id'])) : ?> checked="checked"<?php endif; ?> value="1" /> <?php echo $this->translator('article_list_search_my_articles'); ?>
+			</div>
+		</div>
+		
+		<hr />
+		
+		<div class="clearfix t_a_bottom">
+			<label>&nbsp;</label>
+			<button type="submit"><span><?php echo $this->translator('article_list_search_button'); ?></span></button>
+		</div>
+	</div>
+</div>
+</form>
+
+<div class="grid_12 t_a_bottom">
+	<!-- Filter -->
+	<?php 
+	/**
+	 * Allows user to use status filters 
+	 * @since 2.0.7
+	 */
+	?>
+	<div class="t_a_right">
+		<ul class="t_a_ui_filter">
+			<li<?php if (!isset($this->exp['status'])) : ?> class="t_a_ui_active"<?php endif; ?>>
+				<a href="<?php echo $this->linkFilter($this->exp); ?>"><?php echo $this->translator('article_list_filter_all'); ?></a>
+			</li>
+			<li<?php if (isset($this->exp['status']) && $this->exp['status'] == 'active') : ?> class="t_a_ui_active"<?php endif; ?>>
+				<a href="<?php echo $this->linkFilter($this->exp, 'active'); ?>"><?php echo $this->translator('article_list_filter_activated'); ?></a>
+			</li>
+			<li<?php if (isset($this->exp['status']) && $this->exp['status'] == 'inactive') : ?> class="t_a_ui_active"<?php endif; ?>>
+				<a href="<?php echo $this->linkFilter($this->exp, 'inactive'); ?>"><?php echo $this->translator('article_list_filter_not_activated'); ?></a>
+			</li>
+			<li<?php if (isset($this->exp['status']) && $this->exp['status'] == 'draft') : ?> class="t_a_ui_active"<?php endif; ?>>
+				<a href="<?php echo $this->linkFilter($this->exp, 'draft'); ?>"><?php echo $this->translator('article_list_filter_draft'); ?></a>
+			</li>
+			<li<?php if (isset($this->exp['status']) && $this->exp['status'] == 'deleted') : ?> class="t_a_ui_active"<?php endif; ?>>
+				<a href="<?php echo $this->linkFilter($this->exp, 'deleted'); ?>"><?php echo $this->translator('article_list_filter_trash'); ?></a>
+			</li>
+		</ul>
+	</div>
+</div>
+
+<!-- List of articles -->
+<?php if ($this->numArticles == 0) : ?>
+<div class="grid_12 t_a_bottom"><?php echo $this->translator('article_list_not_found'); ?></div>	
+<?php else : ?>
+	<div class="grid_12 t_a_ui_data_list_header">
+		<div class="grid_5 alpha">
+			<div><input type="checkbox" id="checkAll" /> <?php echo $this->translator('article_main_title'); ?></div>
+		</div>
+		
+		<div class="grid_2"><?php echo $this->translator('article_status'); ?></div>
+		
+		<div class="grid_2"><?php echo $this->translator('article_num_views'); ?></div>
+		
+		<div class="grid_2"><?php echo $this->languageSwitcher('flag', str_repeat('&nbsp', 2)); ?></div>
+		
+		<div class="grid_1 omega"><?php echo $this->translator('article_id'); ?></div>
+	</div>
+
+	<div class="grid_12 t_a_bottom" id="articles">
+		<?php foreach ($this->articles as $article) : ?>
+		<div id="articleRow_<?php echo $article->article_id; ?>" class="clearfix t_a_ui_data_list_content">
+			<div class="grid_5 alpha">
+				<div>
+					<input type="checkbox" class="selectArticle" value="<?php echo $article->article_id; ?>" />
+					<a href="<?php echo $this->url(array('article_id' => $article->article_id), 'news_article_edit'); ?>"><?php echo $article->title; ?></a>
+					<br />
+					<?php echo sprintf($this->translator('article_list_posted_by'), $article->created_user_name, date('Y-m-d H:i:s', strtotime($article->created_date))); ?>
+				</div>
+				
+				<div class="t_a_top t_a_ui_helper_action">
+					<?php if ($this->allow('edit')) : ?>
+					<a href="<?php echo $this->url(array('article_id' => $article->article_id), 'news_article_edit'); ?>"><?php echo $this->translator('article_list_action_edit'); ?></a> |
+					<?php endif; ?>
+					
+					<?php if ($this->allow('delete')) : ?> 
+					<a class="deleteAction" rel="<?php echo $article->article_id; ?>" href="javascript: void(0);"><?php if ('deleted' == $article->status) : ?><?php echo $this->translator('article_list_action_delete_forever'); ?><?php else : ?><?php echo $this->translator('article_list_action_delete'); ?><?php endif; ?></a> |
+					<?php endif; ?>
+					
+					<?php if ($this->allow('activate')) : ?>
+					<a class="activateAction" rel="<?php echo $article->article_id; ?>_<?php echo $article->status; ?>" href="javascript: void(0);"><?php if ($article->status == 'active') : ?><?php echo $this->translator('article_list_action_deactivate'); ?><?php else : ?><?php echo $this->translator('article_list_action_activate'); ?><?php endif; ?></a>
+					<?php endif; ?>
+				</div>
+			</div>
+			
+			<div class="grid_2" id="articleStatus_<?php echo $article->article_id; ?>">
+				<?php if ($article->status == 'active') : ?>
+					<?php echo $this->translator('article_list_status_activated'); ?>
+				<?php elseif ($article->status == 'inactive' || null == $article->status) : ?>
+					<?php echo $this->translator('article_list_status_not_activated'); ?>
+				<?php elseif ($article->status == 'draft') : ?>
+					<?php echo $this->translator('article_list_status_draft'); ?>
+				<?php elseif ($article->status == 'deleted') : ?>
+					<?php echo $this->translator('article_list_status_deleted'); ?>
+				<?php endif; ?>
+			</div>
+			
+			<div class="grid_2">
+				<?php if ($article->num_views) : ?><?php echo $article->num_views; ?><?php else : ?>0<?php endif; ?>
+			</div>
+			
+			<?php 
+			/**
+			 * Show translated articles if there is
+			 * @since 2.0.8
+			 */
+			?>
+			<div class="grid_2">
+			<?php if (($translations = $this->translationItems($article)) != null) : ?>
+				<?php foreach ($translations as $language => $translation) : ?>
+					<?php if ($translation == null && $language != $article->language) : ?>
+						<?php if (isset($translations[$this->APP_DEFAULT_LANG])) : ?>
+						<a class="t_a_ui_helper_action_add" href="<?php echo $this->url(array('source_id' => $translations[$this->APP_DEFAULT_LANG]->article_id), 'news_article_add_localization'); ?>/<?php echo $language; ?>/">&nbsp;</a>
+						<?php else :?>
+						<a class="t_a_ui_helper_action_add" href="<?php echo $this->url(array(), 'news_article_add'); ?>/<?php echo $language; ?>/">&nbsp;</a>
+						<?php endif; ?>
+					
+					<?php elseif (($translation == null && $language == $article->language) || ($translation != null && $translation->article_id == $article->article_id)) : ?>
+					<a class="t_a_ui_helper_action_edit" href="<?php echo $this->url(array('article_id' => $article->article_id), 'news_article_edit'); ?>/<?php echo $language; ?>/">&nbsp;</a>
+					
+					<?php elseif ($translation != null && $translation->article_id != $article->article_id) : ?>
+					<a class="t_a_ui_helper_action_edit" href="<?php echo $this->url(array('article_id' => $translation->article_id), 'news_article_edit'); ?>/<?php echo $language; ?>/">&nbsp;</a>
+					<?php endif; ?>
+				<?php endforeach; ?>
+			<?php else : ?>
+			&nbsp;
+			<?php endif; ?>
+			</div>
+			
+			<div class="grid_1 omega"><?php echo $article->article_id; ?></div>
+		</div>
+		<?php endforeach; ?>
+	</div>
+	
+	<?php 
+	/**
+	 * Allows user to perform same action to multiple articles at the same time
+	 * @since 2.0.7
+	 */
+	?>
+	<div class="grid_12 t_a_bottom">
+		<div class="grid_9 alpha">
+		<?php if ($this->allow('activate')) : ?>
+			<?php if (isset($this->exp['status']) && $this->exp['status'] == 'active') : ?>
+			<button id="activateButton" value="active"><span><?php echo $this->translator('article_list_deactivate_selected'); ?></span></button>
+			<?php elseif (isset($this->exp['status']) && $this->exp['status'] == 'inactive') : ?>
+			<button id="activateButton" value="inactive"><span><?php echo $this->translator('article_list_activate_selected'); ?></span></button>
+			<?php endif; ?>
+		<?php endif; ?>
+		
+		<?php if ($this->allow('delete')) : ?>
+			<?php if (isset($this->exp['status']) && $this->exp['status'] == 'deleted') : ?>		
+			<button id="deleteButton" value="trash"><span><?php echo $this->translator('article_list_delete_forever_selected'); ?></span></button>
+			<?php else : ?>
+			<button id="deleteButton" value="deleted"><span><?php echo $this->translator('article_list_delete_selected'); ?></span></button>
+			<?php endif; ?>
+		<?php endif; ?>
+		</div>
+		
+		<!-- Empty Trash button -->
+		<div class="grid_3 omega">
+		<?php if ($this->allow('delete') && isset($this->exp['status']) && $this->exp['status'] == 'deleted') : ?>
+			<div class="t_a_right">
+				<button type="button" id="emptyButton"><span><?php echo $this->translator('article_list_empty_trash_button'); ?></span></button>
+			</div>
+		<?php endif; ?>
+		</div>
+	</div>
+	
+	<div class="grid_12 t_a_bottom t_a_ui_paginator">
+		<?php echo $this->paginator()->slide($this->paginator, $this->paginatorOptions); ?>
+	</div>
+<?php endif; ?>
+
+<div class="clearfix t_a_bottom"></div>
+
+<div id="messageDialog"></div>
+
+<div id="confirmDialog"></div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+	/**
+	 * Select/Deselect all rows handler
+	 */
+	$('#checkAll').click(function() {
+		$('input[type="checkbox"].selectArticle').attr('checked', $(this).attr('checked'));
+	});	
+	
+	<?php if ($this->allow('delete')) : ?>
+	/**
+	 * Delete many articles at the same time
+	 * @since 2.0.7
+	 */
+	$('#deleteButton').click(function() {
+		var numSelected = $('input[type="checkbox"].selectArticle:checked').length;
+		var self = this;
+		if (0 == numSelected) {
+			$('#confirmDialog').html('<?php echo addslashes($this->translator('article_list_bulk_action_none_selected')); ?>')
+				.dialog({
+					title: '<?php echo addslashes($this->translator('common_dialog_error')); ?>',
+					dialogClass: 't_a_ui_dialog',
+					modal: true,
+					closeOnEscape: false,
+					resizable: false,
+					open: function(event, ui) {
+						$('.ui-dialog-titlebar-close').hide();
+						$(this).parent().find('.ui-dialog-buttonpane button').wrapInner('<span/>');
+					},
+					buttons: {
+						'<?php echo addslashes($this->translator('common_dialog_confirm_ok')); ?>': function() {
+							$(this).dialog('destroy');
+						}
+					}
+				});
+		} else {
+			var status = $(this).val();
+			var ids = new Array();
+			$('input[type="checkbox"].selectArticle:checked').each(function() {
+				ids.push($(this).val());
+			});
+			
+			$(self).html('').addClass('t_a_ui_helper_loading');
+			$.ajaxq('news_article', {
+				url: "<?php echo $this->url(array(), 'news_article_delete'); ?>",
+				type: 'POST',
+				data: { id: $.toJSON(ids), status: status },
+				success: function(response) {
+					$(self).append($('<span/>').html(('trash' == status) ? '<?php echo addslashes($this->translator('article_list_delete_forever_selected')); ?>' : '<?php echo addslashes($this->translator('article_list_delete_selected')); ?>'))
+						.removeClass('t_a_ui_helper_loading');
+					if ('RESULT_OK' == response) {
+						for (var i in ids) {
+							$('#articleRow_' + ids[i]).fadeOut('slow');
+						}
+					}
+				}
+			});
+		}
+	});
+	
+	/**
+	 * Delete article handler
+	 */
+	$('a.deleteAction').click(function() {
+		var self = this;
+		$('#confirmDialog').html('<?php echo addslashes($this->translator('article_list_action_delete_confirm')); ?>')
+			.dialog({
+				title: '<?php echo addslashes($this->translator('common_dialog_confirm')); ?>',
+				dialogClass: 't_a_ui_dialog',
+				modal: true,
+				closeOnEscape: false,
+				resizable: false,
+				open: function(event, ui) {
+					$('.ui-dialog-titlebar-close').hide();
+					$(this).parent().find('.ui-dialog-buttonpane button').wrapInner('<span/>');
+				},
+				buttons: {
+					'<?php echo addslashes($this->translator('common_dialog_confirm_no')); ?>': function() {
+						$(this).dialog('destroy');
+					},
+					'<?php echo addslashes($this->translator('common_dialog_confirm_yes')); ?>': function() {
+						$(this).dialog('destroy');
+						$(self).html('').addClass('t_a_ui_helper_loading');
+						var id = $(self).attr('rel');
+						$.ajaxq('news_article', {
+							type: 'POST',
+							url: "<?php echo $this->url(array(), 'news_article_delete'); ?>",
+							data: { id: id },
+							success: function(response) {
+								if ('RESULT_OK' == response) {
+									$('#articleRow_' + id).fadeOut('slow');
+								}
+							}
+						});
+					}
+				}
+			});
+	});
+	<?php endif; ?>
+
+	<?php if ($this->allow('emptytrash')) : ?>
+	/**
+	 * Empty Trash handler
+	 * @since 2.0.7
+	 */
+	$('#emptyButton').click(function() {
+		var self = this;
+
+		$('#confirmDialog').html('<?php echo addslashes($this->translator('article_list_empty_trash_confirm')); ?>')
+			.dialog({
+				title: '<?php echo addslashes($this->translator('common_dialog_confirm')); ?>',
+				dialogClass: 't_a_ui_dialog',
+				modal: true,
+				closeOnEscape: false,
+				resizable: false,
+				open: function(event, ui) {
+					$('.ui-dialog-titlebar-close').hide();
+					$(this).parent().find('.ui-dialog-buttonpane button').wrapInner('<span/>');
+				},
+				buttons: {
+					'<?php echo addslashes($this->translator('common_dialog_confirm_no')); ?>': function() {
+						$(this).dialog('destroy');
+					},
+					'<?php echo addslashes($this->translator('common_dialog_confirm_yes')); ?>': function() {
+						$(this).dialog('destroy');
+						$(self).html('').addClass('t_a_ui_helper_loading');
+						var id = $(self).attr('rel');
+						$.ajaxq('news_article', {
+							type: 'POST',
+							url: "<?php echo $this->url(array(), 'news_article_emptytrash'); ?>",
+							success: function(response) {
+								if ('RESULT_OK' == response) {
+									$(self).removeClass('t_a_ui_helper_loading')
+										.append($('<span/>').html('<?php echo addslashes($this->translator('article_list_empty_trash_button')); ?>'));
+									$('#articles').html('').fadeOut('slow');
+								}
+							}
+						});
+					}
+				}
+			});
+	});
+	<?php endif; ?>
+	
+	<?php if ($this->allow('activate')) : ?>
+	/**
+	 * Activate/Deactivate many articles at the same time
+	 * @since 2.0.7
+	 */
+	$('#activateButton').click(function() {
+		var numSelected = $('input[type="checkbox"].selectArticle:checked').length;
+		var self = this;
+		if (0 == numSelected) {
+			$('#confirmDialog').html('<?php echo addslashes($this->translator('article_list_bulk_action_none_selected')); ?>')
+				.dialog({
+					title: '<?php echo addslashes($this->translator('common_dialog_error')); ?>',
+					dialogClass: 't_a_ui_dialog',
+					modal: true,
+					closeOnEscape: false,
+					resizable: false,
+					open: function(event, ui) {
+						$('.ui-dialog-titlebar-close').hide();
+						$(this).parent().find('.ui-dialog-buttonpane button').wrapInner('<span/>');
+					},
+					buttons: {
+						'<?php echo addslashes($this->translator('common_dialog_confirm_ok')); ?>': function() {
+							$(this).dialog('destroy');
+						}
+					}
+				});
+		} else {
+			var status = $(this).val();
+			var ids = new Array();
+			$('input[type="checkbox"].selectArticle:checked').each(function() {
+				ids.push($(this).val());
+			});
+			
+			$(self).html('').addClass('t_a_ui_helper_loading');
+			$.ajaxq('news_article', {
+				url: "<?php echo $this->url(array(), 'news_article_activate'); ?>",
+				type: 'POST',
+				data: { id: $.toJSON(ids), status: status },
+				success: function(response) {
+					$(self).val(response).removeClass('t_a_ui_helper_loading');
+					if (status == 'active') {
+						$(self).append($('<span/>').html('<?php echo addslashes($this->translator('article_list_deactivate_selected')); ?>'));
+					} else {
+						$(self).append($('<span/>').html('<?php echo addslashes($this->translator('article_list_activate_selected')); ?>'));
+					}
+
+					for (var i in ids) {
+						$('#articleRow_' + ids[i]).fadeOut('slow');
+					}
+
+					$('#messageDialog').html((response == 'active') ? '<?php echo addslashes($this->translator('article_list_activate_selected_success')); ?>' : '<?php echo addslashes($this->translator('article_list_deactivate_selected_success')); ?>')
+						.dialog({
+							title: '<?php echo addslashes($this->translator('common_dialog_message')); ?>',
+							dialogClass: 't_a_ui_dialog',
+							modal: true,
+					    	show: { effect: 'fade' },
+							open: function(event, ui) {
+								setTimeout(function() {
+									$('#' + event.target.id).dialog('option', 'hide', 'fade').dialog('destroy');
+								}, 3000);
+							}
+						});
+				}
+			});
+		}
+	});
+
+	/**
+	 * Activate/Deactivate an article
+	 */
+	$('a.activateAction').click(function() {
+		var self = this;
+		var arr = $(this).attr('rel').split('_');
+		$(self).html('').addClass('t_a_ui_helper_loading');
+		$.ajaxq('news_article', {
+			url: "<?php echo $this->url(array(), 'news_article_activate'); ?>",
+			type: 'POST',
+			data: { id: arr[0], status: arr[1] },
+			success: function(response) {
+				$(self).attr('rel', arr[0] + '_' + response);
+				if (response == 'active') {
+					$('#articleStatus_' + arr[0]).html("<?php echo $this->translator('article_list_status_activated'); ?>");
+					$(self).html('<?php echo addslashes($this->translator('article_list_action_deactivate')); ?>');
+				} else {
+					$('#articleStatus_' + arr[0]).html("<?php echo $this->translator('article_list_status_not_activated'); ?>");
+					$(self).html('<?php echo addslashes($this->translator('article_list_action_activate')); ?>');
+				}
+				$(self).removeClass('t_a_ui_helper_loading');
+
+				$('#messageDialog').html((response == 'active') ? '<?php echo addslashes($this->translator('article_list_activated_success')); ?>' : '<?php echo addslashes($this->translator('article_list_deactivated_success')); ?>')
+					.dialog({
+						title: '<?php echo addslashes($this->translator('common_dialog_message')); ?>',
+						dialogClass: 't_a_ui_dialog',
+						modal: true,
+				    	show: { effect: 'fade' },
+						open: function(event, ui) {
+							setTimeout(function() {
+								$('#' + event.target.id).dialog('option', 'hide', 'fade').dialog('destroy');
+							}, 3000);
+						}
+					});
+			}
+		});
+	});
+	<?php endif; ?>
+
+	/**
+	 * Validate search form
+	 */
+	$('#searchArticleForm').validate({
+		rules: {		
+			articleId: {
+				number: true
+			}
+	    },
+	    messages: {
+	    	articleId: {
+	        	number: "<?php echo $this->translator('article_list_id_invalid'); ?>"
+			}
+		}
+	});
+});
+</script>

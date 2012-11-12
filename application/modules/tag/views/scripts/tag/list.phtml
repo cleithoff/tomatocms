@@ -1,0 +1,155 @@
+<?php
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: list.phtml 4193 2010-08-01 16:33:56Z huuphuoc $
+ * @since		2.0.2
+ */
+?>
+<?php 
+$this->headTitle($this->translator('tag_list_page_title'));
+
+$this->headLink()
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.core.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.resizable.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.dialog.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.theme.css');
+
+$this->headScript()
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.core.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.draggable.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.resizable.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.dialog.js');
+?>
+
+<div class="grid_12 t_a_ui_breadcrumb">
+	<span><a href="<?php echo $this->url(array(), 'tag_tag_list'); ?>"><?php echo $this->translator('tag_list_breadcrumb'); ?></a></span>
+</div>
+
+<div class="grid_12"><?php echo $this->flashMessenger(); ?></div>
+
+<div class="grid_12 t_a_bottom">
+	<div class="grid_6 alpha">
+		<div class="t_a_right">
+		<form method="post" action="<?php echo $this->url(array(), 'tag_tag_list'); ?>">
+			<?php echo $this->translator('tag_list_search_guide'); ?>:
+			<br />
+			<input type="text" name="keyword" value="<?php if ($this->keyword != '') : ?><?php echo $this->escape($this->keyword); ?><?php endif; ?>" style="width: 250px" /> 
+			<button type="submit"><span><?php echo $this->translator('tag_list_search_button'); ?></span></button>
+		</form>
+		</div>
+	</div>
+	
+	<?php if ($this->allow('add')) : ?>
+	<div class="grid_1">
+		<div class="t_a_ui_helper_line_ver">
+			<div><?php echo $this->translator('tag_list_or'); ?></div>
+			<div></div>
+		</div>
+	</div>
+	
+	<div class="grid_5 omega">
+		<form method="post" action="<?php echo $this->url(array(), 'tag_tag_add'); ?>">
+			<?php echo $this->translator('tag_list_add_guide'); ?>:<br />
+			<input type="text" name="keyword" style="width: 250px" />
+			<button type="submit"><span><?php echo $this->translator('tag_list_add_button'); ?></span></button> 
+		</form>
+	</div>	
+	<?php endif; ?>
+</div>
+
+<div class="grid_12 t_a_bottom">
+	<?php if ($this->numTags == 0) : ?>
+	<div class="t_a_bottom">
+		<?php echo $this->translator('tag_list_no_tags'); ?>
+	</div>
+	<?php else : ?>
+	<div class="t_a_bottom">
+		<?php echo sprintf($this->translator('tag_list_found_tags'), $this->numTags); ?>: (<?php if ($this->allow('delete')) : ?><?php echo $this->translator('tag_list_delete_guide'); ?><?php endif; ?>)
+	</div>
+	
+	<div class="t_a_bottom t_a_tags" id="tags">
+		<?php foreach ($this->tags as $tag) : ?>
+		<span id="tag_<?php echo $tag->tag_id; ?>"><a href="javascript: void(0);"><?php echo $tag->tag_text; ?></a></span>
+		<?php endforeach; ?>
+		<div class="clearfix"></div>
+	</div>
+	
+	<div class="t_a_bottom t_a_ui_paginator">
+		<?php echo $this->paginator()->slide($this->paginator, $this->paginatorOptions); ?>
+	</div>
+	<?php endif; ?>
+</div>
+
+<div id="dialog"></div>
+
+<div id="confirmDialog"></div>
+
+<script type="text/javascript">
+<?php if ($this->allow('delete')) : ?>
+$(document).ready(function() {
+	$('#tags').find('a').click(function() {
+		var self = this;
+
+		$('#confirmDialog')
+			.html('<?php echo addslashes($this->translator('tag_list_delete_confirm')); ?>')
+			.dialog({
+				title: '<?php echo addslashes($this->translator('common_dialog_confirm')); ?>',
+				dialogClass: 't_a_ui_dialog',
+				modal: true,
+				closeOnEscape: false,
+				resizable: false,
+				open: function(event, ui) {
+					$('.ui-dialog-titlebar-close').hide();
+					$(this).parent().find('.ui-dialog-buttonpane button').wrapInner('<span/>');
+				},
+				buttons: {
+					'<?php echo addslashes($this->translator('common_dialog_confirm_no')); ?>': function() {
+						$(this).dialog('destroy');
+					},
+					'<?php echo addslashes($this->translator('common_dialog_confirm_yes')); ?>': function() {
+						$(this).dialog('destroy');
+						$(self).html('').addClass('t_a_ui_helper_loading');
+						var id = $(self).parent().attr('id').split('_')[1];
+
+						$.ajaxq('tag_list', {
+							type: 'POST',
+							url: '<?php echo $this->url(array(), 'tag_tag_delete'); ?>',
+							data: { id: id },
+							success: function(response) {
+								if ('RESULT_OK' == response) {
+									$('#tag_' + id).fadeOut('slow');
+								}
+								$('#dialog').html('<?php echo $this->escape($this->translator('tag_delete_success')); ?>')
+									.dialog({
+										title: '<?php echo $this->escape($this->translator('common_dialog_message')); ?>',
+										dialogClass: 't_a_ui_dialog',
+										modal: true,
+								    	show: { effect: 'fade' },
+										open: function(event, ui) {
+											setTimeout(function() {
+												$('#' + event.target.id).dialog('option', 'hide', 'fade').dialog('destroy');
+											}, 3000);
+										}
+									});
+							}
+						});
+					}
+				}
+			});
+	});
+});
+<?php endif; ?>
+</script>

@@ -1,0 +1,306 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: upload.phtml 5222 2010-08-31 01:38:26Z huuphuoc $
+ * @since		2.0.0
+ */
+?>
+<?php 
+$this->headTitle($this->translator('photo_upload_page_title'));
+
+$this->headLink()
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.core.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.theme.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.colorpicker/colorpicker.css');
+
+$this->headScript()
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.core.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.colorpicker/eye.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.colorpicker/colorpicker.js');
+?>
+
+<div class="grid_12 t_a_ui_breadcrumb">
+	<span><a href="<?php echo $this->url(array(), 'multimedia_file_list'); ?>"><?php echo $this->translator('photo_upload_list_breadcrumb'); ?></a></span>
+	<span><?php echo $this->translator('photo_upload_breadcrumb'); ?></span>
+</div>
+
+<div class="grid_12"><?php echo $this->flashMessenger(); ?></div>
+
+<form method="post" action="<?php echo $this->url(array(), 'multimedia_photo_upload'); ?>" id="addPhotoForm">
+<div class="grid_12 t_a_bottom"><?php echo $this->translator('photo_upload_guide'); ?></div>
+
+<div class="grid_12 t_a_bottom">
+	<div class="prefix_1 suffix_1">
+		<div class="clearfix t_a_bottom">
+			<label><?php echo $this->translator('photo_upload_set'); ?>:</label>
+			<select name="set" style="width: 400px">
+				<option value="">---</option>
+				<?php foreach ($this->sets as $set) : ?>
+				<option value="<?php echo $set->set_id; ?>"><?php echo $set->title; ?></option>
+				<?php endforeach; ?>
+			</select>
+		</div>
+		
+		<hr />
+		
+		<div class="clearfix t_a_bottom">
+			<label><?php echo $this->translator('photo_upload_new_set'); ?>:</label>
+			<input type="text" name="newSet" id="newSet" style="width: 400px" />
+		</div>
+		
+		<hr />
+		
+		<?php 
+		/**
+		 * Allows user to create watermark
+		 * @since 2.0.4
+		 */
+		?>
+		<div class="clearfix t_a_bottom">
+			<label>&nbsp;</label>
+			<input type="checkbox" name="watermark" id="watermark" /> <?php echo $this->translator('photo_upload_watermark'); ?>
+		</div>
+		
+		<hr />
+		
+		<!-- Watermask options -->
+		<div id="watermarkContainer" style="display: none">
+			<div class="clearfix t_a_bottom">
+				<label><?php echo $this->translator('photo_upload_watermark_method'); ?>:</label>
+				<select id="watermarkMethod">
+					<option value="text"<?php if (null != $this->text || (null == $this->text && null == $this->image)) : ?> selected="selected"<?php endif; ?>><?php echo $this->translator('photo_upload_watermark_text_method'); ?></option>
+					<option value="image"<?php if (null != $this->image) : ?> selected="selected"<?php endif; ?>><?php echo $this->translator('photo_upload_watermark_image_method'); ?></option>
+				</select>
+			</div>
+			
+			<hr />
+			
+			<div id="textMethod">
+				<div class="clearfix t_a_bottom">
+					<label><?php echo $this->translator('photo_upload_watermark_text'); ?>:</label>
+					<input type="text" name="watermarkText" id="watermarkText" style="width: 300px" value="<?php if (null != $this->text) : ?><?php echo $this->text; ?><?php endif; ?>" />
+				</div>
+				
+				<div class="clearfix t_a_bottom">
+					<label><?php echo $this->translator('photo_upload_watermark_color'); ?>:</label>
+					<input type="text" name="watermarkColor" id="watermarkColor" maxlength="6" size="6" style="width: 100px<?php if (null != $this->color) : ?>; background-color: <?php '#'.$this->color; ?><?php endif; ?>" value="<?php if (null != $this->color) : ?><?php echo $this->color; ?><?php endif; ?>" />
+				</div>
+				
+				<hr />
+			</div>
+			
+			<div id="imageMethod" style="display: none">
+				<div class="clearfix t_a_bottom">
+					<label><?php echo $this->translator('photo_upload_watermark_current_image'); ?>:</label>
+					<input type="text" name="watermarkImageUrl" id="watermarkImageUrl" style="width: 400px" value="<?php if (null != $this->image) : ?><?php echo $this->image; ?><?php endif; ?>" />
+				</div>
+				
+				<div class="clearfix t_a_bottom">
+					<label>&nbsp;</label>
+					<img id="watermarkImage" <?php if (null != $this->image) : ?> src="<?php echo $this->image; ?>" style="max-height: 100px"<?php else: ?> style="display:none; max-height: 100px"<?php endif; ?>" />
+				</div>
+				
+				<div class="clearfix t_a_bottom">
+					<label><?php echo $this->translator('photo_upload_watermark_new_image'); ?>:</label>
+					<div class="grid_7 omega">
+						<?php 
+						echo $this->helperLoader('upload')->uploader('multimedia', 
+							array('extension' => '*.jpg;*.jpeg;*.png;*.gif', 'multi' => true, 'auto' => true, 'simUploadLimit' => 5, 'sizeLimit' => 1024 * 1024 * 5, 'thumbnails' => 'none'), 
+							array('onComplete' => 'onUploadWatermarkComplete'), 
+							'uploadWatermark'); 
+						?>
+					</div>
+				</div>
+				
+				<hr />
+			</div>
+			
+			<!-- Watermask position -->
+			<div class="clearfix t_a_bottom">
+				<label><?php echo $this->translator('photo_upload_watermark_position'); ?>:</label>
+				<select name="watermarkPosition" id="watermarkPosition" style="width: 300px">
+					<option value="top_left"<?php if (null != $this->position && 'top_left' == $this->position) : ?> selected="selected"<?php endif; ?>><?php echo $this->translator('photo_upload_watermark_top_left'); ?></option>
+					<option value="top_right"<?php if (null != $this->position && 'top_right' == $this->position) : ?> selected="selected"<?php endif; ?>><?php echo $this->translator('photo_upload_watermark_top_right'); ?></option>
+					<option value="middle_center"<?php if ((null == $this->position) || (null != $this->position && 'middle_center' == $this->position)) : ?> selected="selected"<?php endif; ?>><?php echo $this->translator('photo_upload_watermark_middle_center'); ?></option>
+					<option value="bottom_left"<?php if (null != $this->position && 'bottom_left' == $this->position) : ?> selected="selected"<?php endif; ?>><?php echo $this->translator('photo_upload_watermark_bottom_left'); ?></option>
+					<option value="bottom_right"<?php if (null != $this->position && 'bottom_right' == $this->position) : ?> selected="selected"<?php endif; ?>><?php echo $this->translator('photo_upload_watermark_bottom_right'); ?></option>
+				</select>
+			</div>
+			
+			<hr />
+			
+			<div class="clearfix t_a_bottom">
+				<label><?php echo $this->translator('photo_upload_watermark_sizes'); ?>:</label>
+				<div class="grid_7 omega" id="sizesContainer">
+					<?php foreach ($this->sizes as $key => $value) : ?>
+					<input type="checkbox" name="sizes[]" id="sizes" value="<?php echo $key; ?>" <?php if (null != $this->sizesApplied && in_array($key, $this->sizesApplied)) : ?>checked="checked"<?php endif; ?> /> <?php echo $key; ?> (<?php echo ($value['width'].' x '.$value['height']); ?>)<br />
+					<?php endforeach; ?>
+				</div>
+			</div>
+		</div>
+	
+		<!-- Photos -->
+		<div class="clearfix t_a_bottom">
+			<?php 
+			echo $this->helperLoader('upload')->uploader('multimedia', 
+				array('extension' => '*.jpg;*.jpeg;*.png;*.gif', 'multi' => true, 'auto' => true, 'simUploadLimit' => 5, 'sizeLimit' => 1024 * 1024 * 5), 
+				array('onProgress' => 'onUploadProgress', 'onComplete' => 'onUploadComplete'),
+				'uploadFiles'); 
+			?>
+			<div style="width: 760px; height: 350px; overflow: auto; border: 1px solid #222">
+				<ul id="photos"></ul>
+			</div>
+		</div>
+		
+		<hr />
+		
+		<div class="clearfix t_a_bottom">
+			<label>&nbsp;</label>
+			<input type="hidden" name="title" id="title" />
+			
+			<input type="hidden" name="square" id="square" />
+			<input type="hidden" name="thumbnail" id="thumbnail" />
+			<input type="hidden" name="small" id="small" />
+			<input type="hidden" name="crop" id="crop" />
+			<input type="hidden" name="medium" id="medium" />
+			<input type="hidden" name="large" id="large" />
+			<input type="hidden" name="original" id="original" />
+			
+			<button type="submit"><span><?php echo $this->translator('photo_upload_save_button'); ?></span></button>
+		</div>
+	</div>
+</div>
+</form>
+
+<script type="text/javascript">
+/**
+ * Upload handlers
+ */
+function onUploadComplete(event, ID, fileObj, response, data) {
+	var images = $.evalJSON(response);
+	var res = response;
+	$('<li style="float: left; padding: 10px"><img src="' + images.square.url + '" width="75px" height="75px" /></li>').appendTo($('#photos'));
+	$('#title').val($('#title').val() + ',' + fileObj.name);
+
+	var thumbnails = ['square', 'thumbnail', 'small', 'crop', 'medium', 'large', 'original'];
+	for (var i in thumbnails) {
+		$('#' + thumbnails[i]).val($('#' + thumbnails[i]).val() + ',' + images[thumbnails[i]].url);
+	}	
+	$('#watermark').removeAttr('disabled');
+	if ($('#watermark').attr('checked')) {
+		$('#watermarkContainer').show();
+	}
+};
+
+function onUploadWatermarkComplete(event, ID, fileObj, response, data) {
+	var res = $.evalJSON(response);
+	$('#watermarkImageUrl').attr('value', res.original.url);
+	$('#watermarkImage').attr('src', res.original.url).show();
+	updateUploadSettings();
+};
+
+function onUploadProgress(event, ID, fileObj, data) {
+	$('#watermark').attr('disabled', 'disabled');
+	$('#watermarkContainer').hide();	
+};
+
+function updateUploadSettings() {
+	var text = image = '';
+
+	switch ($('#watermarkMethod').val()) {
+		case 'text':
+			text = $('#watermarkText').val();
+			break;
+		case 'image':
+			image = $('#watermarkImageUrl').val();
+			break;
+	}	
+	
+	var sizes = '';
+	$('#sizesContainer').find('input').each(function() {
+		if ($(this).attr('checked') == true) {
+			sizes += ',' + $(this).attr('value');
+		}
+	});
+	sizes = sizes.substring(1);
+	
+	$('#uploadFiles').uploadifySettings('scriptData', {'watermark': '1', 'text': text, 'color': $('#watermarkColor').attr('value'), 'image': image, 'position': $('#watermarkPosition').val(), 'sizes': sizes});
+};
+
+$(document).ready(function() {
+	/**
+	 * Color Picker handler
+	 */
+	$('#watermarkColor').ColorPicker({
+		color: '#0000ff',
+		onShow: function(colorPicker) {
+			$(colorPicker).fadeIn(500);
+			return false;
+		},
+		onHide: function(colorPicker) {
+			$(colorPicker).fadeOut(500);
+			return false;
+		},
+		onChange: function(hsb, hex, rgb, el) {
+			$('#watermarkColor').css('backgroundColor', '#' + hex).val(hex);
+		}
+	}).bind('keyup', function() {
+		$(this).ColorPickerSetColor(this.value);
+	});
+
+	/**
+	 * Switch watermask method handler
+	 */
+	$('#watermarkMethod').change(function() {
+		$('#textMethod, #imageMethod').hide();
+		$('#' + $(this).val() + 'Method').show();
+
+		switch ($(this).val()) {
+			case 'text':
+				$('#watermarkText, #watermarkColor').removeAttr('disabled');
+				$('#watermarkImageUrl').attr('disabled', 'disabled');
+				$('#browseFile').hide();
+				break;
+			case 'image':
+				$('#watermarkText, #watermarkColor').attr('disabled', 'disabled');
+				$('#watermarkImageUrl').removeAttr('disabled');
+				$('#browseFile').show();
+				break;
+		}
+	});
+
+	/**
+	 * Watermask checkbox handler
+	 */
+	$('#watermark').click(function() {
+		if (this.checked == false) {
+			$('#watermarkContainer').hide();
+			$('#uploadFiles').uploadifySettings('scriptData', {'watermark': '0', 'text': null, 'color': null, 'image': null, 'position': null, 'sizes': null});		
+		} else {
+			$('#watermarkContainer').show();
+			updateUploadSettings();
+		}
+	});	 	
+
+	/**
+	 * Update upload settings
+	 * whenever user changed watermask options
+	 */
+	$('#watermarkText, #watermarkColor, #image, #watermarkPosition, #sizes').change(function() {
+		updateUploadSettings();
+	});	 
+});
+</script>

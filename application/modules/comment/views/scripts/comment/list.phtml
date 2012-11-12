@@ -1,0 +1,186 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: list.phtml 4184 2010-08-01 16:27:39Z huuphuoc $
+ * @since		2.0.1
+ */
+?>
+<?php 
+$this->headTitle($this->translator('comment_list_page_title'));
+
+$this->headLink()
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.core.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.resizable.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.dialog.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.theme.css');
+
+$this->headScript()
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.core.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.draggable.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.resizable.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.dialog.js');
+?>
+
+<div class="grid_12 t_a_ui_breadcrumb">
+	<span><?php echo $this->translator('comment_list_breadcrumb'); ?></span>
+</div>
+
+<div class="grid_12 t_a_bottom">
+	<div class="grid_9 alpha"><?php echo $this->translator('comment_list_guide'); ?></div>
+</div>
+
+<!-- List of comments -->
+<?php if ($this->numComments == 0) : ?>
+<div class="grid_12 t_a_bottom"><?php echo $this->translator('comment_list_not_found'); ?></div>	
+<?php else : ?>
+	<div class="grid_12 t_a_ui_data_list_header">
+		<div class="grid_9 alpha">
+			<div><?php echo $this->translator('comment_title'); ?></div>
+		</div>
+		
+		<div class="grid_2"><?php echo $this->translator('comment_status'); ?></div>
+		
+		
+		<div class="grid_1 omega"><?php echo $this->translator('comment_id'); ?></div>
+	</div>
+
+	<div class="grid_12">
+		<?php foreach ($this->comments as $comment) : ?>
+		<div id="commentRow_<?php echo $comment->comment_id; ?>" class="clearfix t_a_ui_data_list_content">
+			<div class="grid_9 alpha">
+				<div>
+					<a href="<?php echo $this->url(array('paramsString' => $this->linkBuilder()->getThreadLink($comment->page_url)), 'comment_thread'); ?>"><?php echo $comment->title; ?></a>
+					<br />
+					<?php echo sprintf($this->translator('comment_list_title'), $comment->email, $comment->created_date); ?>
+				</div>
+				
+				<div class="t_a_top t_a_ui_helper_action">
+					<?php if ($this->allow('edit')) : ?>
+					<a href="<?php echo $this->url(array('comment_id' => $comment->comment_id), 'comment_edit'); ?>"><?php echo $this->translator('comment_list_action_edit'); ?></a> |
+					<?php endif; ?>
+					
+					<?php if ($this->allow('delete')) : ?> 
+					<a class="deleteAction" rel="<?php echo $comment->comment_id; ?>" href="javascript: void(0);"><?php echo $this->translator('comment_list_action_delete'); ?></a> |
+					<?php endif; ?>
+					
+					<?php if ($this->allow('activate')) : ?>
+					<a class="activateAction" rel="<?php echo $comment->comment_id; ?>_<?php echo $comment->is_active; ?>" href="javascript: void(0);"><?php if ($comment->is_active == 1) : ?><?php echo $this->translator('comment_list_action_deactivate'); ?><?php else : ?><?php echo $this->translator('comment_list_action_activate'); ?><?php endif; ?></a> |
+					<?php endif; ?>
+					
+					<a href="<?php echo $this->url(array('paramsString' => $this->linkBuilder()->getThreadLink($comment->page_url)), 'comment_thread'); ?>"><?php echo $this->translator('comment_list_action_more'); ?></a>
+				</div>
+			</div>
+			
+			<div class="grid_2" id="commentStatus_<?php echo $comment->comment_id; ?>">
+				<?php if ($comment->is_active == 1) : ?>
+					<?php echo $this->translator('comment_list_status_activated'); ?>
+				<?php elseif ($comment->is_active == 0 || null == $comment->is_active) : ?>
+					<?php echo $this->translator('comment_list_status_not_activated'); ?>
+				<?php endif; ?>
+			</div>
+			
+			<div class="grid_1 omega"><?php echo $comment->comment_id; ?></div>
+		</div>
+		<?php endforeach; ?>
+	</div>
+	
+	<div class="grid_12 t_a_bottom t_a_ui_paginator">
+		<?php echo $this->paginator()->slide($this->paginator, $this->paginatorOptions); ?>
+	</div>
+<?php endif; ?>
+
+<div id="messageDialog"></div>
+
+<div id="confirmDialog"></div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+	<?php if ($this->allow('delete')) : ?>
+	$('a.deleteAction').click(function() {
+		var self = this;
+		$('#confirmDialog').html('<?php echo addslashes($this->translator('comment_list_action_delete_confirm')); ?>')
+			.dialog({
+				title: '<?php echo addslashes($this->translator('common_dialog_confirm')); ?>',
+				dialogClass: 't_a_ui_dialog',
+				modal: true,
+				closeOnEscape: false,
+				resizable: false,
+				open: function(event, ui) {
+					$('.ui-dialog-titlebar-close').hide();
+					$(this).parent().find('.ui-dialog-buttonpane button').wrapInner('<span/>');
+				},
+				buttons: {
+					'<?php echo addslashes($this->translator('common_dialog_confirm_no')); ?>': function() {
+						$(this).dialog('destroy');
+					},
+					'<?php echo addslashes($this->translator('common_dialog_confirm_yes')); ?>': function() {
+						$(this).dialog('destroy');
+						$(self).html('').addClass('t_a_ui_helper_loading');
+						var id = $(self).attr('rel');
+						$.ajaxq('comment', {
+							type: 'POST',
+							url: "<?php echo $this->url(array(), 'comment_delete'); ?>",
+							data: { id: id },
+							success: function(response) {
+								if ('RESULT_OK' == response) {
+									$('#commentRow_' + id).fadeOut('slow');
+								}
+							}
+						});
+					}
+				}
+			});
+	});
+	<?php endif; ?>
+	
+	<?php if ($this->allow('activate')) : ?>
+	$('a.activateAction').click(function() {
+		var self = this;
+		var arr = $(this).attr('rel').split('_');
+		$(self).html('').addClass('t_a_ui_helper_loading');
+		$.ajaxq('comment', {
+			url: "<?php echo $this->url(array(), 'comment_activate'); ?>",
+			type: 'POST',
+			data: { id: arr[0] },
+			success: function(response) {
+				$(self).attr('rel', arr[0] + '_' + response);
+				if (response == 1) {
+					$('#commentStatus_' + arr[0]).html("<?php echo $this->translator('comment_list_status_activated'); ?>");
+					$(self).html("<?php echo $this->translator('comment_list_action_deactivate'); ?>");
+				} else {
+					$('#commentStatus_' + arr[0]).html("<?php echo $this->translator('comment_list_status_not_activated'); ?>");
+					$(self).html("<?php echo $this->translator('comment_list_action_activate'); ?>");
+				}
+				$(self).removeClass('t_a_ui_helper_loading');
+
+				$('#messageDialog').html((response == 'active') ? '<?php echo addslashes($this->translator('comment_list_activated_success')); ?>' : '<?php echo addslashes($this->translator('comment_list_deactivated_success')); ?>')
+					.dialog({
+						title: '<?php echo addslashes($this->translator('common_dialog_message')); ?>',
+						dialogClass: 't_a_ui_dialog',
+						modal: true,
+				    	show: { effect: 'fade' },
+						open: function(event, ui) {
+							setTimeout(function() {
+								$('#' + event.target.id).dialog('option', 'hide', 'fade').dialog('destroy');
+							}, 3000);
+						}
+					});
+			}
+		});
+	});
+	<?php endif; ?>
+});
+</script>

@@ -1,0 +1,60 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: show.phtml 3971 2010-07-25 10:26:42Z huuphuoc $
+ * @since		2.0.0
+ */
+?>
+<?php if ($this->skins != null) : ?>
+<div class="t_core_skinselector">
+	<ul>
+	<?php foreach ($this->skins as $skin) : ?>
+		<li id="skin_<?php echo $skin->name; ?>" title="<?php echo $this->escape($skin->description); ?>" style="background: <?php echo $skin->color; ?>"></li>
+	<?php endforeach; ?>
+	</ul>
+	
+	<div class="clearfix"></div>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+	var currSkin = "<?php echo $this->currSkin; ?>";
+	$('.t_core_skinselector').find('li').each(function() {
+		var self = this;
+		$(this).click(function() {
+			/**
+			 * 5 is length of skin_
+			 */
+			var skin = $(self).attr('id').substring(5);
+			var exdate = new Date();
+			exdate.setDate(exdate.getDate() + 60); // Cookie will be expired in 60 days
+			document.cookie="APP_SKIN=" + escape(skin) + ";expires=" + exdate.toGMTString();
+
+			/**
+			 * Avoid screen flicker
+			 */
+			$('.t_g_widget_container').css({visibility: 'hidden'});
+			$('head').find('link[href="<?php echo $this->APP_STATIC_SERVER; ?>/skins/<?php echo $this->APP_TEMPLATE; ?>/' + currSkin + '/default.css"]').remove();
+			
+			$('<link rel="stylesheet" type="text/css" href="<?php echo $this->APP_STATIC_SERVER; ?>/skins/<?php echo $this->APP_TEMPLATE; ?>/' + skin + '/default.css" />').appendTo('head');
+			$('.t_g_widget_container').css({visibility: 'visible'});
+			
+			currSkin = skin;
+		});
+	});
+});
+</script>
+<?php endif; ?>

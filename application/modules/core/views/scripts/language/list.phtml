@@ -1,0 +1,227 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: list.phtml 4185 2010-08-01 16:31:02Z huuphuoc $
+ * @since		2.0.0
+ */
+?>
+<?php
+$this->headTitle($this->translator('language_list_page_title'));
+$this->headScript()->appendFile($this->APP_STATIC_SERVER . '/js/jquery.validate/jquery.validate.min.js');
+?>
+
+<div class="grid_12 t_a_ui_breadcrumb">
+	<span><?php echo $this->translator('language_list_breadcrumb'); ?></span>	
+</div>
+
+<div class="grid_12 t_a_bottom"><?php echo $this->translator('language_list_guide'); ?></div>
+
+<div class="grid_12">
+	<!-- Left column -->
+	<div class="grid_3 alpha">
+		<!-- Modules -->
+		<div class="t_a_bottom">
+			<ul class="t_a_ui_list" id="moduleFilter">
+				<?php foreach ($this->modules as $index => $module) : ?>
+				<li<?php if (0 == $index) : ?> class="t_a_ui_active"<?php endif; ?>><a href="javascript: void(0);"><?php echo $module; ?></a></li>
+				<?php endforeach; ?>
+			</ul>
+		</div>
+		
+		<!-- Upload new package -->
+		<?php if ($this->allow('upload')) : ?>
+		<div class="t_a_bottom">
+			<div class="t_a_ui_helper_line">
+				<h3><?php echo $this->translator('language_list_upload_head'); ?></h3>
+			</div>
+			
+			<form method="post" action="<?php echo $this->url(array(), 'core_language_upload'); ?>" enctype="multipart/form-data">
+			<div class="t_a_bottom">
+				<?php echo $this->translator('language_list_upload_desc'); ?><br />
+				<input type="file" name="file" style="width: 180px" />
+			</div>
+			<button type="submit"><span><?php echo $this->translator('language_list_upload_button'); ?></span></button>
+			</form>
+		</div>
+		<?php endif; ?>
+	</div>
+	
+	<!-- Right column -->
+	<div class="grid_9 omega">
+		<!-- List of widgets group by module -->
+		<?php foreach ($this->modules as $moduleIndex => $module) : ?>
+		<div id="<?php echo $module; ?>Module" class="widgetsModule t_a_bottom" style="display: none">
+		<?php if ($langs = $this->langLoader($module)) : ?>
+			<div class="t_a_bottom">
+			<?php if ($langs['module']) : ?>
+				<?php echo $this->translator('language_list_available'); ?>:
+				
+				<?php foreach ($langs['module'] as $index => $lang) : ?>
+					<?php if ($index > 0) : ?>, <?php endif; ?>
+				
+					<?php if ($this->allow('edit')) : ?>
+						<a href="<?php echo $this->url(array('module_name' => $module, 'language' => $lang), 'core_language_edit_module'); ?>"><?php echo $lang; ?></a>
+					<?php else : ?>
+						<?php echo $lang; ?>
+					<?php endif; ?>
+				<?php endforeach; ?>
+			<?php else : ?>
+				<?php echo $this->translator('language_list_have_not_any_language'); ?>
+			<?php endif; ?>
+			</div>
+			
+			<?php if (count($langs['widget']) > 0) : ?>
+			<div class="t_a_ui_data_list_header">
+				<div class="grid_5 alpha">
+					<div><?php echo $this->translator('language_list_widgets'); ?></div>
+				</div>
+				
+				<div class="grid_4 omega"><?php echo $this->translator('language_list_available'); ?></div>
+			</div>	 
+			
+			<!-- List widget languages -->
+			<?php foreach ($langs['widget'] as $widget => $langs) : ?>
+				<div class="clearfix t_a_ui_data_list_content">
+					<div class="grid_5 alpha">
+						<div><?php echo $widget; ?></div>
+					</div>
+					
+					<div class="grid_4 omega">
+					<?php if (count($langs) == 0) : ?>
+						<?php echo $this->translator('language_list_widget_have_not_any_language'); ?>
+					<?php else : ?>
+						<?php foreach ($langs as $index => $lang) : ?>
+							<?php if ($index > 0) : ?>, <?php endif; ?>
+							
+							<?php if ($this->allow('edit')) : ?>
+							<a href="<?php echo $this->url(array('module_name' => $module, 'widget' => $widget, 'language' => $lang), 'core_language_edit_widget'); ?>"><?php echo $lang; ?></a>
+							<?php endif; ?>
+						<?php endforeach; ?>
+					<?php endif; ?>
+					</div>
+				</div>
+			<?php endforeach; ?>
+			
+			<?php endif; ?>
+		<?php endif; ?>
+		</div>	
+		<?php endforeach; ?>
+		
+		<!-- Add new language -->
+		<?php if ($this->allow('new')) : ?>
+		<div class="t_a_bottom">
+			<h3><?php echo $this->translator('language_list_create_new'); ?></h3>
+			<hr />
+		
+			<form method="post" id="addLanguageForm" action="<?php echo $this->url(array(), 'core_language_new'); ?>">
+				<div class="prefix_1 suffix_1">
+					<div class="clearfix t_a_bottom">
+						<label><?php echo $this->translator('language_list_select_module'); ?>:</label>
+						<select name="module_name" id="moduleSelect" style="width: 200px">
+							<option value="">---</option>
+							<?php foreach ($this->modules as $module) : ?>
+							<option value="<?php echo $module; ?>"><?php echo $module; ?></option>
+							<?php endforeach; ?>
+						</select>
+					</div>
+					
+					<hr />
+					
+					<div class="clearfix t_a_bottom">
+						<label><?php echo $this->translator('language_list_select_widget'); ?>:</label>
+						<select name="widget" id="widgetSelect" style="width: 200px">
+							<option value="">---</option>
+						</select>
+					</div>
+					
+					<hr />
+					
+					<div class="clearfix t_a_bottom">
+						<label><?php echo $this->translator('language_list_new_language_code'); ?>:</label>
+						<input type="text" style="width: 100px" name="language" id="language" />
+					</div>
+					
+					<hr />
+					
+					<div class="clearfix t_a_bottom">
+						<label>&nbsp;</label>
+						<button type="submit"><span><?php echo $this->translator('language_list_new_language_button'); ?></span></button>
+					</div>
+				</div>
+			</form>	
+		</div>
+		<?php endif; ?>
+	</div>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+	/**
+	 * Data list hover handler
+	 */
+	$('.t_a_ui_data_list_content').hover(function() {
+		$(this).find('.t_a_ui_helper_action').show();
+	}, function() {
+		$(this).find('.t_a_ui_helper_action').hide();
+	});
+
+	/**
+	 * Show all the widgets belonging to first module
+	 */
+	$('.widgetsModule:first').show();
+
+	/**
+	 * Filter widget by module
+	 */
+	$('#moduleFilter').find('a').click(function() {
+		$('.widgetsModule').hide();
+		$('#' + $(this).html() + 'Module').show();	
+
+		$('#moduleFilter').find('li').removeClass('t_a_ui_active');
+		$(this).parent().addClass('t_a_ui_active');
+	});	
+
+	/**
+	 * Show all available widgets based on selected module
+	 */
+	var gWidgets = $.evalJSON('<?php echo $this->widgets; ?>');
+	$('#moduleSelect').bind('change', function() {
+		$('#widgetSelect').html('').append($('<option/>').val('').html('---'));
+		var module = $(this).val();
+		for (var i in gWidgets[module]) {
+			$('#widgetSelect').append($('<option/>').val(gWidgets[module][i]).html(gWidgets[module][i]));
+		}
+	});
+
+	/**
+	 * Validate form
+	 */
+	$('#addLanguageForm').validate({
+		rules: {
+			module_name: {required: true},
+			language: {required: true}
+	    },
+	    messages: {
+	    	module_name: {
+	        	required: "<?php echo $this->translator('language_list_module_required'); ?>"
+			},
+			language: {
+	        	required: "<?php echo $this->translator('language_list_language_required'); ?>"
+			}
+		}
+	});
+});
+</script>

@@ -1,0 +1,264 @@
+<?php 
+/**
+ * TomatoCMS
+ * 
+ * LICENSE
+ *
+ * This source file is subject to the GNU GENERAL PUBLIC LICENSE Version 2 
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@tomatocms.com so we can send you a copy immediately.
+ * 
+ * @copyright	Copyright (c) 2009-2010 TIG Corporation (http://www.tig.vn)
+ * @license		http://www.gnu.org/licenses/gpl-2.0.txt GNU GENERAL PUBLIC LICENSE Version 2
+ * @version 	$Id: list.phtml 5370 2010-09-09 16:20:43Z huuphuoc $
+ * @since		2.0.0
+ */
+?>
+<?php 
+$this->headTitle($this->translator('widget_list_page_title'));
+
+$this->headLink()
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.core.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.resizable.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.dialog.css')
+	->appendStylesheet($this->APP_STATIC_SERVER . '/js/jquery.ui/themes/base/ui.theme.css');
+
+$this->headScript()
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.core.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.draggable.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.resizable.js')
+	->appendFile($this->APP_STATIC_SERVER . '/js/jquery.ui/ui.dialog.js');
+?>
+
+<div class="grid_12 t_a_ui_breadcrumb">
+	<span><?php echo $this->translator('widget_list_breadcrumb'); ?></span>
+</div>
+
+<div class="grid_12">
+	<!-- Left column -->
+	<div class="grid_3 alpha">
+		<!-- Modules -->
+		<div class="t_a_bottom">
+			<div class="t_a_bottom"><?php echo $this->translator('widget_list_filter_module'); ?></div>
+			
+			<ul class="t_a_ui_list" id="moduleFilter">
+				<?php foreach ($this->modules as $index => $module) : ?>
+				<li<?php if (0 == $index) : ?> class="t_a_ui_active"<?php endif; ?>><a href="javascript: void(0);"><?php echo $module; ?></a></li>
+				<?php endforeach; ?>
+			</ul>
+		</div>
+		
+		<!-- Upload new widget -->
+		<?php if ($this->allow('upload')) : ?>
+		<div class="t_a_bottom">
+			<div class="t_a_ui_helper_line">
+				<h3><?php echo $this->translator('widget_list_upload_head'); ?></h3>
+			</div>
+			
+			<?php if (extension_loaded('zip')) : ?>
+			<div class="t_a_ui_helper_box">
+				<form method="post" action="<?php echo $this->url(array(), 'core_widget_upload'); ?>" enctype="multipart/form-data">
+				<div class="t_a_bottom">
+					<?php echo $this->translator('widget_list_upload_desc'); ?><br />
+					<input type="file" name="file" style="width: 180px" />
+				</div>
+				<button type="submit"><span><?php echo $this->translator('widget_list_upload_button'); ?></span></button>
+				</form>
+			</div>
+			<?php else : ?>
+			<div class="t_a_ui_helper_message">
+				<?php echo $this->translator('widget_list_zip_extension_not_available'); ?>
+			</div>
+			<?php endif; ?>	
+		</div>
+		<?php endif; ?>
+	</div>
+
+	<!-- Right column -->
+	<div class="grid_9 omega">
+		<div class="t_a_bottom">
+			<div class="grid_5 alpha"><?php echo $this->translator('widget_list_top_desc'); ?></div>
+			
+			<!-- Filter buttons -->
+			<div class="grid_4 omega">
+				<div class="t_a_right">
+					<ul class="t_a_ui_filter" id="statusFilter">
+						<li class="t_a_ui_active"><a href="javascript: void(0);" title="all"><?php echo $this->translator('widget_list_filter_all'); ?></a></li>
+						<li><a href="javascript: void(0);" title="installed"><?php echo $this->translator('widget_list_filter_installed'); ?></a></li>
+						<li><a href="javascript: void(0);" title="notinstalled"><?php echo $this->translator('widget_list_filter_not_installed'); ?></a></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+		
+		<div class="clear"></div>
+		
+		<!-- List of widgets group by module -->
+		<?php if ($this->widgets) : ?>
+		<?php foreach ($this->widgets as $module => $widgets) : ?>
+		<div id="<?php echo $module; ?>Module" class="widgetsModule t_a_top" style="display: none">
+			<?php foreach ($widgets as $index => $widget) : ?>
+			<div class="grid_3 t_a_bottom widget <?php if (isset($this->dbWidgets[strtolower($widget->module . ':' . $widget->name)])) : ?> installed<?php else : ?> notinstalled<?php endif; ?> <?php if ($index % 3 == 0) : ?> alpha<?php elseif ($index % 3 == 2) : ?> omega<?php endif; ?>" style="height: 350px">
+				<div class="t_a_ui_helper_head t_a_bottom">
+					<h3><?php echo $widget->name; ?></h3>
+				</div>
+				
+				<!-- Author -->
+				<div class="t_a_bottom">
+					<?php echo $this->translator('widget_list_version'); ?>: <?php echo $widget->version; ?><br />
+					<?php echo $this->translator('widget_list_author'); ?>: <a href="mailto: <?php echo $widget->email; ?>"><?php echo $widget->author; ?></a>
+				</div>
+				
+				<!-- Thumbnail -->
+				<div class="t_a_bottom">
+					<img class="t_a_image" src="<?php echo $this->APP_STATIC_SERVER; ?>/skins/admin/<?php echo $this->APP_SKIN; ?>/images/a_image_none.jpg" />
+				</div>
+				
+				<!-- Description -->
+				<div class="t_a_bottom"><?php echo $widget->description; ?></div>
+				
+				<!-- Actions -->
+				<div class="t_a_bottom">
+					<?php if (isset($this->dbWidgets[strtolower($widget->module . ':' . $widget->name)])) : ?>
+					<button class="installAction" value="<?php echo $this->dbWidgets[strtolower($widget->module . ':' . $widget->name)]; ?>"><span><?php echo $this->translator('widget_list_uninstall'); ?></span></button>
+					<?php else : ?>
+					<button class="installAction" value="<?php echo strtolower($widget->module . ':' . $widget->name); ?>"><span><?php echo $this->translator('widget_list_install'); ?></span></button>
+					<?php endif; ?>
+				</div>
+			</div>
+			<?php endforeach; ?>
+		</div>
+		
+		<div class="clearfix"></div>
+		<?php endforeach; ?>
+		<?php endif; ?>
+	</div>
+</div>
+
+<div id="messageDialog"></div>
+
+<script type="text/javascript">
+/**
+ * Filter widgets
+ *
+ * @param string module Module name
+ * @param string status Install status. Can be: all, installed, notinstalled
+ */
+function filterWidgets(module, status) {
+	/**
+	 * Hide all widgets
+	 */
+	$('.widget').hide();
+
+	switch (status) {
+		case 'all':
+			$('#' + module + 'Module').find('.widget').fadeIn('slow').show();
+			break;
+		case 'installed':
+			$('#' + module + 'Module').find('.installed').fadeIn('slow').show();
+			break;
+		case 'notinstalled':
+			$('#' + module + 'Module').find('.notinstalled').fadeIn('slow').show();
+			break;	
+	}
+};
+
+$(document).ready(function() {
+	/**
+	 * Show all the widgets belonging to first module
+	 */
+	$('.widgetsModule:first').show();
+	
+	/**
+	 * Filter widget by module
+	 */
+	$('#moduleFilter').find('a').click(function() {
+		$('.widgetsModule').hide();
+		$('#' + $(this).html() + 'Module').show();	
+
+		$('#moduleFilter').find('li').removeClass('t_a_ui_active');
+		$(this).parent().addClass('t_a_ui_active');
+
+		filterWidgets($(this).html(), $('#statusFilter').find('li.t_a_ui_active a:first').attr('title'));
+	});
+
+	/**
+	 * Filter widget by install status
+	 */
+	$('#statusFilter').find('a').click(function() {
+		$(this).parents('.t_a_ui_filter').find('li').removeClass('t_a_ui_active');
+		$(this).parent().addClass('t_a_ui_active');
+
+		filterWidgets($('#moduleFilter').find('li.t_a_ui_active a:first').html(), $(this).attr('title'));
+	});
+	
+	/**
+	 * Install/Uninstall handler
+	 */
+	$('button.installAction').click(function() {
+		var self = this;
+		var arr  = $(self).attr('value').split(':');
+		$(self).html('').addClass('t_a_ui_helper_loading');
+		switch (arr.length) {
+			case 2:
+				<?php if ($this->allow('install')) : ?>
+				$.ajaxq('widget_list', {
+					url: '<?php echo $this->url(array(), 'core_widget_install'); ?>',
+					type: 'POST',
+					data: { mod: arr[0], name: arr[1] },
+					success: function(response) {
+						$(self).attr('value', response)
+							.removeClass('t_a_ui_helper_loading')
+							.append($('<span/>').html("<?php echo $this->translator('widget_list_uninstall'); ?>"));
+						$(self).parents('.widget').addClass('installed').removeClass('notinstalled');
+						$('#messageDialog').html(sprintf('<?php echo addslashes($this->translator('widget_list_install_success')); ?>', arr[1], arr[0]))
+							.dialog({
+								title: '<?php echo addslashes($this->translator('common_dialog_message')); ?>',
+								dialogClass: 't_a_ui_dialog',
+								modal: true,
+						    	show: { effect: 'fade' },
+								open: function(event, ui) {
+									setTimeout(function() {
+										$('#' + event.target.id).dialog('option', 'hide', 'fade').dialog('destroy');
+									}, 3000);
+								}
+							});
+					}
+				});	
+				<?php endif; ?>			
+				break;
+			case 3:
+				<?php if ($this->allow('uninstall')) : ?>
+				$.ajaxq('widget_list', {
+					url: '<?php echo $this->url(array(), 'core_widget_uninstall'); ?>',
+					type: 'POST',
+					data: { mod: arr[0], name: arr[1], id: arr[2] },
+					success: function(response) {
+						$(self).attr('value', response)
+							.removeClass('t_a_ui_helper_loading')
+							.append($('<span/>').html("<?php echo $this->translator('widget_list_install'); ?>"));
+						$(self).parents('.widget').addClass('notinstalled').removeClass('installed');
+						$('#messageDialog').html(sprintf('<?php echo addslashes($this->translator('widget_list_uninstall_success')); ?>', arr[1], arr[0]))
+							.dialog({
+								title: '<?php echo addslashes($this->translator('common_dialog_message')); ?>',
+								dialogClass: 't_a_ui_dialog',
+								modal: true,
+						    	show: { effect: 'fade' },
+								open: function(event, ui) {
+									setTimeout(function() {
+										$('#' + event.target.id).dialog('option', 'hide', 'fade').dialog('destroy');
+									}, 3000);
+								}
+							});
+					}
+				});
+				<?php endif; ?>
+				break;
+		}
+	});
+});
+</script>
