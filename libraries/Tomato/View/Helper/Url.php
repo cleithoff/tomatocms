@@ -20,9 +20,9 @@
 
 class Tomato_View_Helper_Url extends Zend_View_Helper_Url
 {
-	public function url(array $urlOptions = array(), $name = null)
+	public function url(array $urlOptions = array(), $name = null, $reset = false, $encode = true)
 	{
-		$url = parent::url($urlOptions, $name);
+		$url = parent::url($urlOptions, $name, $reset, $encode);
 		
 		$router = Zend_Controller_Front::getInstance()->getRouter();
 		if ($router instanceof Zend_Controller_Router_Rewrite) {
